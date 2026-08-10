@@ -1,0 +1,15 @@
+<header class="header">
+  <button class="btn-menu" (click)="menuAbierto = !menuAbierto">☰</button>
+
+  <a href="#inicio" class="logo" (click)="irA($event, 'inicio')">
+    <img src="img/logo.png" alt="Sabrositas - Empanadas Fritas" />
+  </a>
+
+  <nav class="nav" [class.abierto]="menuAbierto">
+    <a href="#inicio" class="activo" (click)="irA($event, 'inicio')">INICIO</a>
+    <a href="#empanadas" (click)="irA($event, 'empanadas')">EMPANADAS</a>
+    <a href="#jugos" (click)="irA($event, 'jugos')">JUGOS</a>
+    <a href="#nosotros" (click)="irA($event, 'nosotros')">NOSOTROS</a>
+    <a href="#contacto" (click)="irA($event, 'contacto')">CONTACTO</a>
+  </nav>
+</header>

@@ -1,0 +1,11 @@
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 30px 40px 10px;
+  align-items: stretch;
+}
+
+@media (max-width: 800px) {
+  .menu-grid { grid-template-columns: 1fr; padding: 20px; }
+}

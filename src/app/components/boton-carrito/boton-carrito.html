@@ -1,0 +1,57 @@
+<button class="btn-flotante" (click)="alternarPanel()" aria-label="Abrir mi pedido">
+  🛒
+  <span class="badge">{{ carrito.totalProductos() }}</span>
+</button>
+
+@if (panelAbierto) {
+  <div class="panel-carrito">
+    <h3>TU PEDIDO</h3>
+
+    @if (carrito.itemsSignal().length === 0) {
+      <p class="vacio">Aún no has agregado productos. ¡Agrega unas empanaditas! 🥟</p>
+    } @else {
+      <ul class="items">
+        @for (item of carrito.itemsSignal(); track item.producto.id) {
+          <li>
+            <span>{{ item.cantidad }} x {{ item.producto.nombre }}</span>
+            <span>{{ formatearPrecio(item.cantidad * item.producto.precio) }}</span>
+          </li>
+        }
+      </ul>
+
+      <p class="nota-domicilio">
+        🛵 El domicilio tiene un valor de {{ formatearPrecio(DOMICILIO) }}
+        que se suma al total del pedido.
+      </p>
+
+      <div class="totales">
+        <div class="linea">
+          <span>Subtotal</span>
+          <span>{{ formatearPrecio(carrito.totalPedido()) }}</span>
+        </div>
+        <div class="linea">
+          <span>Domicilio</span>
+          <span>{{ formatearPrecio(DOMICILIO) }}</span>
+        </div>
+        <div class="linea total">
+          <span>TOTAL</span>
+          <span>{{ formatearPrecio(carrito.totalPedido() + DOMICILIO) }}</span>
+        </div>
+      </div>
+
+      <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
+      <form (ngSubmit)="enviarPedido()" class="formulario">
+        <input [(ngModel)]="nombre" name="nombre" placeholder="Nombres" required />
+        <input [(ngModel)]="apellido" name="apellido" placeholder="Apellidos" required />
+        <input [(ngModel)]="telefono" name="telefono" placeholder="Número de teléfono" type="tel" required />
+        <input [(ngModel)]="direccion" name="direccion" placeholder="Dirección de entrega" required />
+
+        @if (!formularioValido) {
+          <p class="error">Por favor completa todos los datos para enviar el pedido.</p>
+        }
+
+        <button type="submit" class="btn-confirmar">ENVIAR PEDIDO 📲</button>
+      </form>
+    }
+  </div>
+}

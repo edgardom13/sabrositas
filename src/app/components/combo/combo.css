@@ -1,0 +1,54 @@
+.combo {
+  background: linear-gradient(200deg, #c1121f, #7f0d12);
+  border-radius: 16px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 380px;
+}
+
+.combo h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  letter-spacing: 2px;
+}
+
+.combo h2 span { color: var(--amarillo); }
+
+.combo ul {
+  list-style: none;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.precio-combo {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--amarillo);
+  font-size: 42px;
+}
+
+.btn-combo {
+  align-self: flex-start;
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: #5c1010;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.combo img {
+  position: absolute;
+  right: -20px;
+  bottom: -10px;
+  width: 230px;
+  border-radius: 12px;
+  opacity: 0.95;
+}

@@ -1,0 +1,8 @@
+<section class="seccion" [id]="idSeccion()">
+  <h2 class="titulo" [class.amarillo]="tema() === 'amarillo'">{{ titulo() }}</h2>
+  <div class="grid">
+    @for (producto of productos(); track producto.id) {
+      <app-tarjeta-producto [producto]="producto" />
+    }
+  </div>
+</section>

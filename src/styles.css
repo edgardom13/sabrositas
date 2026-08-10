@@ -1,1 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik:wght@400;500;700&display=swap');
+
+:root {
+  --rojo: #d21f2b;
+  --rojo-oscuro: #a4161a;
+  --amarillo: #ffc107;
+  --negro: #0d0603;
+  --tarjeta: #241209;
+  --blanco: #fff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--negro);
+  color: var(--blanco);
+  font-family: 'Rubik', sans-serif;
+}
+
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }

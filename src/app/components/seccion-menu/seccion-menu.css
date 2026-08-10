@@ -1,0 +1,36 @@
+.seccion {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 16px;
+  padding: 56px 20px 24px;
+  position: relative;
+}
+
+.titulo {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1.5deg) skewX(-8deg);
+  background: linear-gradient(180deg, #e5383b, #a4161a);
+  padding: 8px 30px;
+  border-radius: 10px 22px 12px 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.titulo.amarillo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #7a1010;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr; }
+}
