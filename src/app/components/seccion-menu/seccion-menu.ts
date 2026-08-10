@@ -11,6 +11,6 @@ import { Producto } from '../../models/producto';
 export class SeccionMenu {
   idSeccion = input.required<string>();
   titulo = input.required<string>();
-  tema = input<'rojo' | 'amarillo'>('rojo');
+  tema = input<'rojo' | 'amarillo' | 'verde'>('rojo');
   productos = input.required<Producto[]>();
 }

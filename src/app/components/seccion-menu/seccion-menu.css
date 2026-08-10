@@ -12,6 +12,7 @@
   left: 50%;
   transform: translateX(-50%) rotate(-1.5deg) skewX(-8deg);
   background: linear-gradient(180deg, #e5383b, #a4161a);
+  color: #fff;
   padding: 8px 30px;
   border-radius: 10px 22px 12px 20px;
   font-family: 'Bebas Neue', sans-serif;
@@ -25,12 +26,18 @@
   color: #7a1010;
 }
 
+.titulo.verde {
+  background: linear-gradient(180deg, #6ee7b7, #10b981);
+  color: #064e3b;
+  border: 2px solid #059669;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 700px) {
   .grid { grid-template-columns: 1fr; }
 }

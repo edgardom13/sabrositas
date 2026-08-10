@@ -130,3 +130,19 @@
 }
 
 .btn-confirmar:hover { filter: brightness(1.08); }
+
+.linea.descuento { color: #7ed957; }
+
+.hint-cupon {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--amarillo);
+  opacity: 0.9;
+}
+
+.cupon-aplicado {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #7ed957;
+  font-weight: 700;
+}

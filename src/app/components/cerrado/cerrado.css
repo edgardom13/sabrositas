@@ -1,0 +1,38 @@
+.cerrado {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: 30px 20px;
+  background: radial-gradient(circle at 50% 30%, #2b1608, #0d0603 75%);
+  animation: entrada 0.8s ease;
+}
+
+.cerrado h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  letter-spacing: 2px;
+  color: var(--amarillo);
+  animation: latidoSuave 2s ease-in-out infinite;
+}
+
+.sub { max-width: 420px; opacity: 0.85; }
+
+.imagen-horario {
+  max-width: min(420px, 90vw);
+  border-radius: 18px;
+  border: 2px solid var(--amarillo);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6);
+  animation: flotar 3s ease-in-out infinite;
+}
+
+.nota { font-size: 17px; }
+.nota strong { color: var(--amarillo); }
+.vuelve { color: var(--amarillo); font-weight: 700; }
+
+@keyframes entrada { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; } }
+@keyframes latidoSuave { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }

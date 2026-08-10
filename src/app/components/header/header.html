@@ -9,7 +9,11 @@
     <a href="#inicio" class="activo" (click)="irA($event, 'inicio')">INICIO</a>
     <a href="#empanadas" (click)="irA($event, 'empanadas')">EMPANADAS</a>
     <a href="#jugos" (click)="irA($event, 'jugos')">JUGOS</a>
+    <a href="#frios" (click)="irA($event, 'frios')">FRÍOS</a>
     <a href="#nosotros" (click)="irA($event, 'nosotros')">NOSOTROS</a>
     <a href="#contacto" (click)="irA($event, 'contacto')">CONTACTO</a>
   </nav>
+  <button class="btn-tema" (click)="tema.alternar()" aria-label="Cambiar tema">
+  {{ tema.oscuro() ? '☀️' : '🌙' }}
+</button>
 </header>

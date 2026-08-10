@@ -21,3 +21,116 @@ body {
 
 img { max-width: 100%; display: block; }
 a { text-decoration: none; color: inherit; }
+
+/* ===== ANIMACIÓN AL HACER SCROLL ===== */
+.pre-animacion {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.pre-animacion.animado {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== MODO CLARO ===== */
+body.claro {
+  --negro: #fff7ea;
+  --tarjeta: #fffdf8;
+  --blanco: #3a2410;
+  background: var(--negro);
+  color: var(--blanco);
+}
+
+/* --- Header --- */
+body.claro header.header {
+  background: rgba(255, 247, 234, 0.97);
+  border-bottom-color: rgba(180, 90, 20, 0.25);
+}
+body.claro header.header .nav a { color: #3a2410; }
+body.claro header.header .nav a:hover,
+body.claro header.header .nav a.activo {
+  color: #c2410c;
+  border-bottom-color: #c2410c;
+}
+body.claro header.header .nav { background: #fff7ea; }
+body.claro header.header .btn-menu { color: #c2410c; }
+body.claro header.header .btn-tema { border-color: #b45309; }
+
+/* --- Hero --- */
+body.claro main .hero {
+  background: radial-gradient(circle at 70% 40%, rgba(255, 193, 7, 0.18), transparent 60%);
+}
+body.claro main .hero .descripcion { color: #5b4632; }
+body.claro main .hero .btn-borde { color: #b45309; border-color: #b45309; }
+
+/* --- Secciones y tarjetas --- */
+body.claro main .seccion {
+  background: #fff;
+  border-color: rgba(180, 90, 20, 0.3);
+}
+body.claro .seccion .tarjeta {
+  background: #fffdf8;
+  border-color: rgba(180, 90, 20, 0.25);
+  box-shadow: 0 6px 18px rgba(120, 70, 20, 0.12);
+}
+body.claro .seccion .tarjeta h3 { color: #3a2410; }
+body.claro .seccion .tarjeta .precio { color: #b45309; }
+body.claro .tarjeta .cantidad { color: #3a2410; }
+body.claro .tarjeta .contador {
+  background: rgba(180, 90, 20, 0.1);
+  border-color: #b45309;
+}
+
+/* --- Panel del carrito --- */
+body.claro .panel-carrito { background: #fffdf8; border-color: #b45309; }
+body.claro .panel-carrito h3 { color: #b45309; }
+body.claro .panel-carrito .items li {
+  color: #3a2410;
+  border-bottom-color: rgba(0, 0, 0, 0.12);
+}
+body.claro .panel-carrito .vacio { color: #5b4632; }
+body.claro .panel-carrito .formulario input {
+  background: #fff;
+  color: #3a2410;
+  border-color: rgba(180, 90, 20, 0.4);
+}
+body.claro .panel-carrito .totales .total { color: #b45309; }
+body.claro .panel-carrito .nota-domicilio {
+  background: rgba(180, 90, 20, 0.08);
+  color: #8a4b00;
+  border-color: #b45309;
+}
+body.claro .panel-carrito .hint-cupon { color: #b45309; }
+body.claro .panel-carrito .linea.descuento,
+body.claro .panel-carrito .cupon-aplicado { color: #2f9e44; }
+
+/* --- Sobre nosotros --- */
+body.claro .nosotros {
+  background: #fff;
+  border-color: rgba(180, 90, 20, 0.3);
+}
+body.claro .nosotros .nosotros-texto p { color: #5b4632; }
+body.claro .nosotros .nosotros-texto h3,
+body.claro .nosotros .titulo-nosotros span { color: #b45309; }
+body.claro .nosotros .lema { color: #b45309; }
+body.claro .nosotros .dato { background: rgba(210, 31, 43, 0.08); }
+body.claro .nosotros .dato-numero { color: #b45309; }
+body.claro .nosotros .dato-texto { color: #5b4632; }
+
+/* --- Pantalla de cerrado (fondo oscuro siempre) --- */
+body.claro .cerrado { color: #fdf6e9; }
+
+/* --- Pie --- */
+body.claro .pie { color: #5b4632; }
+
+/* --- Sección FRÍOS en modo claro --- */
+body.claro .seccion.titulo.verde {
+  background: linear-gradient(180deg, #6ee7b7, #10b981);
+}
+
+body.claro .seccion {
+  background: #fff;
+  border-color: rgba(16, 185, 129, 0.3);
+}

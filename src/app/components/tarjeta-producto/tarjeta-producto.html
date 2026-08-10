@@ -11,8 +11,8 @@
     <p class="precio">{{ formatearPrecio(producto().precio) }}</p>
 
     @if (cantidad === 0) {
-      <button class="btn-agregar" (click)="agregar()">
-        AGREGAR <span class="mas">+</span>
+      <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()">
+        @if (agregado()) { ¡AGREGADO! ✓ } @else { AGREGAR <span class="mas">+</span> }
       </button>
     } @else {
       <div class="contador">

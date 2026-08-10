@@ -151,3 +151,13 @@
   min-width: 24px;
   color: #fff;
 }
+
+.btn-agregar.agregado {
+  background: linear-gradient(180deg, #8ce99a, #37b24d);
+  color: #fff;
+  animation: pop 0.3s ease;
+}
+
+@keyframes pop { 50% { transform: scale(1.06); } }
+
+

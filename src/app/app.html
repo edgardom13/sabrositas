@@ -1,24 +1,39 @@
-<app-header />
+@if (cargando()) {
+  <app-loading />
+} @else if (!horario.abierto()) {
+  <app-cerrado />
+} @else {
+  <app-header />
 
-<main>
-  <app-hero />
+  <main>
+    <app-hero appAparecer />
 
-  <div class="menu-grid">
-    <app-seccion-menu
-      idSeccion="empanadas"
-      titulo="EMPANADAS FRITAS"
-      tema="rojo"
-      [productos]="empanadas"
-    />
-    <app-seccion-menu
-      idSeccion="jugos"
-      titulo="JUGOS NATURALES"
-      tema="amarillo"
-      [productos]="jugos"
-    />
-  </div>
-</main>
+    <div class="menu-grid">
+      <app-seccion-menu
+        appAparecer
+        idSeccion="empanadas"
+        titulo="EMPANADAS FRITAS"
+        tema="rojo"
+        [productos]="empanadas"
+      />
+      <app-seccion-menu
+        appAparecer
+        idSeccion="jugos"
+        titulo="JUGOS NATURALES"
+        tema="amarillo"
+        [productos]="jugos"
+      />
+      <app-seccion-menu
+        appAparecer
+        idSeccion="frios"
+        titulo="FRÍOS"
+        tema="rojo"
+        [productos]="frios"
+      />
+    </div>
+  </main>
 
-<app-beneficios />
+  <app-beneficios appAparecer />
 
-<app-boton-carrito />
+  <app-boton-carrito />
+}

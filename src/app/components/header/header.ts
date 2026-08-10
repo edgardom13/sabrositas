@@ -1,4 +1,5 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
+import { Tema } from '../../services/tema';
 
 @Component({
   selector: 'app-header',
@@ -7,6 +8,7 @@ import { Component, HostListener } from '@angular/core';
 })
 export class Header {
   menuAbierto = false;
+  tema = inject(Tema);
 
   // Cierra el menú al hacer clic fuera de él
   @HostListener('document:click', ['$event'])
