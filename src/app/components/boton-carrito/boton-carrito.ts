@@ -47,41 +47,107 @@ export class BotonCarrito {
   }
 
   // 📍 Detecta la ubicación del cliente en tiempo real
-  usarMiUbicacion(): void {
-    this.errorUbicacion = '';
-    if (!navigator.geolocation) {
-      this.errorUbicacion = 'Tu navegador no soporta geolocalización. Escribe tu dirección manualmente.';
-      return;
-    }
+usarMiUbicacion(): void {
+  this.errorUbicacion = '';
 
-    this.obteniendoUbicacion = true;
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        this.lat = pos.coords.latitude;
-        this.lng = pos.coords.longitude;
-        this.actualizarMapa();
-
-        // Rellena la dirección automáticamente (servicio gratuito)
-        try {
-          const resp = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${this.lat}&lon=${this.lng}`,
-          );
-          const data = await resp.json();
-          if (data?.display_name && !this.direccion.trim()) {
-            this.direccion = data.display_name;
-          }
-        } catch {
-          // Si falla, el cliente la escribe a mano
-        }
-        this.obteniendoUbicacion = false;
-      },
-      () => {
-        this.obteniendoUbicacion = false;
-        this.errorUbicacion = 'No pudimos obtener tu ubicación. Actívala o escribe la dirección manualmente.';
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+  if (!window.isSecureContext) {
+    this.errorUbicacion =
+      '⚠️ Tu navegador solo permite geolocalización en sitios con https (o localhost). Escribe tu dirección manualmente.';
+    return;
   }
+
+  if (!navigator.geolocation) {
+    this.errorUbicacion = 'Tu navegador no soporta geolocalización. Escribe tu dirección manualmente.';
+    return;
+  }
+
+  this.obteniendoUbicacion = true;
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      this.lat = pos.coords.latitude;
+      this.lng = pos.coords.longitude;
+      this.actualizarMapa();
+
+      // ✍️ Escribe la dirección en el input apenas se obtiene el GPS
+      await this.detectarDireccion();
+
+      this.obteniendoUbicacion = false;
+    },
+    (err) => {
+      this.obteniendoUbicacion = false;
+
+      if (err.code === err.PERMISSION_DENIED) {
+        this.errorUbicacion = '🚫 Permiso denegado. Actívalo en los ajustes del navegador o escribe tu dirección.';
+      } else if (err.code === err.POSITION_UNAVAILABLE) {
+        this.errorUbicacion = '🌐 No hay señal de ubicación disponible. Escríbela manualmente.';
+      } else {
+        this.errorUbicacion = '⏱️ El GPS tardó demasiado. Intenta de nuevo o escribe tu dirección.';
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+  );
+}
+
+// ✍️ Convierte las coordenadas en una dirección escrita (con respaldos)
+private async detectarDireccion(): Promise<void> {
+  if (this.lat === null || this.lng === null) return;
+  const lat = this.lat;
+  const lng = this.lng;
+
+  // Intento 1: OpenStreetMap (dirección corta y en español)
+  try {
+    const resp = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`,
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      const a = data?.address ?? {};
+      const corta = [
+        a.road,
+        a.house_number,
+        a.neighbourhood || a.suburb,
+        a.city || a.town || a.village,
+        a.state,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      if (corta) {
+        this.direccion = corta;
+        return;
+      }
+      if (data?.display_name) {
+        this.direccion = data.display_name;
+        return;
+      }
+    }
+  } catch {
+    // pasa al intento 2
+  }
+
+  // Intento 2: BigDataCloud (gratis, sin clave)
+  try {
+    const resp = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=es`,
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      const partes = [data.locality, data.city, data.principalSubdivision, data.countryName]
+        .filter(Boolean)
+        .join(', ');
+      if (partes) {
+        this.direccion = partes;
+        return;
+      }
+    }
+  } catch {
+    // pasa al respaldo final
+  }
+
+  // Respaldo final: siempre queda una referencia con coordenadas
+  this.direccion = `Ubicación detectada (GPS): ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+}
 
   // 🔍 Busca la dirección escrita y la muestra en el mapa
   async buscarEnMapa(): Promise<void> {
