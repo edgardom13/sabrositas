@@ -1,4 +1,5 @@
-import { Component, input, inject, signal } from '@angular/core';import { Producto } from '../../models/producto';
+import { Component, input, inject, signal, computed } from '@angular/core';
+import { Producto } from '../../models/producto';
 import { Carrito } from '../../services/carrito';
 
 @Component({
@@ -15,6 +16,18 @@ export class TarjetaProducto {
   get cantidad(): number {
     return this.carrito.cantidadDe(this.producto().id);
   }
+
+  // ¿Es un producto de la categoría salsa?
+  esSalsa = computed(() => this.producto().categoria === 'salsa');
+
+  // Cuántas salsas gratis le quedan disponibles al cliente
+  salsasGratisDisponibles = computed(() => this.carrito.salsasGratisDisponibles());
+
+  // Unidades gratis de ESTA salsa
+  salsasGratis = computed(() => this.carrito.salsasGratisDe(this.producto()));
+
+  // Unidades cobradas de ESTA salsa
+  salsasCobradas = computed(() => this.carrito.salsasCobradasDe(this.producto()));
 
   agregar(): void {
     this.carrito.agregar(this.producto());

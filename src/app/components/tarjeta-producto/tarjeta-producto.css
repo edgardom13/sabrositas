@@ -161,3 +161,71 @@
 @keyframes pop { 50% { transform: scale(1.06); } }
 
 
+/* ===== Badges de salsa ===== */
+.badge-salsa {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.badge-salsa.gratis {
+  background: linear-gradient(180deg, #8ce99a, #37b24d);
+  color: #fff;
+}
+
+.badge-salsa.cobrada {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #5c1010;
+}
+
+.info-salsa {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #c9bfb2;
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px dashed rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+}
+
+.info-salsa strong { color: var(--amarillo); }
+
+.resumen-salsa {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.res-gratis {
+  background: #37b24d;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.res-cobrada {
+  background: #ffb300;
+  color: #5c1010;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* Modo claro */
+body.claro .info-salsa {
+  color: #5b4632;
+  background: rgba(180, 90, 20, 0.06);
+  border-color: rgba(180, 90, 20, 0.3);
+}
+body.claro .info-salsa strong { color: #b45309; }

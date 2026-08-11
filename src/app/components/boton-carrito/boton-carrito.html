@@ -27,18 +27,34 @@
       <div class="totales">
         <div class="linea">
           <span>Subtotal</span>
-          <span>{{ formatearPrecio(carrito.totalPedido()) }}</span>
+          <span>{{ formatearPrecio(carrito.totalPedido() - carrito.costoSalsasCobradas()) }}</span>
         </div>
+
+        @if (carrito.totalSalsas() > 0) {
+          <div class="linea salsas-info">
+            <span>🥫 Salsas ({{ carrito.totalSalsas() }})</span>
+            <span>{{ carrito.salsasGratis() }} gratis</span>
+          </div>
+          @if (carrito.costoSalsasCobradas() > 0) {
+            <div class="linea salsas-cobradas">
+              <span>Salsas extras ({{ carrito.salsasCobradas() }} x $500)</span>
+              <span>{{ formatearPrecio(carrito.costoSalsasCobradas()) }}</span>
+            </div>
+          }
+        }
+
         @if (carrito.descuento() > 0) {
           <div class="linea descuento">
             <span>🎁 Cupón 10%</span>
             <span>-{{ formatearPrecio(carrito.descuento()) }}</span>
           </div>
         }
+
         <div class="linea">
           <span>Domicilio</span>
           <span>{{ formatearPrecio(DOMICILIO) }}</span>
         </div>
+
         <div class="linea total">
           <span>TOTAL</span>
           <span>{{ formatearPrecio(totalConDomicilio()) }}</span>

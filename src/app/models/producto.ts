@@ -3,4 +3,5 @@ export interface Producto {
   nombre: string;
   precio: number;
   imagen: string;
+  categoria?: 'salsa' | 'otro';
 }

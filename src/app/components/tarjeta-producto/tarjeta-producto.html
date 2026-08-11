@@ -4,11 +4,38 @@
     @if (cantidad > 0) {
       <span class="badge-cantidad">{{ cantidad }}</span>
     }
+
+    @if (esSalsa()) {
+      @if (salsasGratisDisponibles() > 0) {
+        <span class="badge-salsa gratis">🎁 GRATIS ({{ salsasGratisDisponibles() }} disponibles)</span>
+      } @else {
+        <span class="badge-salsa cobrada">$500 c/u</span>
+      }
+    }
   </div>
 
   <div class="cuerpo">
     <h3>{{ producto().nombre }}</h3>
-    <p class="precio">{{ formatearPrecio(producto().precio) }}</p>
+
+    @if (esSalsa()) {
+      <p class="info-salsa">
+        Las primeras 3 salsas son <strong>GRATIS</strong>.
+        Después de las 3, cada una cuesta <strong>$500</strong>.
+      </p>
+
+      @if (cantidad > 0) {
+        <div class="resumen-salsa">
+          @if (salsasGratis() > 0) {
+            <span class="res-gratis">✓ {{ salsasGratis() }} gratis</span>
+          }
+          @if (salsasCobradas() > 0) {
+            <span class="res-cobrada">+ {{ salsasCobradas() }} x $500</span>
+          }
+        </div>
+      }
+    } @else {
+      <p class="precio">{{ formatearPrecio(producto().precio) }}</p>
+    }
 
     @if (cantidad === 0) {
       <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()">

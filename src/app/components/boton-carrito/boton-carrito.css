@@ -523,3 +523,17 @@
 body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
 body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
 body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
+
+.salsas-info {
+  color: #37b24d;
+  font-weight: 600;
+}
+
+.salsas-cobradas {
+  color: var(--amarillo);
+  font-weight: 600;
+}
+
+/* Modo claro */
+body.claro .salsas-info { color: #2f9e44; }
+body.claro .salsas-cobradas { color: #b45309; }
