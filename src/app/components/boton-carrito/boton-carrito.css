@@ -237,8 +237,7 @@
   background: #1d0e06;
   border: 2px solid var(--amarillo);
   border-radius: 16px;
-  max-width: 370px; /* ← mismo ancho que el panel del carrito */
-  width: 100%;
+  width: min(370px, calc(100vw - 32px)); /* ← misma fórmula que el panel del carrito */
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
@@ -441,7 +440,7 @@
   }
 
   .modal {
-    max-width: 100%;
+    width: min(370px, calc(100vw - 32px)); /* ← mismo ancho que el panel en móvil */
     max-height: 85vh;
     border-radius: 14px;
   }
