@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Carrito } from '../../services/carrito';
@@ -14,11 +14,14 @@ export class BotonCarrito {
   carrito = inject(Carrito);
   supabase = inject(SupabaseService);
   private sanitizer = inject(DomSanitizer);
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
 
   panelAbierto = false;
 
-  readonly NUMERO_WHATSAPP = '57301607084';
+  readonly NUMERO_WHATSAPP = '573012680659';
   readonly DOMICILIO = 3000;
+  readonly GOOGLE_MAPS_KEY = 'AIzaSyDt-zm7q0nwoGYcZR8fzsUtioYMXz_bauk';
 
   nombre = '';
   apellido = '';
@@ -26,7 +29,6 @@ export class BotonCarrito {
   direccion = '';
   formularioValido = true;
 
-  // ===== Ubicación en tiempo real =====
   lat: number | null = null;
   lng: number | null = null;
   mapaUrl: SafeResourceUrl | null = null;
@@ -46,110 +48,148 @@ export class BotonCarrito {
     return this.carrito.totalPedido() - this.carrito.descuento() + this.DOMICILIO;
   }
 
-  // 📍 Detecta la ubicación del cliente en tiempo real
-usarMiUbicacion(): void {
-  this.errorUbicacion = '';
+  usarMiUbicacion(): void {
+    this.errorUbicacion = '';
 
-  if (!window.isSecureContext) {
-    this.errorUbicacion =
-      '⚠️ Tu navegador solo permite geolocalización en sitios con https (o localhost). Escribe tu dirección manualmente.';
-    return;
-  }
-
-  if (!navigator.geolocation) {
-    this.errorUbicacion = 'Tu navegador no soporta geolocalización. Escribe tu dirección manualmente.';
-    return;
-  }
-
-  this.obteniendoUbicacion = true;
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      this.lat = pos.coords.latitude;
-      this.lng = pos.coords.longitude;
-      this.actualizarMapa();
-
-      // ✍️ Escribe la dirección en el input apenas se obtiene el GPS
-      await this.detectarDireccion();
-
-      this.obteniendoUbicacion = false;
-    },
-    (err) => {
-      this.obteniendoUbicacion = false;
-
-      if (err.code === err.PERMISSION_DENIED) {
-        this.errorUbicacion = '🚫 Permiso denegado. Actívalo en los ajustes del navegador o escribe tu dirección.';
-      } else if (err.code === err.POSITION_UNAVAILABLE) {
-        this.errorUbicacion = '🌐 No hay señal de ubicación disponible. Escríbela manualmente.';
-      } else {
-        this.errorUbicacion = '⏱️ El GPS tardó demasiado. Intenta de nuevo o escribe tu dirección.';
-      }
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-  );
-}
-
-// ✍️ Convierte las coordenadas en una dirección escrita (con respaldos)
-private async detectarDireccion(): Promise<void> {
-  if (this.lat === null || this.lng === null) return;
-  const lat = this.lat;
-  const lng = this.lng;
-
-  // Intento 1: OpenStreetMap (dirección corta y en español)
-  try {
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`,
-    );
-    if (resp.ok) {
-      const data = await resp.json();
-      const a = data?.address ?? {};
-      const corta = [
-        a.road,
-        a.house_number,
-        a.neighbourhood || a.suburb,
-        a.city || a.town || a.village,
-        a.state,
-      ]
-        .filter(Boolean)
-        .join(', ');
-
-      if (corta) {
-        this.direccion = corta;
-        return;
-      }
-      if (data?.display_name) {
-        this.direccion = data.display_name;
-        return;
-      }
+    if (!window.isSecureContext) {
+      this.errorUbicacion =
+        '⚠️ Tu navegador solo permite geolocalización en sitios con https (o localhost). Escribe tu dirección manualmente.';
+      return;
     }
-  } catch {
-    // pasa al intento 2
-  }
 
-  // Intento 2: BigDataCloud (gratis, sin clave)
-  try {
-    const resp = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=es`,
-    );
-    if (resp.ok) {
-      const data = await resp.json();
-      const partes = [data.locality, data.city, data.principalSubdivision, data.countryName]
-        .filter(Boolean)
-        .join(', ');
-      if (partes) {
-        this.direccion = partes;
-        return;
-      }
+    if (!navigator.geolocation) {
+      this.errorUbicacion = 'Tu navegador no soporta geolocalización. Escribe tu dirección manualmente.';
+      return;
     }
-  } catch {
-    // pasa al respaldo final
+
+    this.obteniendoUbicacion = true;
+    this.cdr.detectChanges();
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.ngZone.run(async () => {
+          this.lat = pos.coords.latitude;
+          this.lng = pos.coords.longitude;
+          this.actualizarMapa();
+          this.cdr.detectChanges();
+
+          await this.detectarDireccion();
+
+          this.obteniendoUbicacion = false;
+          this.cdr.detectChanges();
+        });
+      },
+      (err) => {
+        this.ngZone.run(() => {
+          this.obteniendoUbicacion = false;
+
+          if (err.code === err.PERMISSION_DENIED) {
+            this.errorUbicacion = '🚫 Permiso denegado. Actívalo en los ajustes del navegador o escribe tu dirección.';
+          } else if (err.code === err.POSITION_UNAVAILABLE) {
+            this.errorUbicacion = '🌐 No hay señal de ubicación disponible. Escríbela manualmente.';
+          } else {
+            this.errorUbicacion = '⏱️ El GPS tardó demasiado. Intenta de nuevo o escribe tu dirección.';
+          }
+          this.cdr.detectChanges();
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
   }
 
-  // Respaldo final: siempre queda una referencia con coordenadas
-  this.direccion = `Ubicación detectada (GPS): ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-}
+  // ✍️ Convierte coordenadas en dirección ESPECÍFICA usando GOOGLE MAPS
+  private async detectarDireccion(): Promise<void> {
+    if (this.lat === null || this.lng === null) return;
+    const lat = this.lat;
+    const lng = this.lng;
 
-  // 🔍 Busca la dirección escrita y la muestra en el mapa
+    console.log('🔍 Detectando dirección para:', lat, lng);
+
+    // ===== 🥇 GOOGLE MAPS: dirección específica con calle, número y barrio =====
+    try {
+      const resp = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=es&key=${this.GOOGLE_MAPS_KEY}`,
+      );
+
+      console.log('📡 Respuesta de Google:', resp.status);
+
+      if (resp.ok) {
+        const data = await resp.json();
+        console.log('📍 Datos de Google:', data);
+
+        if (data.status === 'OK' && data.results?.length > 0) {
+          const resultado = data.results[0];
+          const comps: { types: string[]; long_name: string }[] =
+            resultado.address_components ?? [];
+
+          const obtener = (...tipos: string[]) => {
+            const comp = comps.find((c) => tipos.some((t) => c.types.includes(t)));
+            return comp?.long_name ?? '';
+          };
+
+          const calle = obtener('route');
+          const numero = obtener('street_number');
+          const barrio = obtener('neighborhood', 'sublocality_level_1', 'sublocality');
+          const ciudad = obtener('locality');
+          const departamento = obtener('administrative_area_level_1');
+
+          const direccionCompleta = [
+            calle && numero ? `${calle} #${numero}` : calle,
+            barrio ? `Barrio ${barrio}` : '',
+            ciudad,
+            departamento,
+          ]
+            .filter(Boolean)
+            .join(', ');
+
+          console.log('✅ Dirección construida:', direccionCompleta);
+
+          if (direccionCompleta) {
+            this.direccion = direccionCompleta;
+            this.cdr.detectChanges();
+            return;
+          }
+
+          if (resultado.formatted_address) {
+            this.direccion = resultado.formatted_address;
+            this.cdr.detectChanges();
+            return;
+          }
+        } else {
+          console.warn('⚠️ Google devolvió:', data.status, data.error_message);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error con Google Maps:', error);
+    }
+
+    // ===== 🥈 Respaldo: Photon =====
+    try {
+      const resp = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}&lang=es`);
+      if (resp.ok) {
+        const p = (await resp.json())?.features?.[0]?.properties;
+        if (p) {
+          const calle = p.street ? `${p.street}${p.housenumber ? ' #' + p.housenumber : ''}` : p.name || '';
+          const direccion = [
+            calle,
+            p.district ? `Barrio ${p.district}` : '',
+            p.city || p.town || p.village,
+            p.state,
+          ].filter(Boolean).join(', ');
+
+          if (direccion) {
+            this.direccion = direccion;
+            this.cdr.detectChanges();
+            return;
+          }
+        }
+      }
+    } catch {}
+
+    this.direccion = `Ubicación GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    this.cdr.detectChanges();
+  }
+
   async buscarEnMapa(): Promise<void> {
     if (!this.direccion.trim()) return;
     try {
@@ -173,7 +213,7 @@ private async detectarDireccion(): Promise<void> {
   private actualizarMapa(): void {
     if (this.lat !== null && this.lng !== null) {
       this.mapaUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        `https://maps.google.com/maps?q=${this.lat},${this.lng}&z=17&output=embed`,
+        `https://maps.google.com/maps?q=${this.lat},${this.lng}&z=18&output=embed`,
       );
     } else {
       this.mapaUrl = null;
@@ -210,7 +250,6 @@ private async detectarDireccion(): Promise<void> {
       )
       .join('\n');
 
-    // 🗺️ Link del mapa para el domiciliario
     const linkMapa =
       this.lat !== null && this.lng !== null
         ? `\n   🗺️ *Ver ubicación en el mapa:* https://www.google.com/maps?q=${this.lat},${this.lng}`
@@ -247,7 +286,6 @@ private async detectarDireccion(): Promise<void> {
       `❤️ _Prepararemos tu pedido con mucho amor._\n` +
       `🥟 _¡Que lo disfrutes!_`;
 
-    // 💾 Guardamos en Supabase (con coordenadas)
     await this.supabase.registrarPedido({
       nombre_cliente: this.nombre.trim(),
       apellido_cliente: this.apellido.trim(),
@@ -266,13 +304,11 @@ private async detectarDireccion(): Promise<void> {
       lng: this.lng,
     });
 
-    // 📲 Abrimos WhatsApp
     window.open(
       `https://wa.me/${this.NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`,
       '_blank',
     );
 
-    // 🧹 Limpiamos todo
     this.carrito.vaciar();
     this.nombre = '';
     this.apellido = '';

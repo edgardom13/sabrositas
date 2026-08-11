@@ -55,7 +55,6 @@
 
       <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
 
-      <!-- ❓ Explicación de por qué se piden los datos -->
       <div class="info-pedido">
         <button type="button" class="btn-info" (click)="mostrarInfo = !mostrarInfo"
           aria-label="¿Por qué pedimos estos datos?">?</button>
@@ -74,7 +73,6 @@
         <input [(ngModel)]="apellido" name="apellido" placeholder="Apellidos" required />
         <input [(ngModel)]="telefono" name="telefono" placeholder="Número de teléfono" type="tel" required />
 
-        <!-- 📍 Ubicación en tiempo real -->
         <button type="button" class="btn-ubicacion" (click)="usarMiUbicacion()" [disabled]="obteniendoUbicacion">
           @if (obteniendoUbicacion) { ⏳ Obteniendo ubicación… } @else { 📍 Usar mi ubicación actual }
         </button>
