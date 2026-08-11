@@ -15,6 +15,8 @@ export interface RegistroPedido {
   descuento: number;
   domicilio: number;
   total: number;
+  lat: number | null;   // ← nuevo
+  lng: number | null;   // ← nuevo
 }
 
 @Injectable({ providedIn: 'root' })

@@ -146,3 +146,80 @@
   color: #7ed957;
   font-weight: 700;
 }
+
+/* ===== Botón de información (?) ===== */
+.info-pedido {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.btn-info {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: var(--amarillo);
+  color: #5c1010;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.btn-info:hover { transform: scale(1.15); }
+
+.info-detalle {
+  font-size: 12.5px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+/* ===== Ubicación y mapa ===== */
+.btn-ubicacion {
+  width: 100%;
+  background: transparent;
+  border: 1.5px dashed var(--amarillo);
+  color: var(--amarillo);
+  border-radius: 10px;
+  padding: 9px;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-ubicacion:hover { background: rgba(255, 193, 7, 0.1); }
+.btn-ubicacion:disabled { opacity: 0.6; cursor: wait; }
+
+.btn-buscar-mapa {
+  background: none;
+  border: none;
+  color: var(--amarillo);
+  font-size: 12.5px;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.btn-buscar-mapa:hover { text-decoration: underline; }
+
+.mapa {
+  width: 100%;
+  height: 170px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Modo claro ===== */
+body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
+body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
+body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }

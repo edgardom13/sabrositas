@@ -25,28 +25,70 @@
       </p>
 
       <div class="totales">
-  <div class="linea"><span>Subtotal</span><span>{{ formatearPrecio(carrito.totalPedido()) }}</span></div>
-  @if (carrito.descuento() > 0) {
-    <div class="linea descuento">
-      <span>🎁 Cupón 10%</span><span>-{{ formatearPrecio(carrito.descuento()) }}</span>
-    </div>
-  }
-  <div class="linea"><span>Domicilio</span><span>{{ formatearPrecio(DOMICILIO) }}</span></div>
-  <div class="linea total"><span>TOTAL</span><span>{{ formatearPrecio(totalConDomicilio()) }}</span></div>
-</div>
+        <div class="linea">
+          <span>Subtotal</span>
+          <span>{{ formatearPrecio(carrito.totalPedido()) }}</span>
+        </div>
+        @if (carrito.descuento() > 0) {
+          <div class="linea descuento">
+            <span>🎁 Cupón 10%</span>
+            <span>-{{ formatearPrecio(carrito.descuento()) }}</span>
+          </div>
+        }
+        <div class="linea">
+          <span>Domicilio</span>
+          <span>{{ formatearPrecio(DOMICILIO) }}</span>
+        </div>
+        <div class="linea total">
+          <span>TOTAL</span>
+          <span>{{ formatearPrecio(totalConDomicilio()) }}</span>
+        </div>
+      </div>
 
-@if (carrito.descuento() === 0) {
-  <p class="hint-cupon">🎁 Agrega {{ formatearPrecio(carrito.faltanteParaCupon()) }} más y gana un 10% de descuento</p>
-} @else {
-  <p class="cupon-aplicado">🎉 ¡Cupón de 10% aplicado!</p>
-}
+      @if (carrito.descuento() === 0) {
+        <p class="hint-cupon">
+          🎁 Agrega {{ formatearPrecio(carrito.faltanteParaCupon()) }} más y gana un 10% de descuento
+        </p>
+      } @else {
+        <p class="cupon-aplicado">🎉 ¡Cupón de 10% aplicado!</p>
+      }
 
       <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
+
+      <!-- ❓ Explicación de por qué se piden los datos -->
+      <div class="info-pedido">
+        <button type="button" class="btn-info" (click)="mostrarInfo = !mostrarInfo"
+          aria-label="¿Por qué pedimos estos datos?">?</button>
+        <span>¿Por qué pedimos estos datos?</span>
+      </div>
+      @if (mostrarInfo) {
+        <p class="info-detalle">
+          🔒 Usamos tu nombre y teléfono solo para confirmar tu pedido, y la dirección
+          (o tu ubicación en tiempo real) para que el domiciliario llegue directo a tu
+          puerta sin perderte. Tus datos no se comparten con nadie más. ❤️
+        </p>
+      }
+
       <form (ngSubmit)="enviarPedido()" class="formulario">
         <input [(ngModel)]="nombre" name="nombre" placeholder="Nombres" required />
         <input [(ngModel)]="apellido" name="apellido" placeholder="Apellidos" required />
         <input [(ngModel)]="telefono" name="telefono" placeholder="Número de teléfono" type="tel" required />
+
+        <!-- 📍 Ubicación en tiempo real -->
+        <button type="button" class="btn-ubicacion" (click)="usarMiUbicacion()" [disabled]="obteniendoUbicacion">
+          @if (obteniendoUbicacion) { ⏳ Obteniendo ubicación… } @else { 📍 Usar mi ubicación actual }
+        </button>
+
         <input [(ngModel)]="direccion" name="direccion" placeholder="Dirección de entrega" required />
+        <button type="button" class="btn-buscar-mapa" (click)="buscarEnMapa()">🔍 Ver en el mapa</button>
+
+        @if (errorUbicacion) {
+          <p class="error">{{ errorUbicacion }}</p>
+        }
+
+        @if (mapaUrl) {
+          <iframe class="mapa" [src]="mapaUrl" title="Mapa de entrega" loading="lazy"></iframe>
+        }
 
         @if (!formularioValido) {
           <p class="error">Por favor completa todos los datos para enviar el pedido.</p>

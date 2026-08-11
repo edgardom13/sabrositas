@@ -8,7 +8,7 @@ import { Loading } from './components/loading/loading';
 import { Cerrado } from './components/cerrado/cerrado';
 import { Aparecer } from './directives/aparecer';
 import { Horario } from './services/horario';
-import { EMPANADAS, JUGOS, FRIOS } from './data/productos';
+import { EMPANADAS, JUGOS, FRIOS, SALSAS } from './data/productos';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +21,7 @@ export class App {
   empanadas = EMPANADAS;
   jugos = JUGOS;
   frios = FRIOS;
+  salsas = SALSAS;
 
   cargando = signal(true);
 
