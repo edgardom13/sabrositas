@@ -52,7 +52,7 @@ export class Carrito {
   });
 
   readonly UMBRAL_CUPON = 30000;
-  readonly PORCENTAJE_CUPON = 0.06;
+  readonly PORCENTAJE_CUPON = 0; // 10%
 
   descuento = computed(() => {
     const subtotal = this.totalPedido();

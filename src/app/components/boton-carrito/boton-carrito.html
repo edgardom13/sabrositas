@@ -61,13 +61,13 @@
         </div>
       </div>
 
-      @if (carrito.descuento() === 0) {
+      <!-- @if (carrito.descuento() === 0) {
         <p class="hint-cupon">
           🎁 Agrega {{ formatearPrecio(carrito.faltanteParaCupon()) }} más y gana un 10% de descuento
         </p>
       } @else {
         <p class="cupon-aplicado">🎉 ¡Cupón de 10% aplicado!</p>
-      }
+      } -->
 
       <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
 
@@ -166,12 +166,12 @@
             <span>Subtotal:</span>
             <span>{{ formatearPrecio(carrito.totalPedido()) }}</span>
           </div>
-          @if (carrito.descuento() > 0) {
+          <!-- @if (carrito.descuento() > 0) {
             <div class="fila-modal">
               <span>🎁 Cupón 10%:</span>
               <span class="descuento">-{{ formatearPrecio(carrito.descuento()) }}</span>
             </div>
-          }
+          } -->
           <div class="fila-modal">
             <span>Domicilio:</span>
             <span>{{ formatearPrecio(DOMICILIO) }}</span>
