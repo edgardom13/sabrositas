@@ -219,11 +219,6 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-/* ===== Modo claro ===== */
-body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
-body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
-body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
-
 /* ===== MODAL DE CONFIRMACIÓN ===== */
 .modal-overlay {
   position: fixed;
@@ -465,3 +460,94 @@ body.claro .btn-cancelar {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 14px;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-header h3 {
+    font-size: 22px;
+    letter-spacing: 1.5px;
+  }
+
+  .sub-modal {
+    font-size: 11px;
+  }
+
+  .modal-body {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .bloque-modal {
+    padding: 10px;
+  }
+
+  .bloque-modal h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .fila-modal {
+    font-size: 12.5px;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .direccion-modal {
+    font-size: 12.5px;
+    margin-bottom: 6px;
+  }
+
+  .mapa-modal {
+    height: 110px;
+  }
+
+  .lista-modal li {
+    font-size: 12.5px;
+    padding: 4px 0;
+  }
+
+  .totales-modal .fila-modal.total {
+    font-size: 14px;
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+
+  .totales-modal .fila-modal.total strong {
+    font-size: 16px;
+  }
+
+  .aviso-final {
+    font-size: 11.5px;
+    padding: 8px;
+  }
+
+  .modal-acciones {
+    padding: 12px 14px 16px;
+    gap: 8px;
+  }
+
+  .btn-cancelar,
+  .btn-confirmar-modal {
+    font-size: 15px;
+    padding: 10px;
+  }
+}
+
+/* Modo claro */
+body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
+body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
+body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
