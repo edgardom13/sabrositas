@@ -18,6 +18,8 @@ export class BotonCarrito {
   private cdr = inject(ChangeDetectorRef);
 
   panelAbierto = false;
+  mostrarModal = false; // ← modal de confirmación
+  enviandoPedido = false;
 
   readonly NUMERO_WHATSAPP = '573012680659';
   readonly DOMICILIO = 3000;
@@ -36,6 +38,8 @@ export class BotonCarrito {
   errorUbicacion = '';
   mostrarInfo = false;
 
+  private timeoutBusqueda: ReturnType<typeof setTimeout> | null = null;
+
   formatearPrecio(valor: number): string {
     return '$' + valor.toLocaleString('es-CO');
   }
@@ -46,6 +50,15 @@ export class BotonCarrito {
 
   totalConDomicilio(): number {
     return this.carrito.totalPedido() - this.carrito.descuento() + this.DOMICILIO;
+  }
+
+  onDireccionChange(): void {
+    if (this.timeoutBusqueda) {
+      clearTimeout(this.timeoutBusqueda);
+    }
+    this.timeoutBusqueda = setTimeout(() => {
+      this.buscarEnMapa();
+    }, 1000);
   }
 
   usarMiUbicacion(): void {
@@ -97,26 +110,18 @@ export class BotonCarrito {
     );
   }
 
-  // ✍️ Convierte coordenadas en dirección ESPECÍFICA usando GOOGLE MAPS
   private async detectarDireccion(): Promise<void> {
     if (this.lat === null || this.lng === null) return;
     const lat = this.lat;
     const lng = this.lng;
 
-    console.log('🔍 Detectando dirección para:', lat, lng);
-
-    // ===== 🥇 GOOGLE MAPS: dirección específica con calle, número y barrio =====
     try {
       const resp = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=es&key=${this.GOOGLE_MAPS_KEY}`,
       );
 
-      console.log('📡 Respuesta de Google:', resp.status);
-
       if (resp.ok) {
         const data = await resp.json();
-        console.log('📍 Datos de Google:', data);
-
         if (data.status === 'OK' && data.results?.length > 0) {
           const resultado = data.results[0];
           const comps: { types: string[]; long_name: string }[] =
@@ -142,8 +147,6 @@ export class BotonCarrito {
             .filter(Boolean)
             .join(', ');
 
-          console.log('✅ Dirección construida:', direccionCompleta);
-
           if (direccionCompleta) {
             this.direccion = direccionCompleta;
             this.cdr.detectChanges();
@@ -155,15 +158,10 @@ export class BotonCarrito {
             this.cdr.detectChanges();
             return;
           }
-        } else {
-          console.warn('⚠️ Google devolvió:', data.status, data.error_message);
         }
       }
-    } catch (error) {
-      console.error('❌ Error con Google Maps:', error);
-    }
+    } catch {}
 
-    // ===== 🥈 Respaldo: Photon =====
     try {
       const resp = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}&lang=es`);
       if (resp.ok) {
@@ -192,22 +190,24 @@ export class BotonCarrito {
 
   async buscarEnMapa(): Promise<void> {
     if (!this.direccion.trim()) return;
+
     try {
       const resp = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(this.direccion)}`,
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(this.direccion)}&language=es&key=${this.GOOGLE_MAPS_KEY}`,
       );
       const data = await resp.json();
-      if (data.length > 0) {
-        this.lat = parseFloat(data[0].lat);
-        this.lng = parseFloat(data[0].lon);
+
+      if (data.status === 'OK' && data.results?.length > 0) {
+        const location = data.results[0].geometry.location;
+        this.lat = location.lat;
+        this.lng = location.lng;
         this.errorUbicacion = '';
         this.actualizarMapa();
+        this.cdr.detectChanges();
       } else {
-        this.errorUbicacion = 'No encontramos esa dirección en el mapa, pero puedes continuar con tu pedido.';
+        console.warn('⚠️ No se encontró la dirección');
       }
-    } catch {
-      this.errorUbicacion = 'No se pudo buscar en el mapa, pero puedes continuar con tu pedido.';
-    }
+    } catch {}
   }
 
   private actualizarMapa(): void {
@@ -220,7 +220,8 @@ export class BotonCarrito {
     }
   }
 
-  async enviarPedido(): Promise<void> {
+  // 🎯 NUEVO: Validar y mostrar modal de confirmación
+  enviarPedido(): void {
     this.formularioValido =
       this.nombre.trim() !== '' &&
       this.apellido.trim() !== '' &&
@@ -228,6 +229,15 @@ export class BotonCarrito {
       this.direccion.trim() !== '';
 
     if (!this.formularioValido) return;
+
+    // Mostrar el modal en vez de enviar directamente
+    this.mostrarModal = true;
+  }
+
+  // ✅ NUEVO: El cliente confirmó, ahora sí se envía
+  async confirmarEnvio(): Promise<void> {
+    if (this.enviandoPedido) return;
+    this.enviandoPedido = true;
 
     const items = this.carrito.itemsSignal();
     const subtotal = this.carrito.totalPedido();
@@ -319,6 +329,13 @@ export class BotonCarrito {
     this.mapaUrl = null;
     this.errorUbicacion = '';
     this.panelAbierto = false;
+    this.mostrarModal = false;
+    this.enviandoPedido = false;
+  }
+
+  // ❌ NUEVO: El cliente canceló, cerrar modal y seguir editando
+  cancelarEnvio(): void {
+    this.mostrarModal = false;
   }
 
   private emojiDe(nombre: string): string {
@@ -331,3 +348,4 @@ export class BotonCarrito {
     return '🥟';
   }
 }
+

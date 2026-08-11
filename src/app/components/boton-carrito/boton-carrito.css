@@ -223,3 +223,245 @@
 body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
 body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
 body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
+
+/* ===== MODAL DE CONFIRMACIÓN ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal {
+  background: #1d0e06;
+  border: 2px solid var(--amarillo);
+  border-radius: 18px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  background: linear-gradient(180deg, #e63946, #b71c1c);
+  padding: 18px 22px;
+  border-radius: 16px 16px 0 0;
+  text-align: center;
+}
+
+.modal-header h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0;
+}
+
+.sub-modal {
+  color: #fff;
+  font-size: 13px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.modal-body {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bloque-modal {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.bloque-modal h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--amarillo);
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.fila-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.fila-modal span:first-child {
+  color: #e8e0d8;
+  opacity: 0.85;
+}
+
+.fila-modal strong,
+.fila-modal span:last-child {
+  color: #fff;
+  text-align: right;
+}
+
+.direccion-modal {
+  color: #fff;
+  line-height: 1.5;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.mapa-modal {
+  width: 100%;
+  height: 140px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.lista-modal {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-modal li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.lista-modal li:last-child {
+  border-bottom: none;
+}
+
+.totales-modal .fila-modal.total {
+  border-top: 2px solid var(--amarillo);
+  margin-top: 8px;
+  padding-top: 10px;
+  color: var(--amarillo);
+  font-size: 16px;
+}
+
+.totales-modal .fila-modal.total strong {
+  color: var(--amarillo);
+  font-size: 18px;
+}
+
+.descuento {
+  color: #7ed957 !important;
+}
+
+.aviso-final {
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 10px;
+  color: #fff;
+}
+
+.aviso-final strong {
+  color: var(--amarillo);
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 10px;
+  padding: 14px 22px 22px;
+}
+
+.btn-cancelar {
+  flex: 1;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancelar:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-confirmar-modal {
+  flex: 1.5;
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border: none;
+  border-radius: 999px;
+  padding: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #5c1010;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.btn-confirmar-modal:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-confirmar-modal:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Modo claro en el modal */
+body.claro .modal {
+  background: #fffdf8;
+  color: #3a2410;
+}
+body.claro .bloque-modal {
+  background: rgba(180, 90, 20, 0.05);
+}
+body.claro .fila-modal span:first-child {
+  color: #5b4632;
+}
+body.claro .fila-modal strong,
+body.claro .fila-modal span:last-child {
+  color: #3a2410;
+}
+body.claro .direccion-modal {
+  color: #3a2410;
+}
+body.claro .aviso-final {
+  color: #5b4632;
+  background: rgba(180, 90, 20, 0.08);
+}
+body.claro .btn-cancelar {
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #3a2410;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
