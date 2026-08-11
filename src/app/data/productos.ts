@@ -1,8 +1,8 @@
 import { Producto } from '../models/producto';
 
 export const EMPANADAS: Producto[] = [
-  { id: 1, nombre: 'Empanadas de carne', precio: 1500, imagen: 'img/carne.png', categoria: 'otro' },
-  { id: 2, nombre: 'Empanadas de pollo', precio: 1500, imagen: 'img/pollo.png', categoria: 'otro' },
+  { id: 1, nombre: 'Empanadas de carne', precio: 2000, imagen: 'img/carne.png', categoria: 'otro' },
+  { id: 2, nombre: 'Empanadas de pollo', precio: 2000, imagen: 'img/pollo.png', categoria: 'otro' },
 ];
 
 export const JUGOS: Producto[] = [
@@ -11,8 +11,8 @@ export const JUGOS: Producto[] = [
 ];
 
 export const FRIOS: Producto[] = [
-  { id: 5, nombre: 'Bandeja empanadas de carne x12', precio: 10000, imagen: 'img/bandeja.png', categoria: 'otro' },
-  { id: 6, nombre: 'Bandeja empanadas de pollo x12', precio: 10000, imagen: 'img/bandeja.png', categoria: 'otro' },
+  { id: 5, nombre: 'Bandeja empanadas de carne x12', precio: 20000, imagen: 'img/bandeja.png', categoria: 'otro' },
+  { id: 6, nombre: 'Bandeja empanadas de pollo x12', precio: 20000, imagen: 'img/bandeja.png', categoria: 'otro' },
 ];
 
 export const SALSAS: Producto[] = [
