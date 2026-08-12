@@ -1,0 +1,454 @@
+:host {
+  display: block;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: #140a05;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  background: linear-gradient(180deg, #2b1608 0%, #1d0e06 100%);
+  border-right: 1px solid rgba(255, 193, 7, 0.2);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 250;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 28px 16px 20px;
+  border-bottom: 1px solid rgba(255, 193, 7, 0.15);
+}
+
+.sidebar-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(255, 193, 7, 0.35));
+  animation: flotar 3s ease-in-out infinite;
+}
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.sidebar-titulo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 4px;
+  margin: 10px 0 2px;
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-sub {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+/* ----- Navegación ----- */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: rgba(255, 193, 7, 0.08);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.nav-item.activo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(255, 179, 0, 0.35);
+}
+
+.nav-item.activo:hover { transform: none; }
+
+.nav-item.deshabilitado {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.nav-item.deshabilitado:hover {
+  background: none;
+  transform: none;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.nav-icono {
+  font-size: 20px;
+  width: 26px;
+  text-align: center;
+}
+
+.nav-texto { flex: 1; }
+
+.nav-badge {
+  background: #d21f2b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(210, 31, 43, 0.5);
+  animation: pulso 2s ease-in-out infinite;
+}
+
+@keyframes pulso {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.prox {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ----- Footer del sidebar ----- */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 193, 7, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  font-weight: 800;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.35);
+}
+
+.usuario-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.usuario-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.usuario-email {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-salir {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid rgba(210, 31, 43, 0.6);
+  color: #ff8080;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.btn-salir:hover {
+  background: rgba(210, 31, 43, 0.15);
+  border-color: #d21f2b;
+}
+
+/* ================= CONTENIDO ================= */
+.contenido {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(20, 10, 5, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.btn-hamburguesa {
+  display: none;
+  background: none;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  color: var(--amarillo, #ffc107);
+  font-size: 20px;
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.topbar-titulo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0;
+  flex: 1;
+}
+
+.topbar-derecha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-tema {
+  background: transparent;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-tema:hover {
+  background: rgba(255, 193, 7, 0.1);
+  transform: rotate(15deg);
+}
+
+.btn-ver-tienda {
+  color: var(--amarillo, #ffc107);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  border-radius: 999px;
+  transition: all 0.25s;
+}
+
+.btn-ver-tienda:hover {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: var(--amarillo, #ffc107);
+}
+
+.contenido-principal {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* ================= OVERLAY MÓVIL ================= */
+.overlay-movil {
+  display: none;
+}
+
+/* ================= RESPONSIVE TABLET / MÓVIL ================= */
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    transition: left 0.3s ease;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.6);
+  }
+
+  .dashboard.menu-abierto .sidebar {
+    left: 0;
+  }
+
+  .overlay-movil {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 240;
+  }
+
+  .btn-hamburguesa {
+    display: block;
+  }
+
+  .contenido-principal {
+    padding: 16px;
+  }
+}
+
+/* ================= MOBILE PEQUEÑO ================= */
+@media (max-width: 600px) {
+  .topbar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .topbar-titulo {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .btn-ver-tienda {
+    display: none;
+  }
+
+  .contenido-principal {
+    padding: 12px;
+  }
+
+  .btn-tema {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+/* ===== Botón de sonido ===== */
+.btn-sonido {
+  background: transparent;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-sonido:hover {
+  background: rgba(255, 193, 7, 0.1);
+  transform: rotate(15deg);
+}
+
+/* ===== Toast de nuevo pedido ===== */
+.toast-pedido {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, #2b1608, #1d0e06);
+  border: 2px solid #ffc107;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(255, 193, 7, 0.15);
+  cursor: pointer;
+  animation: entrarToast 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+@keyframes entrarToast {
+  from { opacity: 0; transform: translateX(60px) scale(0.9); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.toast-icono {
+  font-size: 26px;
+  animation: sonar 1s ease-in-out infinite;
+}
+
+@keyframes sonar {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-15deg); }
+  75% { transform: rotate(15deg); }
+}
+
+.toast-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toast-texto strong { color: #ffd54f; font-size: 15px; }
+.toast-texto span { color: rgba(255, 255, 255, 0.75); font-size: 13px; }
+
+.toast-ver {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .btn-sonido { width: 36px; height: 36px; font-size: 16px; }
+}

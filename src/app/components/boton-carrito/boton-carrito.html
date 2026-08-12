@@ -45,7 +45,7 @@
 
         @if (carrito.descuento() > 0) {
           <div class="linea descuento">
-            <span>🎁 Cupón 10%</span>
+            <span>🎁 Cupón {{ carrito.porcentajeCuponTexto() }}%</span>
             <span>-{{ formatearPrecio(carrito.descuento()) }}</span>
           </div>
         }
@@ -60,14 +60,6 @@
           <span>{{ formatearPrecio(totalConDomicilio()) }}</span>
         </div>
       </div>
-
-      <!-- @if (carrito.descuento() === 0) {
-        <p class="hint-cupon">
-          🎁 Agrega {{ formatearPrecio(carrito.faltanteParaCupon()) }} más y gana un 10% de descuento
-        </p>
-      } @else {
-        <p class="cupon-aplicado">🎉 ¡Cupón de 10% aplicado!</p>
-      } -->
 
       <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
 
@@ -113,13 +105,30 @@
           <p class="error">Por favor completa todos los datos para enviar el pedido.</p>
         }
 
-        <button type="submit" class="btn-confirmar">ENVIAR PEDIDO 📲</button>
+        @if (!carrito.tieneProductosPrincipales() && carrito.itemsSignal().length > 0) {
+          <p class="error">
+            🥟 Debes agregar al menos un producto (empanada, jugo o frío).
+            Las salsas son un complemento y no se pueden pedir solas.
+          </p>
+        }
+
+        <button 
+          type="submit" 
+          class="btn-confirmar"
+          [disabled]="!carrito.tieneProductosPrincipales()"
+        >
+          @if (!carrito.tieneProductosPrincipales() && carrito.itemsSignal().length > 0) {
+            ⚠️ Agrega un producto primero
+          } @else {
+            ENVIAR PEDIDO 📲
+          }
+        </button>
       </form>
     }
   </div>
 }
 
-<!-- 🎯 MODAL DE CONFIRMACIÓN (fuera del @if panelAbierto) -->
+<!-- 🎯 MODAL DE CONFIRMACIÓN -->
 @if (mostrarModal) {
   <div class="modal-overlay" (click)="cancelarEnvio()">
     <div class="modal" (click)="$event.stopPropagation()">
@@ -166,12 +175,12 @@
             <span>Subtotal:</span>
             <span>{{ formatearPrecio(carrito.totalPedido()) }}</span>
           </div>
-          <!-- @if (carrito.descuento() > 0) {
+          @if (carrito.descuento() > 0) {
             <div class="fila-modal">
-              <span>🎁 Cupón 10%:</span>
+              <span>🎁 Cupón {{ carrito.porcentajeCuponTexto() }}%:</span>
               <span class="descuento">-{{ formatearPrecio(carrito.descuento()) }}</span>
             </div>
-          } -->
+          }
           <div class="fila-modal">
             <span>Domicilio:</span>
             <span>{{ formatearPrecio(DOMICILIO) }}</span>

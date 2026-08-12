@@ -1,0 +1,68 @@
+<div class="clientes-page">
+
+  <!-- 📊 Estadísticas -->
+  <div class="stats-grid">
+    <div class="stat-card stat-amarillo">
+      <span class="stat-icono">👥</span>
+      <div>
+        <h3>{{ clientesService.totalClientes() }}</h3>
+        <p>Total clientes</p>
+      </div>
+    </div>
+    <!-- <div class="stat-card stat-verde">
+      <span class="stat-icono">⭐</span>
+      <div>
+        <h3>{{ clientesService.clientesFrecuentes() }}</h3>
+        <p>Frecuentes (3+ pedidos)</p>
+      </div>
+    </div> -->
+    <div class="stat-card stat-dorado">
+      <span class="stat-icono">💰</span>
+      <div>
+        <h3>{{ clientesService.formatearPrecio(clientesService.totalAcumulado()) }}</h3>
+        <p>Acumulado (entregados)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔍 Buscador -->
+  <div class="toolbar">
+    <div class="buscador">
+      <span class="icono-buscar">🔍</span>
+      <input
+        [value]="busqueda()"
+        (input)="actualizarBusqueda($event)"
+        placeholder="Buscar por número de teléfono o nombre..."
+      />
+    </div>
+  </div>
+
+  <!-- 👥 Lista de clientes -->
+  @if (clientesService.cargando() && clientesService.clientes().length === 0) {
+    <div class="estado-vacio">⏳ Cargando clientes…</div>
+  } @else if (clientesFiltrados().length === 0) {
+    <div class="estado-vacio">📭 No se encontraron clientes.</div>
+  } @else {
+    <div class="lista-clientes">
+      @for (cliente of clientesFiltrados(); track cliente.telefono) {
+        <div class="cliente-card">
+          <div class="cliente-avatar">{{ iniciales(cliente) }}</div>
+
+          <div class="cliente-info">
+            <div class="cliente-nombre">
+              {{ cliente.nombre }} {{ cliente.apellido }}
+              @if (esFrecuente(cliente)) {
+                <span class="badge-vip">⭐ Frecuente</span>
+              }
+            </div>
+            <span class="cliente-telefono">📞 {{ cliente.telefono }}</span>
+          </div>
+
+          <div class="cliente-acciones">
+            <a [href]="linkWhatsApp(cliente.telefono)" target="_blank" title="Escribir por WhatsApp">💬</a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

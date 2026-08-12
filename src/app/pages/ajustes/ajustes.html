@@ -1,0 +1,77 @@
+<div class="ajustes-page">
+
+  @if (mensaje()) {
+    <div class="toast-exito">{{ mensaje() }}</div>
+  }
+
+  <div class="ajustes-grid">
+
+    <!-- 🏪 NEGOCIO -->
+    <div class="ajuste-card">
+      <h4>🏪 Datos del negocio</h4>
+      <p class="nota-ajustes">Se aplican automáticamente en la tienda pública.</p>
+
+      <label>WhatsApp (código de país + número)</label>
+      <input [ngModel]="whatsapp()" (ngModelChange)="whatsapp.set($event)" placeholder="573012680659" />
+
+      <label>Valor del domicilio ($)</label>
+      <input type="number" [ngModel]="domicilio()" (ngModelChange)="domicilio.set(+$event || 0)" />
+
+      <button class="btn-guardar" (click)="guardarNegocio()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : '💾 Guardar cambios' }}
+      </button>
+    </div>
+
+    <!-- 🎁 PROMOCIONES Y SALSAS -->
+    <div class="ajuste-card">
+      <h4>🎁 Promociones y salsas</h4>
+      <p class="nota-ajustes">Cupón y reglas de salsas de la tienda.</p>
+
+      <label>Monto mínimo para cupón ($)</label>
+      <input type="number" [ngModel]="cuponUmbral()" (ngModelChange)="cuponUmbral.set(+$event || 0)" />
+
+      <label>Porcentaje del cupón (%)</label>
+      <input type="number" [ngModel]="cuponPorcentaje()" (ngModelChange)="cuponPorcentaje.set(+$event || 0)" />
+
+      <label>Salsas gratis incluidas</label>
+      <input type="number" [ngModel]="salsasGratis()" (ngModelChange)="salsasGratis.set(+$event || 0)" />
+
+      <label>Precio salsa extra ($)</label>
+      <input type="number" [ngModel]="salsaPrecio()" (ngModelChange)="salsaPrecio.set(+$event || 0)" />
+
+      <button class="btn-guardar" (click)="guardarPromociones()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : '💾 Guardar cambios' }}
+      </button>
+    </div>
+
+    <!-- 🔐 SEGURIDAD -->
+    <div class="ajuste-card">
+      <h4>🔐 Seguridad de la cuenta</h4>
+      <p class="cuenta-info">Sesión activa: <strong>{{ emailUsuario() }}</strong></p>
+
+      <label>Nueva contraseña</label>
+      <input type="password" [ngModel]="passwordNueva()" (ngModelChange)="passwordNueva.set($event)" />
+
+      <label>Confirmar contraseña</label>
+      <input type="password" [ngModel]="passwordConfirmar()" (ngModelChange)="passwordConfirmar.set($event)" />
+
+      @if (errorPassword()) {
+        <p class="error-ajustes">⚠️ {{ errorPassword() }}</p>
+      }
+
+      <button class="btn-guardar" (click)="cambiarPassword()" [disabled]="guardando()">
+        🔒 Cambiar contraseña
+      </button>
+    </div>
+
+    <!-- 📦 DATOS -->
+    <div class="ajuste-card">
+      <h4>📦 Datos del negocio</h4>
+      <p class="nota-ajustes">
+        Descarga todos los pedidos en CSV (compatible con Excel) para tu contabilidad.
+      </p>
+      <button class="btn-exportar" (click)="exportarCSV()">⬇️ Exportar pedidos (CSV)</button>
+    </div>
+
+  </div>
+</div>

@@ -1,8 +1,8 @@
 <article class="tarjeta">
   <div class="imagen">
     <img [src]="producto().imagen" [alt]="producto().nombre" />
-    @if (cantidad > 0) {
-      <span class="badge-cantidad">{{ cantidad }}</span>
+    @if (cantidad() > 0) {
+      <span class="badge-cantidad">{{ cantidad() }}</span>
     }
 
     @if (esSalsa()) {
@@ -23,7 +23,7 @@
         Después de las 3, cada una cuesta <strong>$500</strong>.
       </p>
 
-      @if (cantidad > 0) {
+      @if (cantidad() > 0) {
         <div class="resumen-salsa">
           @if (salsasGratis() > 0) {
             <span class="res-gratis">✓ {{ salsasGratis() }} gratis</span>
@@ -37,14 +37,14 @@
       <p class="precio">{{ formatearPrecio(producto().precio) }}</p>
     }
 
-    @if (cantidad === 0) {
+    @if (cantidad() === 0) {
       <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()">
         @if (agregado()) { ¡AGREGADO! ✓ } @else { AGREGAR <span class="mas">+</span> }
       </button>
     } @else {
       <div class="contador">
         <button class="btn-menos" (click)="quitar()" aria-label="Quitar uno">−</button>
-        <span class="cantidad">{{ cantidad }}</span>
+        <span class="cantidad">{{ cantidad() }}</span>
         <button class="btn-mas" (click)="agregar()" aria-label="Agregar uno">+</button>
       </div>
     }

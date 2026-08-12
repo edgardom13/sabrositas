@@ -1,0 +1,104 @@
+<div class="dashboard" [class.menu-abierto]="menuAbierto()">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="img/logo.png" alt="Sabrositas" class="sidebar-logo" />
+      <h1 class="sidebar-titulo">SABROSITAS</h1>
+      <p class="sidebar-sub">Panel Administrativo</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard/pedidos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
+        <span class="nav-icono">📦</span>
+        <span class="nav-texto">Pedidos</span>
+        @if (pedidosService.pedidosPendientesHoy() > 0) {
+          <span class="nav-badge">{{ pedidosService.pedidosPendientesHoy() }}</span>
+        }
+      </a>
+
+      <a routerLink="/dashboard/clientes" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
+        <span class="nav-icono">👥</span>
+        <span class="nav-texto">Clientes</span>
+      </a>
+
+      <a routerLink="/dashboard/estadisticas" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
+        <span class="nav-icono">📊</span>
+        <span class="nav-texto">Estadísticas</span>
+      </a>
+
+      <a routerLink="/dashboard/productos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
+        <span class="nav-icono">🍽️</span>
+        <span class="nav-texto">Productos</span>
+      </a>
+
+      <a routerLink="/dashboard/ajustes" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
+        <span class="nav-icono">⚙️</span>
+        <span class="nav-texto">Ajustes</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="avatar">{{ inicialUsuario() }}</div>
+        <div class="usuario-datos">
+          <span class="usuario-nombre">Administrador</span>
+          <span class="usuario-email">{{ emailUsuario() }}</span>
+        </div>
+      </div>
+      <button class="btn-salir" (click)="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Overlay para móvil -->
+  @if (menuAbierto()) {
+    <div class="overlay-movil" (click)="cerrarMenu()"></div>
+  }
+
+  <!-- ===== CONTENIDO ===== -->
+  <div class="contenido">
+    <header class="topbar">
+      <button class="btn-hamburguesa" (click)="alternarMenu()" aria-label="Abrir menú">☰</button>
+      <h2 class="topbar-titulo">{{ tituloRuta() }}</h2>
+      <div class="topbar-derecha">
+        <button
+          class="btn-sonido"
+          (click)="notificaciones.alternarSonido()"
+          [attr.aria-label]="notificaciones.sonidoActivado() ? 'Silenciar alertas' : 'Activar alertas'"
+          [title]="notificaciones.sonidoActivado() ? 'Alertas de sonido activadas' : 'Alertas silenciadas'"
+        >
+          {{ notificaciones.sonidoActivado() ? '🔔' : '🔕' }}
+        </button>
+
+        <button
+          class="btn-tema"
+          (click)="alternarTema()"
+          [attr.aria-label]="tema.oscuro() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+        >
+          {{ tema.oscuro() ? '☀️' : '🌙' }}
+        </button>
+
+        <a routerLink="/" class="btn-ver-tienda" target="_blank">🌐 Ver tienda</a>
+      </div>
+    </header>
+
+    <main class="contenido-principal">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<!-- 🔔 Toast de nuevo pedido en tiempo real (FUERA de la topbar) -->
+@if (notificaciones.toast(); as pedido) {
+  <div class="toast-pedido" (click)="notificaciones.toast.set(null)">
+    <span class="toast-icono">🔔</span>
+    <div class="toast-texto">
+      <strong>Nuevo pedido #{{ pedido.id }}</strong>
+      <span>
+        {{ pedido.nombre_cliente }} {{ pedido.apellido_cliente }} ·
+        {{ pedidosService.formatearPrecio(pedido.total) }}
+      </span>
+    </div>
+    <a routerLink="/dashboard/pedidos" class="toast-ver">Ver</a>
+  </div>
+}

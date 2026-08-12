@@ -34,7 +34,7 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(0);
 }
 
-/* ===== MODO CLARO ===== */
+/* ===== MODO CLARO - TIENDA ===== */
 body.claro {
   --negro: #fff7ea;
   --tarjeta: #fffdf8;
@@ -134,3 +134,327 @@ body.claro .seccion {
   background: #fff;
   border-color: rgba(16, 185, 129, 0.3);
 }
+
+/* ===== MODO CLARO - DASHBOARD ===== */
+body.claro .dashboard { background: #f6f1e7 !important; }
+
+body.claro .sidebar {
+  background: linear-gradient(180deg, #fffdf8 0%, #fdf6e9 100%) !important;
+  border-right: 1px solid rgba(180, 90, 20, 0.25) !important;
+}
+
+body.claro .sidebar-header { border-bottom-color: rgba(180, 90, 20, 0.2) !important; }
+
+body.claro .sidebar-titulo {
+  background: linear-gradient(180deg, #b45309, #92400e) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.claro .sidebar-sub { color: rgba(58, 36, 16, 0.55) !important; }
+
+body.claro .nav-item { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .nav-item:hover { background: rgba(180, 90, 20, 0.08) !important; color: #3a2410 !important; }
+body.claro .nav-item.activo { background: linear-gradient(180deg, #ffd54f, #ffb300) !important; color: #5c1010 !important; }
+body.claro .nav-item.deshabilitado { color: rgba(58, 36, 16, 0.75) !important; }
+
+body.claro .prox { background: rgba(58, 36, 16, 0.08) !important; color: rgba(58, 36, 16, 0.6) !important; }
+
+body.claro .sidebar-footer { border-top-color: rgba(180, 90, 20, 0.2) !important; }
+body.claro .usuario-nombre { color: #3a2410 !important; }
+body.claro .usuario-email { color: rgba(58, 36, 16, 0.55) !important; }
+
+body.claro .btn-salir { border-color: rgba(164, 22, 26, 0.4) !important; color: #a4161a !important; }
+body.claro .btn-salir:hover { background: rgba(164, 22, 26, 0.08) !important; }
+
+body.claro .topbar { background: rgba(255, 253, 248, 0.92) !important; border-bottom-color: rgba(180, 90, 20, 0.2) !important; }
+body.claro .topbar-titulo { color: #3a2410 !important; }
+body.claro .btn-hamburguesa { color: #b45309 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .btn-tema { border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .btn-tema:hover { background: rgba(180, 90, 20, 0.08) !important; }
+body.claro .btn-ver-tienda { color: #b45309 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .btn-ver-tienda:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+/* ===== MODO CLARO - PEDIDOS ===== */
+body.claro .stat-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important; }
+body.claro .stat-card h3 { color: #3a2410 !important; }
+body.claro .stat-card p { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .stat-dorado h3 { color: #b45309 !important; }
+
+body.claro .buscador input { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.3) !important; }
+body.claro .buscador input::placeholder { color: rgba(58, 36, 16, 0.4) !important; }
+
+body.claro .btn-actualizar { color: #b45309 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .btn-actualizar:hover:not(:disabled) { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .chip { background: #fff !important; border-color: rgba(180, 90, 20, 0.2) !important; color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .chip.activo { background: linear-gradient(180deg, #ffd54f, #ffb300) !important; color: #5c1010 !important; }
+
+body.claro .estado-vacio { background: #fff !important; border-color: rgba(180, 90, 20, 0.25) !important; color: rgba(58, 36, 16, 0.6) !important; }
+
+body.claro .pedido-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .numero { color: #b45309 !important; }
+body.claro .fecha { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .col-cliente strong { color: #3a2410 !important; }
+body.claro .col-cliente span { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .col-total strong { color: #3a2410 !important; }
+body.claro .pago { color: #c92a2a !important; }
+body.claro .pago.pagado { color: #2f9e44 !important; }
+body.claro .flecha { color: rgba(58, 36, 16, 0.5) !important; }
+
+body.claro .pedido-detalle { background: rgba(180, 90, 20, 0.04) !important; border-top-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .detalle-col h4 { color: #b45309 !important; }
+body.claro .detalle-items li { color: rgba(58, 36, 16, 0.85) !important; border-bottom-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .detalle-totales { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .detalle-totales span { color: rgba(58, 36, 16, 0.55) !important; }
+body.claro .total-final { color: #b45309 !important; }
+body.claro .direccion { color: rgba(58, 36, 16, 0.85) !important; }
+
+body.claro .links-accion a { color: #b45309 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .links-accion a:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .botones-pago button { background: rgba(47, 158, 68, 0.08) !important; border-color: rgba(47, 158, 68, 0.4) !important; color: #2f9e44 !important; }
+body.claro .botones-pago button:hover:not(:disabled) { background: rgba(47, 158, 68, 0.15) !important; }
+body.claro .pagado-info { color: #2f9e44 !important; }
+
+/* ===== MODO CLARO - CLIENTES ===== */
+body.claro .cliente-card {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important;
+}
+
+body.claro .cliente-nombre { color: #3a2410 !important; }
+body.claro .cliente-telefono { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .badge-vip {
+  background: rgba(180, 90, 20, 0.1) !important;
+  color: #b45309 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+}
+
+body.claro .cliente-acciones a { border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .cliente-acciones a:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+/* ===== MODO CLARO - ESTADÍSTICAS ===== */
+body.claro .chip { background: #fff !important; border-color: rgba(180, 90, 20, 0.2) !important; color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .chip.activo { background: linear-gradient(180deg, #ffd54f, #ffb300) !important; color: #5c1010 !important; }
+body.claro .indicador { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .indicador strong { color: #3a2410 !important; }
+body.claro .grafico-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important; }
+body.claro .grafico-card h4 { color: #b45309 !important; }
+body.claro .insight { color: rgba(58, 36, 16, 0.75) !important; background: rgba(180, 90, 20, 0.06) !important; border-color: rgba(180, 90, 20, 0.35) !important; }
+body.claro .sin-datos { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .barras-etiquetas span { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .leyenda-item { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .leyenda-porcentaje { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .metodo-cabecera, body.claro .top-cabecera { color: rgba(58, 36, 16, 0.85) !important; }
+body.claro .top-cabecera small { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .progreso { background: rgba(180, 90, 20, 0.12) !important; }
+body.claro .tendencia.sube { background: rgba(47, 158, 68, 0.12) !important; color: #2f9e44 !important; }
+body.claro .tendencia.baja { background: rgba(201, 42, 42, 0.12) !important; color: #c92a2a !important; }
+
+/* ===== MODO CLARO - DESGLOSE ===== */
+body.claro .desglose-caja { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .desglose-item { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .desglose-item strong { color: #3a2410 !important; }
+body.claro .desglose-item.total { border-color: rgba(180, 90, 20, 0.4) !important; background: rgba(180, 90, 20, 0.06) !important; }
+body.claro .desglose-item.total strong { color: #b45309 !important; }
+body.claro .desglose-item p { color: rgba(58, 36, 16, 0.6) !important; }
+
+/* ===== MODO CLARO - SELECTOR DE FECHA ===== */
+body.claro .input-fecha {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  color-scheme: light;
+}
+
+body.claro .fecha-elegida { color: #b45309 !important; }
+
+/* ===== MODO CLARO - AJUSTES ===== */
+body.claro .ajuste-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important; }
+body.claro .ajuste-card h4 { color: #b45309 !important; }
+body.claro .nota-ajustes { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .cuenta-info { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .cuenta-info strong { color: #b45309 !important; }
+body.claro .ajuste-card label { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .ajuste-card input { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.3) !important; }
+body.claro .error-ajustes { color: #c92a2a !important; }
+body.claro .btn-exportar { border-color: rgba(47, 158, 68, 0.5) !important; color: #2f9e44 !important; }
+body.claro .btn-exportar:hover { background: rgba(47, 158, 68, 0.08) !important; }
+
+/* =====================================================
+   MODO CLARO - PANEL DEL CARRITO Y MODAL DE CONFIRMACIÓN
+   ===================================================== */
+
+/* ----- Panel del carrito ----- */
+body.claro .panel-carrito { background: #fffdf8 !important; border-color: #b45309 !important; }
+body.claro .panel-carrito h3 { color: #b45309 !important; }
+body.claro .panel-carrito .vacio { color: #5b4632 !important; }
+
+body.claro .items li { color: #3a2410 !important; border-bottom-color: rgba(0, 0, 0, 0.12) !important; }
+
+body.claro .nota-domicilio {
+  background: rgba(180, 90, 20, 0.08) !important;
+  color: #8a4b00 !important;
+  border-color: #b45309 !important;
+}
+
+body.claro .totales .linea { color: #3a2410 !important; }
+body.claro .totales .total { color: #b45309 !important; border-top-color: rgba(0, 0, 0, 0.2) !important; }
+body.claro .linea.descuento { color: #2f9e44 !important; }
+
+body.claro .formulario input { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .formulario input::placeholder { color: rgba(58, 36, 16, 0.4) !important; }
+
+body.claro .error { color: #c92a2a !important; }
+
+body.claro .info-pedido { color: #3a2410 !important; }
+body.claro .info-detalle { background: rgba(0, 0, 0, 0.05) !important; color: #5b4632 !important; }
+
+body.claro .btn-ubicacion { border-color: #b45309 !important; color: #b45309 !important; }
+body.claro .btn-ubicacion:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .salsas-info { color: #2f9e44 !important; }
+body.claro .salsas-cobradas { color: #b45309 !important; }
+body.claro .hint-cupon { color: #b45309 !important; }
+body.claro .cupon-aplicado { color: #2f9e44 !important; }
+
+/* ----- Modal de confirmación ----- */
+body.claro .modal { background: #fffdf8 !important; border-color: #b45309 !important; }
+
+/* El encabezado rojo se mantiene, su texto sigue blanco */
+body.claro .modal-header h3 { color: #fff !important; }
+body.claro .sub-modal { color: #fff !important; }
+
+body.claro .bloque-modal {
+  background: rgba(180, 90, 20, 0.05) !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+}
+
+body.claro .bloque-modal h4 { color: #b45309 !important; }
+
+body.claro .fila-modal span:first-child { color: #5b4632 !important; }
+body.claro .fila-modal strong,
+body.claro .fila-modal span:last-child { color: #3a2410 !important; }
+
+body.claro .direccion-modal { color: #3a2410 !important; }
+
+/* 🔑 Aquí se arreglan los textos invisibles de "TU PEDIDO" */
+body.claro .lista-modal li,
+body.claro .lista-modal li span,
+body.claro .lista-modal li strong {
+  color: #3a2410 !important;
+}
+body.claro .lista-modal li { border-bottom-color: rgba(180, 90, 20, 0.15) !important; }
+
+body.claro .totales-modal .fila-modal.total { color: #b45309 !important; border-top-color: #b45309 !important; }
+body.claro .totales-modal .fila-modal.total strong { color: #b45309 !important; }
+
+body.claro .descuento { color: #2f9e44 !important; }
+
+body.claro .aviso-final { background: rgba(180, 90, 20, 0.08) !important; color: #5b4632 !important; }
+body.claro .aviso-final strong { color: #b45309 !important; }
+
+body.claro .btn-cancelar { border-color: rgba(180, 90, 20, 0.4) !important; color: #5b4632 !important; }
+body.claro .btn-cancelar:hover { border-color: #b45309 !important; background: rgba(180, 90, 20, 0.08) !important; }
+
+/* ===== MODO CLARO - FILTRO DE FECHA PEDIDOS ===== */
+body.claro .input-fecha {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  color-scheme: light;
+}
+
+body.claro .titulo-dia { color: #b45309 !important; }
+
+body.claro .btn-avanzar {
+  background: rgba(47, 158, 68, 0.1) !important;
+  border-color: rgba(47, 158, 68, 0.5) !important;
+  color: #2f9e44 !important;
+}
+
+body.claro .tiempo-relativo { color: rgba(58, 36, 16, 0.5) !important; }
+
+/* ===== MODO CLARO - PRODUCTOS ===== */
+body.claro .titulo-productos { color: #3a2410 !important; }
+body.claro .sub-productos { color: rgba(58, 36, 16, 0.6) !important; }
+
+body.claro .form-producto {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+  box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important;
+}
+
+body.claro .form-producto h4 { color: #b45309 !important; }
+body.claro .campo label { color: rgba(58, 36, 16, 0.8) !important; }
+
+body.claro .campo input,
+body.claro .campo select {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+body.claro .campo select option { background: #fff !important; color: #3a2410 !important; }
+
+body.claro .campo-checkbox { color: rgba(58, 36, 16, 0.8) !important; }
+
+body.claro .btn-cancelar {
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  color: #5b4632 !important;
+}
+
+body.claro .chip {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+  color: rgba(58, 36, 16, 0.7) !important;
+}
+
+body.claro .chip.activo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300) !important;
+  color: #5c1010 !important;
+}
+
+body.claro .buscador input {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+body.claro .producto-card {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important;
+}
+
+body.claro .producto-info strong { color: #3a2410 !important; }
+body.claro .producto-categoria { color: #b45309 !important; }
+body.claro .producto-precio { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .producto-orden { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .producto-estado { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .producto-estado.activo { color: #2f9e44 !important; }
+
+body.claro .btn-mini {
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+body.claro .btn-mini:hover { background: rgba(180, 90, 20, 0.08) !important; }
+body.claro .btn-mini.peligro { border-color: rgba(201, 42, 42, 0.4) !important; }
+body.claro .btn-mini.peligro:hover { background: rgba(201, 42, 42, 0.08) !important; }
+
+/* ===== MODO CLARO - SONIDO Y TOAST ===== */
+body.claro .btn-sonido { border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .btn-sonido:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .toast-pedido {
+  background: linear-gradient(180deg, #fffdf8, #fdf6e9) !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 15px 40px rgba(120, 70, 20, 0.3) !important;
+}
+
+body.claro .toast-texto strong { color: #b45309 !important; }
+body.claro .toast-texto span { color: rgba(58, 36, 16, 0.75) !important; }

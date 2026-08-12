@@ -1,32 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
-import { Header } from './components/header/header';
-import { Hero } from './components/hero/hero';
-import { SeccionMenu } from './components/seccion-menu/seccion-menu';
-import { Beneficios } from './components/beneficios/beneficios';
-import { BotonCarrito } from './components/boton-carrito/boton-carrito';
-import { Loading } from './components/loading/loading';
-import { Cerrado } from './components/cerrado/cerrado';
-import { Aparecer } from './directives/aparecer';
-import { Horario } from './services/horario';
-import { EMPANADAS, JUGOS, FRIOS, SALSAS } from './data/productos';
+// src/app/app.ts
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [Header, Hero, SeccionMenu, Beneficios, BotonCarrito, Loading, Cerrado, Aparecer],
-  templateUrl: './app.html',
-  styleUrl: './app.css',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet />`,
 })
-export class App {
-  horario = inject(Horario);
-  empanadas = EMPANADAS;
-  jugos = JUGOS;
-  frios = FRIOS;
-  salsas = SALSAS;
-
-  cargando = signal(true);
-
-  constructor() {
-    // El loading dura 2.5 segundos
-    setTimeout(() => this.cargando.set(false), 2500);
-  }
-}
+export class App {}

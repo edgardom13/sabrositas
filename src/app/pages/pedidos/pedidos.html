@@ -1,0 +1,235 @@
+<div class="pedidos-page">
+
+  <!-- ✅ Toast de éxito -->
+  @if (mensajeExito()) {
+    <div class="toast-exito">✅ {{ mensajeExito() }}</div>
+  }
+
+  <!-- 📅 Filtro por día -->
+  <div class="filtro-fecha">
+    <button class="chip" [class.activo]="!verHistorico()" (click)="irAHoy()">📅 Hoy</button>
+    <input
+      type="date"
+      class="input-fecha"
+      [value]="fechaSeleccionada()"
+      [disabled]="verHistorico()"
+      (change)="cambiarFecha($event)"
+    />
+    <button class="chip" [class.activo]="verHistorico()" (click)="verHistorico.set(true)">
+      🗂️ Histórico completo
+    </button>
+  </div>
+
+  <p class="titulo-dia">
+    @if (verHistorico()) {
+      🗂️ Mostrando todo el histórico de pedidos
+    } @else {
+      📅 Pedidos del {{ textoFecha() }}
+    }
+  </p>
+
+  <!-- 📊 Estadísticas del día -->
+  <div class="stats-grid">
+    <div class="stat-card stat-amarillo">
+      <span class="stat-icono">⏳</span>
+      <div>
+        <h3>{{ statsDia().pendientes }}</h3>
+        <p>Pendientes</p>
+      </div>
+    </div>
+    <div class="stat-card stat-azul">
+      <span class="stat-icono">🛵</span>
+      <div>
+        <h3>{{ statsDia().enCamino }}</h3>
+        <p>En camino</p>
+      </div>
+    </div>
+    <div class="stat-card stat-verde">
+      <span class="stat-icono">✅</span>
+      <div>
+        <h3>{{ statsDia().entregados }}</h3>
+        <p>Entregados</p>
+      </div>
+    </div>
+    <div class="stat-card stat-dorado">
+      <span class="stat-icono">💰</span>
+      <div>
+        <h3>{{ pedidosService.formatearPrecio(statsDia().recogido) }}</h3>
+        <p>Recogido del día</p>
+        <span class="desglose-caja">
+          💵 {{ pedidosService.formatearPrecio(statsDia().productos) }}
+          · 🛵 {{ pedidosService.formatearPrecio(statsDia().domicilios) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔍 Barra de herramientas -->
+  <div class="toolbar">
+    <div class="buscador">
+      <span class="icono-buscar">🔍</span>
+      <input
+        [value]="busqueda()"
+        (input)="actualizarBusqueda($event)"
+        placeholder="Buscar por cliente, teléfono o # de pedido..."
+      />
+    </div>
+    <button
+      class="btn-actualizar"
+      (click)="pedidosService.cargarPedidos()"
+      [disabled]="pedidosService.cargando()"
+    >
+      @if (pedidosService.cargando()) { ⟳ Actualizando… } @else { ⟳ Actualizar }
+    </button>
+  </div>
+
+  <!-- 🎛️ Filtros por estado con contadores -->
+  <div class="filtros">
+    @for (filtro of filtros; track filtro.valor) {
+      <button
+        class="chip"
+        [class.activo]="filtroEstado() === filtro.valor"
+        (click)="filtroEstado.set(filtro.valor)"
+      >
+        {{ filtro.etiqueta }} ({{ conteoDe(filtro.valor) }})
+      </button>
+    }
+  </div>
+
+  <!-- 📦 Lista de pedidos -->
+  @if (pedidosService.cargando() && pedidosService.pedidos().length === 0) {
+    <div class="estado-vacio">⏳ Cargando pedidos…</div>
+  } @else if (pedidosFiltrados().length === 0) {
+    <div class="estado-vacio">📭 No hay pedidos para mostrar aquí.</div>
+  } @else {
+    <div class="lista-pedidos">
+      @for (pedido of pedidosFiltrados(); track pedido.id) {
+        <div class="pedido-card" [class.nuevo]="esNuevo(pedido)">
+
+          <!-- Cabecera clickeable -->
+          <div class="pedido-cabecera" (click)="alternarDetalle(pedido.id)">
+            <div class="col-id">
+              <span class="numero">Pedido #{{ pedido.id }}</span>
+              @if (esNuevo(pedido)) {
+                <span class="badge-nuevo">NUEVO</span>
+              }
+              <span class="fecha">{{ pedidosService.formatearFecha(pedido.creado_en) }}</span>
+              <span class="tiempo-relativo">⏱️ {{ tiempoRelativo(pedido.creado_en) }}</span>
+            </div>
+
+            <div class="col-cliente">
+              <strong>{{ pedido.nombre_cliente }} {{ pedido.apellido_cliente }}</strong>
+              <span>📞 {{ pedido.telefono }}</span>
+            </div>
+
+            <div class="col-total">
+              <strong>{{ pedidosService.formatearPrecio(pedido.total) }}</strong>
+              <span class="pago" [class.pagado]="pedido.pagado">
+                {{ pedido.pagado ? '💰 Pagado' : '⏳ Sin pagar' }}
+              </span>
+            </div>
+
+            <div class="col-estado">
+              <span
+                class="estado-badge"
+                [style.--color-estado]="pedidosService.colorEstado(pedido.estado)"
+              >
+                {{ pedidosService.textoEstado(pedido.estado) }}
+              </span>
+            </div>
+
+            <!-- ▶️ Avance rápido de estado -->
+            @if (siguienteEstado(pedido.estado); as sig) {
+              <button
+                class="btn-avanzar"
+                [title]="'Pasar a ' + pedidosService.textoEstado(sig)"
+                [disabled]="procesando() === pedido.id"
+                (click)="$event.stopPropagation(); avanzarEstado(pedido)"
+              >▶</button>
+            }
+
+            <span class="flecha" [class.abierta]="pedidoExpandido() === pedido.id">▼</span>
+          </div>
+
+          <!-- Detalle expandible -->
+          @if (pedidoExpandido() === pedido.id) {
+            <div class="pedido-detalle">
+              <div class="detalle-grid">
+
+                <!-- Columna productos -->
+                <div class="detalle-col">
+                  <h4>🛒 Productos</h4>
+                  <ul class="detalle-items">
+                    @for (item of pedido.items; track $index) {
+                      <li>
+                        <span>{{ item.cantidad }} × {{ item.nombre }}</span>
+                        <span>{{ pedidosService.formatearPrecio(item.cantidad * item.precio) }}</span>
+                      </li>
+                    }
+                  </ul>
+                  <div class="detalle-totales">
+                    <p><span>Subtotal:</span> {{ pedidosService.formatearPrecio(pedido.subtotal) }}</p>
+                    @if (pedido.descuento > 0) {
+                      <p><span>Descuento:</span> -{{ pedidosService.formatearPrecio(pedido.descuento) }}</p>
+                    }
+                    <p><span>Domicilio:</span> {{ pedidosService.formatearPrecio(pedido.domicilio) }}</p>
+                    <p class="total-final">
+                      <span>Total:</span> {{ pedidosService.formatearPrecio(pedido.total) }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Columna entrega + acciones -->
+                <div class="detalle-col">
+                  <h4>📍 Entrega</h4>
+                  <p class="direccion">{{ pedido.direccion }}</p>
+
+                  <div class="links-accion">
+                    @if (pedido.lat && pedido.lng) {
+                      <a [href]="linkMapa(pedido)" target="_blank">🗺️ Ver mapa</a>
+                    }
+                    <a [href]="linkWhatsApp(pedido.telefono)" target="_blank">💬 WhatsApp</a>
+                  </div>
+
+                  <h4>💬 Mensajes rápidos al cliente</h4>
+                  <div class="botones-wsp">
+                    <button (click)="enviarWhatsapp(pedido, 'recibido')">📥 Pedido recibido</button>
+                    <button (click)="enviarWhatsapp(pedido, 'camino')">🛵 En camino</button>
+                    <button (click)="enviarWhatsapp(pedido, 'entregado')">✅ Entregado</button>
+                  </div>
+
+                  <h4>🔄 Cambiar estado</h4>
+                  <div class="botones-estado">
+                    @for (estado of estadosPedido; track estado) {
+                      <button
+                        class="btn-estado"
+                        [class.activo]="pedido.estado === estado"
+                        [style.--color-estado]="pedidosService.colorEstado(estado)"
+                        [disabled]="procesando() === pedido.id"
+                        (click)="cambiarEstado(pedido, estado)"
+                      >
+                        {{ pedidosService.textoEstado(estado) }}
+                      </button>
+                    }
+                  </div>
+
+                  <h4>💰 Pago</h4>
+                  @if (!pedido.pagado) {
+                    <div class="botones-pago">
+                      <button (click)="marcarPagado(pedido, 'Efectivo')" [disabled]="procesando() === pedido.id">💵 Efectivo</button>
+                      <button (click)="marcarPagado(pedido, 'Transferencia')" [disabled]="procesando() === pedido.id">🏦 Transferencia</button>
+                      <button (click)="marcarPagado(pedido, 'Nequi/Daviplata')" [disabled]="procesando() === pedido.id">📱 Nequi</button>
+                    </div>
+                  } @else {
+                    <p class="pagado-info">✅ Pagado · {{ pedido.metodo_pago }}</p>
+                  }
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

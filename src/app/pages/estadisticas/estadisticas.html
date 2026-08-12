@@ -1,0 +1,219 @@
+<div class="estadisticas-page">
+
+  <!-- 🎛️ Selector de período -->
+  <div class="selector-periodo">
+    @for (p of periodos; track p.valor) {
+      <button
+        class="chip"
+        [class.activo]="service.periodo() === p.valor"
+        (click)="cambiarPeriodo(p.valor)"
+      >
+        {{ p.etiqueta }}
+      </button>
+    }
+    @if (service.periodo() === 'personalizado') {
+      <input
+        type="date"
+        class="input-fecha"
+        [value]="service.fechaElegida()"
+        (change)="cambiarFecha($event)"
+      />
+    }
+  </div>
+
+  @if (service.periodo() === 'personalizado') {
+    <p class="fecha-elegida">📅 Viendo: {{ service.textoFechaElegida() }}</p>
+  }
+
+  <!-- 📊 KPIs principales -->
+  <div class="stats-grid">
+    <div class="stat-card stat-dorado">
+      <span class="stat-icono">💰</span>
+      <div>
+        <h3>{{ service.formatearPrecio(service.ventas()) }}</h3>
+        <p>Ventas productos</p>
+        <span class="tendencia" [class.sube]="service.crecimiento() >= 0" [class.baja]="service.crecimiento() < 0">
+          {{ service.crecimiento() >= 0 ? '▲' : '▼' }} {{ service.crecimientoAbs() }}% vs anterior
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-card stat-amarillo">
+      <span class="stat-icono">🧾</span>
+      <div>
+        <h3>{{ service.totalPedidos() }}</h3>
+        <p>Pedidos ({{ service.entregados() }} entregados)</p>
+      </div>
+    </div>
+
+    <div class="stat-card stat-azul">
+      <span class="stat-icono">🎯</span>
+      <div>
+        <h3>{{ service.formatearPrecio(service.ticketPromedio()) }}</h3>
+        <p>Ticket promedio</p>
+      </div>
+    </div>
+
+    <div class="stat-card stat-verde">
+      <span class="stat-icono">👥</span>
+      <div>
+        <h3>{{ service.clientesUnicos() }}</h3>
+        <p>Clientes activos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⚠️ Indicadores secundarios -->
+  <div class="indicadores">
+    <div class="indicador">
+      <span>❌ Cancelación:</span>
+      <strong>{{ service.tasaCancelacion() }}%</strong>
+    </div>
+    <div class="indicador">
+      <span>⏳ En proceso:</span>
+      <strong>{{ service.enProceso() }}</strong>
+    </div>
+    <div class="indicador">
+      <span>💵 Por cobrar:</span>
+      <strong>{{ service.formatearPrecio(service.porCobrar()) }}</strong>
+    </div>
+  </div>
+
+  @if (service.totalPedidos() === 0) {
+    <div class="estado-vacio">📭 No hay pedidos en este período para mostrar estadísticas.</div>
+  } @else {
+
+    <div class="grid-graficos">
+
+      <!-- 💰 Desglose de ingresos -->
+      <div class="grafico-card ancho-completo">
+        <h4>💰 Desglose de ingresos (entregados)</h4>
+        <div class="desglose-grid">
+          <div class="desglose-item">
+            <span class="desglose-icono">💵</span>
+            <div>
+              <strong>{{ service.formatearPrecio(service.ventas()) }}</strong>
+              <p>Ventas de productos</p>
+            </div>
+          </div>
+          <div class="desglose-item">
+            <span class="desglose-icono">🛵</span>
+            <div>
+              <strong>{{ service.formatearPrecio(service.domicilios()) }}</strong>
+              <p>Domicilios</p>
+            </div>
+          </div>
+          <div class="desglose-item total">
+            <span class="desglose-icono">💰</span>
+            <div>
+              <strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong>
+              <p>Total ingresos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📈 Ventas en el período -->
+      <div class="grafico-card ancho-completo">
+        <h4>📈 Ventas del período</h4>
+        @if (service.mejorMomento(); as mejor) {
+          <p class="insight">🔥 Mejor momento: {{ mejor.texto }} con {{ service.formatearPrecio(mejor.valor) }}</p>
+        }
+        <div class="barras">
+          @for (punto of service.serieVentas(); track $index) {
+            <div
+              class="barra"
+              [style.height.%]="alturaBarra(punto.valor)"
+              [title]="punto.etiqueta + ': ' + service.formatearPrecio(punto.valor)"
+            ></div>
+          }
+        </div>
+        <div class="barras-etiquetas">
+          @for (punto of service.serieVentas(); track $index; let i = $index) {
+            <span>{{ mostrarEtiqueta(i) ? punto.etiqueta : '' }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- 🍩 Estados de pedidos -->
+      <div class="grafico-card">
+        <h4>Estados de pedidos</h4>
+        <div class="donut-contenedor">
+          <div class="donut" [style.background]="service.gradienteDonut()"></div>
+          <div class="leyenda">
+            @for (r of service.distribucionEstados(); track r.etiqueta) {
+              <div class="leyenda-item">
+                <span class="punto" [style.background]="r.color"></span>
+                <span class="leyenda-texto">{{ r.etiqueta }}</span>
+                <strong>{{ r.cantidad }}</strong>
+                <span class="leyenda-porcentaje">{{ r.porcentaje | number: '1.0-0' }}%</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- 💳 Métodos de pago -->
+      <div class="grafico-card">
+        <h4>💳 Métodos de pago</h4>
+        @if (service.metodosPago().length === 0) {
+          <p class="sin-datos">Aún no hay pagos registrados en este período.</p>
+        } @else {
+          <div class="metodos">
+            @for (m of service.metodosPago(); track m.metodo) {
+              <div class="metodo-item">
+                <div class="metodo-cabecera">
+                  <span>{{ m.metodo }}</span>
+                  <strong>{{ m.cantidad }} ({{ m.porcentaje }}%)</strong>
+                </div>
+                <div class="progreso">
+                  <div class="progreso-barra" [style.width.%]="m.porcentaje"></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 🥇 Top productos -->
+      <div class="grafico-card">
+        <h4>🥇 Productos más vendidos</h4>
+        @if (service.productoEstrella(); as estrella) {
+          <p class="insight">⭐ Estrella: {{ estrella.nombre }} ({{ estrella.cantidad }} vendidos)</p>
+        }
+        <div class="lista-top">
+          @for (item of service.topProductos(); track item.nombre) {
+            <div class="fila-top">
+              <div class="top-cabecera">
+                <span>{{ item.nombre }}</span>
+                <strong>{{ item.cantidad }} u.</strong>
+              </div>
+              <div class="progreso">
+                <div
+                  class="progreso-barra dorada"
+                  [style.width.%]="(item.cantidad / service.maxTopProducto()) * 100"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- 👑 Top clientes -->
+      <div class="grafico-card">
+        <h4>👑 Mejores clientes</h4>
+        <div class="lista-top">
+          @for (c of service.topClientes(); track c.telefono) {
+            <div class="fila-top">
+              <div class="top-cabecera">
+                <span>{{ c.nombre }} <small>({{ c.pedidos }} pedidos)</small></span>
+                <strong>{{ service.formatearPrecio(c.gastado) }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

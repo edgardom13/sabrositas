@@ -237,7 +237,7 @@
   background: #1d0e06;
   border: 2px solid var(--amarillo);
   border-radius: 16px;
-  width: min(370px, calc(100vw - 32px)); /* ← misma fórmula que el panel del carrito */
+  width: min(370px, calc(100vw - 32px));
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
@@ -440,7 +440,7 @@
   }
 
   .modal {
-    width: min(370px, calc(100vw - 32px)); /* ← mismo ancho que el panel en móvil */
+    width: min(370px, calc(100vw - 32px));
     max-height: 85vh;
     border-radius: 14px;
   }
@@ -519,11 +519,6 @@
   }
 }
 
-/* Modo claro */
-body.claro .panel-carrito .info-detalle { background: rgba(0, 0, 0, 0.05); color: #5b4632; }
-body.claro .panel-carrito .btn-ubicacion { border-color: #b45309; color: #b45309; }
-body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
-
 .salsas-info {
   color: #37b24d;
   font-weight: 600;
@@ -534,6 +529,76 @@ body.claro .panel-carrito .btn-buscar-mapa { color: #b45309; }
   font-weight: 600;
 }
 
-/* Modo claro */
-body.claro .salsas-info { color: #2f9e44; }
-body.claro .salsas-cobradas { color: #b45309; }
+/* ===== MODO CLARO COMPLETO ===== */
+
+/* Panel del carrito */
+body.claro .panel-carrito { background: #fffdf8 !important; border-color: #b45309 !important; }
+body.claro .panel-carrito h3 { color: #b45309 !important; }
+body.claro .panel-carrito .vacio { color: #5b4632 !important; }
+
+body.claro .items li { color: #3a2410 !important; border-bottom-color: rgba(0, 0, 0, 0.12) !important; }
+
+body.claro .nota-domicilio { background: rgba(180, 90, 20, 0.08) !important; color: #8a4b00 !important; border-color: #b45309 !important; }
+
+body.claro .totales .linea { color: #3a2410 !important; }
+body.claro .totales .total { color: #b45309 !important; border-top-color: rgba(0, 0, 0, 0.2) !important; }
+body.claro .totales .linea.descuento { color: #2f9e44 !important; }
+
+body.claro .titulo-entrega { color: #b45309 !important; }
+
+body.claro .formulario input { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .formulario input::placeholder { color: rgba(58, 36, 16, 0.4) !important; }
+
+body.claro .error { color: #c92a2a !important; }
+
+body.claro .info-pedido { color: #3a2410 !important; }
+body.claro .info-pedido .btn-info { background: #b45309 !important; color: #fff !important; }
+body.claro .info-detalle { background: rgba(0, 0, 0, 0.05) !important; color: #5b4632 !important; }
+
+body.claro .btn-ubicacion { border-color: #b45309 !important; color: #b45309 !important; }
+body.claro .btn-ubicacion:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .btn-buscar-mapa { color: #b45309 !important; }
+
+body.claro .salsas-info { color: #2f9e44 !important; }
+body.claro .salsas-cobradas { color: #b45309 !important; }
+
+body.claro .hint-cupon { color: #b45309 !important; }
+body.claro .cupon-aplicado { color: #2f9e44 !important; }
+
+/* Modal de confirmación */
+body.claro .modal { background: #fffdf8 !important; border-color: #b45309 !important; }
+
+body.claro .sub-modal { color: rgba(255, 255, 255, 0.9) !important; }
+
+body.claro .bloque-modal { background: rgba(180, 90, 20, 0.05) !important; border-color: rgba(180, 90, 20, 0.2) !important; }
+
+body.claro .bloque-modal h4 { color: #b45309 !important; }
+
+body.claro .fila-modal span:first-child { color: #5b4632 !important; }
+body.claro .fila-modal strong,
+body.claro .fila-modal span:last-child { color: #3a2410 !important; }
+
+body.claro .direccion-modal { color: #3a2410 !important; }
+
+body.claro .lista-modal li { border-bottom-color: rgba(180, 90, 20, 0.15) !important; }
+
+body.claro .totales-modal .fila-modal.total { color: #b45309 !important; border-top-color: #b45309 !important; }
+body.claro .totales-modal .fila-modal.total strong { color: #b45309 !important; }
+
+body.claro .descuento { color: #2f9e44 !important; }
+
+body.claro .aviso-final { background: rgba(180, 90, 20, 0.08) !important; color: #5b4632 !important; }
+body.claro .aviso-final strong { color: #b45309 !important; }
+
+body.claro .btn-cancelar { border-color: rgba(180, 90, 20, 0.4) !important; color: #5b4632 !important; }
+body.claro .btn-cancelar:hover { border-color: #b45309 !important; background: rgba(180, 90, 20, 0.08) !important; }
+
+/* ===== Mensaje de solo salsas ===== */
+.btn-confirmar:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.7;
+  filter: none;
+}

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Carrito } from '../../services/carrito';
 import { SupabaseService } from '../../services/supabase';
+import { ConfigService } from '../../services/config.service';
 
 @Component({
   selector: 'app-boton-carrito',
@@ -16,14 +17,23 @@ export class BotonCarrito {
   private sanitizer = inject(DomSanitizer);
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
+  private configService = inject(ConfigService);
 
   panelAbierto = false;
   mostrarModal = false; // ← modal de confirmación
   enviandoPedido = false;
 
-  readonly NUMERO_WHATSAPP = '573012680659';
-  readonly DOMICILIO = 3000;
+  // ⚠️ Eliminadas las propiedades readonly que conflictuaban con los getters
   readonly GOOGLE_MAPS_KEY = 'AIzaSyDt-zm7q0nwoGYcZR8fzsUtioYMXz_bauk';
+
+  // ✅ Getters dinámicos (leen de Ajustes en vivo)
+  get NUMERO_WHATSAPP(): string {
+    return this.configService.config().whatsapp;
+  }
+
+  get DOMICILIO(): number {
+    return this.configService.config().domicilio;
+  }
 
   nombre = '';
   apellido = '';
@@ -39,6 +49,10 @@ export class BotonCarrito {
   mostrarInfo = false;
 
   private timeoutBusqueda: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.configService.cargar();
+  }
 
   formatearPrecio(valor: number): string {
     return '$' + valor.toLocaleString('es-CO');
@@ -220,8 +234,8 @@ export class BotonCarrito {
     }
   }
 
-  // 🎯 NUEVO: Validar y mostrar modal de confirmación
-  enviarPedido(): void {
+  // 🎯 Validar y mostrar modal de confirmación
+    enviarPedido(): void {
     this.formularioValido =
       this.nombre.trim() !== '' &&
       this.apellido.trim() !== '' &&
@@ -230,11 +244,16 @@ export class BotonCarrito {
 
     if (!this.formularioValido) return;
 
+    // 🛡️ No permitir pedidos sin productos principales
+    if (!this.carrito.tieneProductosPrincipales()) {
+      return; // el mensaje ya se muestra en el HTML
+    }
+
     // Mostrar el modal en vez de enviar directamente
     this.mostrarModal = true;
   }
 
-  // ✅ NUEVO: El cliente confirmó, ahora sí se envía
+  // ✅ El cliente confirmó, ahora sí se envía
   async confirmarEnvio(): Promise<void> {
     if (this.enviandoPedido) return;
     this.enviandoPedido = true;
@@ -265,6 +284,12 @@ export class BotonCarrito {
         ? `\n   🗺️ *Ver ubicación en el mapa:* https://www.google.com/maps?q=${this.lat},${this.lng}`
         : '';
 
+    // 💡 Cupón con el porcentaje dinámico desde Ajustes
+    const lineaCupon =
+      descuento > 0
+        ? `   🎁 Cupón ${this.carrito.porcentajeCuponTexto()}%: *-${this.formatearPrecio(descuento)}*\n`
+        : '';
+
     const mensaje =
       `┏━━━━━━━━━━━━━━━━━━━━━━┓\n` +
       `   🥟 *SABROSITAS* 🥟\n` +
@@ -281,7 +306,7 @@ export class BotonCarrito {
       `│   💰 *RESUMEN*\n` +
       `╰─────────────────────╯\n` +
       `   🧾 Subtotal: *${this.formatearPrecio(subtotal)}*\n` +
-      (descuento > 0 ? `   🎁 Cupón 10%: *-${this.formatearPrecio(descuento)}*\n` : '') +
+      lineaCupon +
       `   🛵 Domicilio: *${this.formatearPrecio(this.DOMICILIO)}*\n` +
       `   ━━━━━━━━━━━━━━━━\n` +
       `   💵 *TOTAL A PAGAR: ${this.formatearPrecio(total)}*\n\n` +
@@ -333,7 +358,7 @@ export class BotonCarrito {
     this.enviandoPedido = false;
   }
 
-  // ❌ NUEVO: El cliente canceló, cerrar modal y seguir editando
+  // ❌ El cliente canceló, cerrar modal y seguir editando
   cancelarEnvio(): void {
     this.mostrarModal = false;
   }
@@ -348,4 +373,3 @@ export class BotonCarrito {
     return '🥟';
   }
 }
-

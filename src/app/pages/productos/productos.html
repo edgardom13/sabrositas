@@ -1,0 +1,118 @@
+<div class="productos-page">
+
+  @if (mensaje()) {
+    <div class="toast-exito">{{ mensaje() }}</div>
+  }
+
+  <!-- Encabezado -->
+  <div class="productos-header">
+    <div>
+      <h2 class="titulo-productos">Gestión del catálogo</h2>
+      <p class="sub-productos">Los cambios se reflejan al instante en la tienda pública.</p>
+    </div>
+    <button class="btn-nuevo" (click)="nuevo()">➕ Nuevo producto</button>
+  </div>
+
+  <!-- Formulario -->
+  @if (mostrarFormulario()) {
+    <div class="form-producto">
+      <h4>{{ editandoId() !== null ? '✏️ Editar producto' : '➕ Nuevo producto' }}</h4>
+
+      <div class="form-grid">
+        <div class="campo">
+          <label>Nombre</label>
+          <input [ngModel]="formulario().nombre" (ngModelChange)="formulario.set({ ...formulario(), nombre: $event })" placeholder="Ej: Empanada de queso" />
+        </div>
+
+        <div class="campo">
+          <label>Categoría</label>
+          <select [ngModel]="formulario().categoria" (ngModelChange)="formulario.set({ ...formulario(), categoria: $event })">
+            @for (c of categorias; track c.valor) {
+              <option [value]="c.valor">{{ c.etiqueta }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Precio ($)</label>
+          <input type="number" [ngModel]="formulario().precio" (ngModelChange)="formulario.set({ ...formulario(), precio: +$event || 0 })" />
+        </div>
+
+        <div class="campo">
+          <label>Orden (menor = aparece antes)</label>
+          <input type="number" [ngModel]="formulario().orden" (ngModelChange)="formulario.set({ ...formulario(), orden: +$event || 0 })" />
+        </div>
+      </div>
+
+      <!-- 📷 Imagen -->
+      <div class="campo campo-imagen">
+        <label>📷 Imagen (sube un archivo o pega una URL)</label>
+        <input type="file" accept="image/*" (change)="subirImagen($event)" [disabled]="subiendoImagen()" />
+        @if (subiendoImagen()) {
+          <span class="subiendo">⏳ Subiendo imagen…</span>
+        }
+        <input [ngModel]="formulario().imagen" (ngModelChange)="formulario.set({ ...formulario(), imagen: $event })" placeholder="https://... o img/..." />
+        @if (formulario().imagen) {
+          <img [src]="formulario().imagen" class="preview-img" alt="Vista previa" />
+        }
+      </div>
+
+      <label class="campo-checkbox">
+        <input type="checkbox" [ngModel]="formulario().activo" (ngModelChange)="formulario.set({ ...formulario(), activo: $event })" />
+        <span>Visible en la tienda pública</span>
+      </label>
+
+      <div class="form-acciones">
+        <button class="btn-cancelar" (click)="cancelar()">✕ Cancelar</button>
+        <button class="btn-guardar" (click)="guardar()">💾 {{ editandoId() !== null ? 'Actualizar' : 'Crear' }}</button>
+      </div>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <div class="toolbar">
+    <div class="buscador">
+      <span class="icono-buscar">🔍</span>
+      <input [value]="busqueda()" (input)="actualizarBusqueda($event)" placeholder="Buscar producto..." />
+    </div>
+    <div class="chips-categoria">
+      <button class="chip" [class.activo]="filtroCategoria() === 'todas'" (click)="cambiarFiltro('todas')">🌐 Todos</button>
+      @for (c of categorias; track c.valor) {
+        <button class="chip" [class.activo]="filtroCategoria() === c.valor" (click)="cambiarFiltro(c.valor)">{{ c.etiqueta }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- Lista -->
+  @if (service.cargando()) {
+    <div class="estado-vacio">⏳ Cargando productos…</div>
+  } @else if (productosFiltrados().length === 0) {
+    <div class="estado-vacio">📭 No hay productos que coincidan.</div>
+  } @else {
+    <div class="lista-productos">
+      @for (p of productosFiltrados(); track p.id) {
+        <div class="producto-card" [class.inactivo]="!p.activo">
+          <img [src]="p.imagen" [alt]="p.nombre" class="producto-img" />
+          <div class="producto-info">
+            <strong>{{ p.nombre }}</strong>
+            <span class="producto-categoria">{{ p.categoria }}</span>
+            <span class="producto-precio">{{ formatearPrecio(p.precio) }}</span>
+          </div>
+          <div class="producto-meta">
+            <span class="producto-orden">Orden: {{ p.orden }}</span>
+            <span class="producto-estado" [class.activo]="p.activo">
+              {{ p.activo ? '🟢 Visible' : '⏸️ Oculto' }}
+            </span>
+          </div>
+          <div class="producto-acciones">
+            <button class="btn-mini" (click)="toggleActivo(p)" [title]="p.activo ? 'Ocultar' : 'Activar'">
+              {{ p.activo ? '👁️' : '👁️🗨️' }}
+            </button>
+            <button class="btn-mini" (click)="editar(p)" title="Editar">✏️</button>
+            <button class="btn-mini peligro" (click)="eliminar(p)" title="Eliminar">🗑️</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

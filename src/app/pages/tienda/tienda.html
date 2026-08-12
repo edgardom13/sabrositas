@@ -1,0 +1,26 @@
+@if (cargando()) {
+  <app-loading />
+} @else if (!horario.abierto()) {
+  <app-cerrado />
+} @else {
+  <app-header />
+
+  <main>
+    <app-hero appAparecer />
+
+    <div class="menu-grid">
+      <app-seccion-menu appAparecer idSeccion="empanadas" titulo="EMPANADAS FRITAS" tema="rojo"
+        [productos]="productosService.empanadas()" />
+      <app-seccion-menu appAparecer idSeccion="jugos" titulo="JUGOS NATURALES" tema="amarillo"
+        [productos]="productosService.jugos()" />
+      <app-seccion-menu appAparecer idSeccion="frios" titulo="FRÍOS" tema="rojo"
+        [productos]="productosService.frios()" />
+      <app-seccion-menu appAparecer idSeccion="salsas" titulo="SALSAS" tema="amarillo"
+        [productos]="productosService.salsas()" />
+    </div>
+  </main>
+
+  <app-beneficios appAparecer />
+
+  <app-boton-carrito />
+}
