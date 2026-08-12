@@ -1,0 +1,26 @@
+.confirmado-hero { display: flex; justify-content: center; padding: 70px 20px; }
+
+.confirmado-card {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(40, 167, 69, 0.5);
+  border-radius: 20px;
+  padding: 44px 32px;
+  max-width: 540px;
+  width: 100%;
+}
+
+.confirmado-icono { font-size: 56px; }
+
+.confirmado-card h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 2px;
+  color: #51cf66;
+  margin: 12px 0 8px;
+}
+
+.confirmado-sub { color: rgba(255, 255, 255, 0.75); font-size: 15px; }
+.confirmado-sub strong { color: #ffd54f; }
+.confirmado-nombre { color: #ffd54f; font-weight: 700; margin: 6px 0 24px; }
+.confirmado-acciones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }

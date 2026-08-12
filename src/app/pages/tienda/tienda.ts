@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router'; // ← agrega esta línea
 import { Header } from '../../components/header/header';
 import { Hero } from '../../components/hero/hero';
 import { SeccionMenu } from '../../components/seccion-menu/seccion-menu';
@@ -13,8 +14,18 @@ import { ConfigService } from '../../services/config.service';
 
 @Component({
   selector: 'app-tienda',
-  standalone: true, // ← ESTA LÍNEA ES LA CLAVE
-  imports: [Header, Hero, SeccionMenu, Beneficios, BotonCarrito, Loading, Cerrado, Aparecer],
+  standalone: true,
+  imports: [
+    RouterLink, // ← agrégalo aquí
+    Header,
+    Hero,
+    SeccionMenu,
+    Beneficios,
+    BotonCarrito,
+    Loading,
+    Cerrado,
+    Aparecer,
+  ],
   templateUrl: './tienda.html',
   styleUrl: './tienda.css',
 })
@@ -26,6 +37,10 @@ export class Tienda {
   cargando = signal(true);
 
   constructor() {
+    // 🔗 Captura el código de referido desde la URL
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) localStorage.setItem('ref-sabrositas', ref.trim());
+
     Promise.all([
       this.configService.cargar(),
       this.productosService.cargar(),

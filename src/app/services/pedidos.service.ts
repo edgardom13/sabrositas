@@ -34,6 +34,11 @@ export class PedidosService {
     () => this.pedidos().filter((p) => p.estado === 'cancelado').length,
   );
 
+    // 🎁 Otorga puntos al referidor cuando un pedido se entrega
+  async otorgarPuntosReferido(id: number): Promise<void> {
+    await this.supabase.client.rpc('otorgar_puntos_referido', { pedido_id: id });
+  }
+
     // ===== 📅 Pedidos de HOY =====
   private esHoy(iso: string): boolean {
     const f = new Date(iso);

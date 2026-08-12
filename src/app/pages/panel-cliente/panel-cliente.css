@@ -1,0 +1,198 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #0d0603;
+  padding: 20px;
+}
+
+.panel-page { max-width: 700px; margin: 0 auto; }
+
+.toast-exito {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 400;
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(47, 158, 68, 0.4);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.header-info h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: #ffd54f;
+  margin: 0;
+}
+
+.header-info p { font-size: 14px; color: rgba(255, 255, 255, 0.7); margin: 4px 0 0; }
+
+.btn-salir {
+  background: transparent;
+  border: 1.5px solid rgba(210, 31, 43, 0.6);
+  color: #ff8080;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tarjeta-puntos {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05));
+  border: 2px solid rgba(255, 193, 7, 0.4);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.puntos-icono { font-size: 40px; }
+
+.tarjeta-puntos h2 { margin: 0; font-size: 34px; font-weight: 800; color: #ffd54f; }
+.tarjeta-puntos p { margin: 2px 0 0; color: rgba(255, 255, 255, 0.7); }
+
+.tarjeta-referidos {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.tarjeta-referidos h3 { color: #ffd54f; margin: 0 0 8px; }
+
+.referidos-texto { font-size: 13.5px; color: rgba(255, 255, 255, 0.75); margin: 0 0 14px; }
+.referidos-texto strong { color: #ffd54f; }
+
+.link-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed rgba(255, 193, 7, 0.4);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.link-url {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  word-break: break-all;
+}
+
+.btn-copiar {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c1010;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.titulo-seccion {
+  color: #fff;
+  font-size: 17px;
+  margin: 0 0 12px;
+}
+
+.grid-premios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.premio-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.premio-nombre { color: #fff; font-weight: 600; font-size: 14px; }
+.premio-puntos { color: #ffd54f; font-weight: 800; font-size: 15px; }
+
+.btn-canjear {
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  border: none;
+  border-radius: 999px;
+  padding: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-canjear:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.estado-vacio {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+}
+
+.lista-canjes { display: flex; flex-direction: column; gap: 10px; }
+
+.canje-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.canje-codigo { color: #ffd54f; font-size: 15px; letter-spacing: 1px; }
+.canje-fecha { margin: 4px 0 0; font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+
+.canje-estado { font-size: 12.5px; color: #ffc107; font-weight: 700; }
+.canje-estado.reclamado { color: #28a745; }
+
+/* Modo claro */
+body.claro :host { background: #f6f1e7; }
+body.claro .header-info h1 { color: #b45309; }
+body.claro .header-info p { color: rgba(58, 36, 16, 0.7); }
+body.claro .tarjeta-puntos h2 { color: #b45309; }
+body.claro .tarjeta-puntos p { color: rgba(58, 36, 16, 0.7); }
+body.claro .tarjeta-referidos { background: #fff; border-color: rgba(180, 90, 20, 0.2); }
+body.claro .tarjeta-referidos h3 { color: #b45309; }
+body.claro .referidos-texto { color: rgba(58, 36, 16, 0.75); }
+body.claro .referidos-texto strong { color: #b45309; }
+body.claro .link-box { background: rgba(180, 90, 20, 0.05); }
+body.claro .link-url { color: rgba(58, 36, 16, 0.7); }
+body.claro .titulo-seccion { color: #3a2410; }
+body.claro .premio-card { background: #fff; border-color: rgba(180, 90, 20, 0.15); }
+body.claro .premio-nombre { color: #3a2410; }
+body.claro .premio-puntos { color: #b45309; }
+body.claro .canje-card { background: #fff; border-color: rgba(180, 90, 20, 0.15); }
+body.claro .canje-codigo { color: #b45309; }
+body.claro .canje-fecha { color: rgba(58, 36, 16, 0.5); }
+body.claro .canje-estado { color: #b45309; }
+body.claro .canje-estado.reclamado { color: #2f9e44; }
+body.claro .estado-vacio { background: #fff; color: rgba(58, 36, 16, 0.6); border-color: rgba(180, 90, 20, 0.25); }

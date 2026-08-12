@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular
 import { PedidosService, EstadoPedido } from '../../services/pedidos.service';
 import { Pedido } from '../../services/supabase';
 import { ConfigService } from '../../services/config.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-pedidos',
@@ -12,12 +13,15 @@ import { ConfigService } from '../../services/config.service';
 })
 export class Pedidos implements OnInit, OnDestroy {
   pedidosService = inject(PedidosService);
+  private auth = inject(AuthService);
 
   filtroEstado = signal<'todos' | EstadoPedido>('todos');
   busqueda = signal('');
   pedidoExpandido = signal<number | null>(null);
   procesando = signal<number | null>(null);
   mensajeExito = signal<string | null>(null);
+  
+domiciliariosDisponibles = signal<any[]>([]);
 
   // 📅 Por defecto: solo el día de hoy
   fechaSeleccionada = signal<string>(this.hoyLocal());
@@ -97,15 +101,42 @@ export class Pedidos implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+     this.pedidosService.cargarPedidos();
+  this.cargarDomiciliarios(); // ← nuevo
+  this.intervalo = setInterval(() => {
     this.pedidosService.cargarPedidos();
-    this.intervalo = setInterval(() => {
-      this.pedidosService.cargarPedidos();
-    }, 30000);
+  }, 30000);
   }
 
   ngOnDestroy(): void {
     if (this.intervalo) clearInterval(this.intervalo);
   }
+
+  async cargarDomiciliarios(): Promise<void> {
+  const { data } = await this.auth['supabase'].client
+    .from('perfiles')
+    .select('id, nombre')
+    .eq('rol', 'domiciliario');
+  this.domiciliariosDisponibles.set(data ?? []);
+}
+
+async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
+  const id = (evento.target as HTMLSelectElement).value || null;
+  this.procesando.set(pedido.id);
+  const { error } = await this.pedidosService['supabase'].client
+    .from('pedidos')
+    .update({ domiciliario_id: id })
+    .eq('id', pedido.id);
+  this.procesando.set(null);
+
+  if (!error) {
+    this.pedidosService.pedidos.update((lista) =>
+      lista.map((p) => (p.id === pedido.id ? { ...p, domiciliario_id: id } : p)),
+    );
+    this.mostrarMensaje(id ? '🛵 Domiciliario asignado' : 'Sin domiciliario');
+  }
+}
+
 
   // ===== 📅 Manejo de fechas =====
   private hoyLocal(): string {
@@ -173,6 +204,9 @@ export class Pedidos implements OnInit, OnDestroy {
 
     this.procesando.set(pedido.id);
     const ok = await this.pedidosService.cambiarEstado(pedido.id, estado);
+        if (ok && estado === 'entregado') {
+      await this.pedidosService.otorgarPuntosReferido(pedido.id);
+    }
     this.procesando.set(null);
     if (ok) {
       this.mostrarMensaje(`Pedido #${pedido.id} → ${this.pedidosService.textoEstado(estado)}`);

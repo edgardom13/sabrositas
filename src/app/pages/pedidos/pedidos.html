@@ -198,6 +198,18 @@
                     <button (click)="enviarWhatsapp(pedido, 'entregado')">✅ Entregado</button>
                   </div>
 
+                  <h4>🛵 Asignar domiciliario</h4>
+                  <select
+                    [value]="pedido.domiciliario_id ?? ''"
+                    (change)="asignarDomiciliario(pedido, $event)"
+                    class="select-domiciliario"
+                  >
+                    <option value="">Sin asignar</option>
+                    @for (dom of domiciliariosDisponibles(); track dom.id) {
+                      <option [value]="dom.id">{{ dom.nombre }}</option>
+                    }
+                  </select>
+
                   <h4>🔄 Cambiar estado</h4>
                   <div class="botones-estado">
                     @for (estado of estadosPedido; track estado) {

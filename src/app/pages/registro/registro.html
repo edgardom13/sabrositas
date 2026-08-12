@@ -1,0 +1,75 @@
+<div class="landing">
+
+  <header class="landing-header">
+    <a routerLink="/" class="lh-marca">
+      <img src="img/logo.png" alt="Sabrositas" class="lh-logo" />
+      <span class="lh-nombre">SABROSITAS</span>
+    </a>
+    <nav class="lh-nav">
+      <a routerLink="/">🥟 Tienda</a>
+      <a routerLink="/referidos">🎁 Referidos</a>
+      <a routerLink="/domicilios">🛵 Domicilios</a>
+    </nav>
+    <a routerLink="/admin" class="lh-btn">Ingresar 🔐</a>
+  </header>
+
+  <section class="landing-hero" style="padding-bottom: 30px;">
+    <span class="hero-badge">📝 Crea tu cuenta</span>
+    <h1>ÚNETE A SABROSITAS</h1>
+    <p>Elige cómo quieres participar y empieza en menos de un minuto.</p>
+  </section>
+
+  <div class="registro-card">
+    @if (enviado()) {
+      <div class="registro-exito">
+        <span style="font-size: 52px;">📬</span>
+        <h2>¡Revisa tu correo!</h2>
+        <p>
+          Te enviamos un link para confirmar tu cuenta como
+          <strong>{{ rolElegido() === 'domiciliario' ? 'domiciliario 🛵' : 'cliente 🎁' }}</strong>.
+          Al abrirlo, te esperamos en la página de confirmación.
+        </p>
+        <a routerLink="/cliente" class="lh-btn">Ya confirmé → Iniciar sesión</a>
+      </div>
+    } @else {
+      <!-- Selector de rol -->
+      <div class="selector-rol">
+        <button class="rol-opcion" [class.activa]="rolElegido() === 'cliente'" (click)="elegirRol('cliente')">
+          <span class="rol-icono">🎁</span>
+          <strong>Cliente</strong>
+          <small>Gana puntos compartiendo</small>
+        </button>
+        <button class="rol-opcion" [class.activa]="rolElegido() === 'domiciliario'" (click)="elegirRol('domiciliario')">
+          <span class="rol-icono">🛵</span>
+          <strong>Domiciliario</strong>
+          <small>Gana por cada entrega</small>
+        </button>
+      </div>
+
+      <form (ngSubmit)="registrarse()" class="form-registro">
+        <input [(ngModel)]="nombre" name="nombre" placeholder="Nombre completo" required />
+        <input [(ngModel)]="telefono" name="telefono" type="tel" placeholder="Teléfono (3001234567)" required />
+        <input [(ngModel)]="email" name="email" type="email" placeholder="Correo electrónico" required />
+        <input [(ngModel)]="password" name="password" type="password" placeholder="Contraseña (mín. 6)" required />
+        <input [(ngModel)]="confirmar" name="confirmar" type="password" placeholder="Confirmar contraseña" required />
+
+        @if (error()) {
+          <p class="registro-error">⚠️ {{ error() }}</p>
+        }
+
+        <button type="submit" class="hero-cta btn-full" [disabled]="enviando()">
+          @if (enviando()) { ⏳ CREANDO CUENTA… } @else { CREAR MI CUENTA → }
+        </button>
+      </form>
+
+      <p class="registro-login">
+        ¿Ya tienes cuenta? <a routerLink="/{{ rolElegido() === 'domiciliario' ? 'domiciliario' : 'cliente' }}">Inicia sesión aquí</a>
+      </p>
+    }
+  </div>
+
+  <footer class="landing-footer">
+    © 2026 Sabrositas · Empanadas Fritas ·
+    <a routerLink="/">Volver a la tienda 🥟</a>
+  </footer>
+</div>

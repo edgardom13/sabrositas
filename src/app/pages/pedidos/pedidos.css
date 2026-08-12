@@ -560,3 +560,25 @@ body.claro .botones-wsp button {
   border-color: rgba(37, 211, 102, 0.5) !important;
   color: #128c4b !important;
 }
+
+.select-domiciliario {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select-domiciliario option { background: #1d0e06; color: #fff; }
+
+body.claro .select-domiciliario {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+body.claro .select-domiciliario option { background: #fff !important; color: #3a2410 !important; }

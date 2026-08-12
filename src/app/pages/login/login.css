@@ -280,6 +280,24 @@
   to { transform: rotate(360deg); }
 }
 
+/* Botón toggle registro/login */
+.btn-toggle {
+  width: 100%;
+  margin-top: 14px;
+  background: transparent;
+  border: none;
+  color: var(--amarillo, #ffc107);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-toggle:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 /* Footer */
 .login-footer {
   margin-top: 28px;
@@ -345,4 +363,23 @@
     font-size: 17px;
     padding: 14px;
   }
+}
+
+/* Identificador del programa */
+.login-badge {
+  display: inline-block;
+  margin-top: 12px;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffd54f;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+body.claro .login-badge {
+  background: rgba(180, 90, 20, 0.08) !important;
+  color: #b45309 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
 }

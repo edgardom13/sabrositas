@@ -1,0 +1,214 @@
+/* ===== Toast ===== */
+.toast-exito {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 400;
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(47, 158, 68, 0.4);
+  animation: deslizar 0.3s ease;
+}
+
+@keyframes deslizar {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ===== Stats (igual que admin) ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.stat-icono { font-size: 30px; }
+.stat-card h3 { margin: 0; font-size: 21px; font-weight: 800; color: #fff; }
+.stat-card p { margin: 2px 0 0; font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+
+.stat-amarillo { border-left: 4px solid #ffc107; }
+.stat-azul { border-left: 4px solid #007bff; }
+.stat-verde { border-left: 4px solid #28a745; }
+.stat-dorado { border-left: 4px solid #ffd54f; }
+.stat-dorado h3 { color: #ffd54f; }
+
+/* ===== Tarjetas de pedido (idénticas al admin) ===== */
+.lista-pedidos { display: flex; flex-direction: column; gap: 12px; }
+
+.pedido-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.pedido-card:hover { border-color: rgba(255, 193, 7, 0.35); }
+
+.pedido-cabecera {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 1fr 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+}
+
+.col-id { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.numero { font-weight: 800; font-size: 16px; color: #ffd54f; }
+.fecha { font-size: 12px; color: rgba(255, 255, 255, 0.5); width: 100%; }
+
+.col-cliente { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.col-cliente strong { color: #fff; font-size: 14.5px; }
+.col-cliente span { font-size: 12.5px; color: rgba(255, 255, 255, 0.6); }
+
+.col-total { display: flex; flex-direction: column; gap: 2px; }
+.col-total strong { color: #fff; font-size: 15px; }
+
+.pago { font-size: 12px; color: #ff8080; }
+.pago.pagado { color: #51cf66; }
+
+.estado-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-estado);
+  border: 1.5px solid var(--color-estado);
+  background: color-mix(in srgb, var(--color-estado) 14%, transparent);
+  white-space: nowrap;
+}
+
+.flecha { color: rgba(255, 255, 255, 0.5); transition: transform 0.25s; }
+.flecha.abierta { transform: rotate(180deg); }
+
+/* ===== Detalle expandible ===== */
+.pedido-detalle {
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 18px;
+  animation: desplegar 0.25s ease;
+}
+
+@keyframes desplegar {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.detalle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+.detalle-col h4 { margin: 0 0 10px; font-size: 14px; color: #ffd54f; letter-spacing: 0.5px; }
+
+.detalle-items { list-style: none; margin: 0; padding: 0; }
+
+.detalle-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.detalle-totales { margin-top: 10px; font-size: 13.5px; color: rgba(255, 255, 255, 0.75); }
+.detalle-totales p { margin: 4px 0; display: flex; justify-content: space-between; }
+.detalle-totales span { color: rgba(255, 255, 255, 0.55); }
+
+.total-final {
+  font-weight: 800;
+  color: #ffd54f !important;
+  font-size: 15px !important;
+  border-top: 1px solid rgba(255, 193, 7, 0.3);
+  padding-top: 8px;
+}
+
+.direccion { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin: 0 0 10px; }
+
+.links-accion { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.links-accion a {
+  color: #ffc107;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  padding: 7px 12px;
+  border-radius: 999px;
+  transition: all 0.2s;
+}
+
+.links-accion a:hover { background: rgba(255, 193, 7, 0.1); }
+
+/* ===== Botón entregar ===== */
+.btn-entregar {
+  width: 100%;
+  margin-top: 14px;
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  border: none;
+  border-radius: 999px;
+  padding: 13px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(47, 158, 68, 0.35);
+}
+
+.btn-entregar:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+.btn-entregar:disabled { opacity: 0.6; cursor: wait; }
+
+.nota-ganancias {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 193, 7, 0.06);
+  border: 1px dashed rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+/* ===== Responsive (igual que admin) ===== */
+@media (max-width: 1000px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .pedido-cabecera {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "id flecha"
+      "cliente cliente"
+      "total estado";
+    row-gap: 10px;
+  }
+
+  .col-id { grid-area: id; }
+  .flecha { grid-area: flecha; justify-self: end; }
+  .col-cliente { grid-area: cliente; }
+  .col-total { grid-area: total; }
+  .col-estado { grid-area: estado; justify-self: end; }
+
+  .detalle-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .stats-grid { gap: 10px; }
+  .stat-card { padding: 14px; gap: 10px; }
+  .stat-card h3 { font-size: 16px; }
+  .stat-icono { font-size: 24px; }
+  .pedido-cabecera { padding: 14px; gap: 10px; }
+}

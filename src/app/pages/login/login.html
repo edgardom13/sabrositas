@@ -1,22 +1,45 @@
 <div class="login-fondo">
-  <!-- Patrón decorativo de fondo -->
   <div class="patron-superior"></div>
   <div class="patron-inferior"></div>
 
   <div class="login-card">
     <!-- Logo y marca -->
-    <div class="login-header">
+        <div class="login-header">
       <img src="img/logo.png" alt="Sabrositas" class="logo-login" />
-      <h1>SABROSITAS</h1>
-      <p class="subtitulo">Panel Administrativo</p>
+      <h1>{{ info.titulo }}</h1>
+      <!-- <p class="subtitulo">{{ info.sub }}</p>
+      <span class="login-badge">{{ info.badge }}</span> -->
     </div>
 
     <!-- Formulario -->
-    <form (ngSubmit)="iniciarSesion()" class="formulario-login">
+    <form (ngSubmit)="modoRegistro() ? registrarse() : iniciarSesion()" class="formulario-login">
       <div class="mensaje-bienvenida">
-        <h2>Bienvenido de nuevo 👋</h2>
-        <p>Ingresa tus credenciales para continuar</p>
+        <h2>{{ modoRegistro() ? 'Crea tu cuenta 🎁' : 'Bienvenido de nuevo 👋' }}</h2>
+        <p>
+          {{ modoRegistro()
+            ? 'Gana puntos compartiendo Sabrositas con tus amigos'
+            : 'Ingresa tus credenciales para continuar' }}
+        </p>
       </div>
+
+      <!-- Campos solo en modo registro -->
+      @if (modoRegistro()) {
+        <div class="campo">
+          <label for="nombre">Nombre completo</label>
+          <div class="input-wrapper">
+            <span class="icono-input">👤</span>
+            <input id="nombre" type="text" [(ngModel)]="nombre" name="nombre" placeholder="Tu nombre" required />
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="telefono">Teléfono</label>
+          <div class="input-wrapper">
+            <span class="icono-input">📞</span>
+            <input id="telefono" type="tel" [(ngModel)]="telefono" name="telefono" placeholder="3001234567" required />
+          </div>
+        </div>
+      }
 
       <!-- Campo email -->
       <div class="campo">
@@ -28,7 +51,7 @@
             type="email"
             [(ngModel)]="email"
             name="email"
-            placeholder="admin@sabrositas.com"
+            placeholder="tucorreo@ejemplo.com"
             autocomplete="email"
             required
           />
@@ -69,34 +92,35 @@
       }
 
       <!-- Botón de enviar -->
-      <button
-        type="submit"
-        class="btn-login"
-        [disabled]="enviando()"
-      >
+      <button type="submit" class="btn-login" [disabled]="enviando()">
         @if (enviando()) {
           <span class="spinner"></span>
-          <span>Iniciando sesión...</span>
+          <span>{{ modoRegistro() ? 'Creando cuenta…' : 'Iniciando sesión…' }}</span>
         } @else {
-          <span>INGRESAR AL PANEL</span>
+          <span>{{ modoRegistro() ? 'CREAR CUENTA' : 'INGRESAR' }}</span>
           <span class="flecha">→</span>
         }
       </button>
     </form>
 
+
+         @if (rolPagina !== 'admin') {
+      <p class="registro-login">
+        ¿No tienes cuenta? <a routerLink="/registro" [queryParams]="{ rol: rolPagina }">Regístrate aquí 📝</a>
+      </p>
+    }
+
     <!-- Pie -->
     <div class="login-footer">
       <p>
-        🔒 Acceso exclusivo para administradores
+        {{ rolPagina === 'cliente'
+          ? '🎁 Acumula puntos con cada pedido que compartas'
+          : '🔒 Acceso exclusivo con cuenta autorizada' }}
       </p>
-      <a routerLink="/" class="volver-tienda">
-        ← Volver a la tienda
-      </a>
+      <a href="/" class="volver-tienda">← Volver a la tienda</a>
     </div>
   </div>
 
   <!-- Créditos -->
-  <p class="creditos">
-    © 2026 Sabrositas · Empanadas Fritas
-  </p>
+  <p class="creditos">© 2026 Sabrositas · Empanadas Fritas</p>
 </div>

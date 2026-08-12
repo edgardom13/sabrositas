@@ -356,6 +356,26 @@ export class BotonCarrito {
     this.panelAbierto = false;
     this.mostrarModal = false;
     this.enviandoPedido = false;
+
+        await this.supabase.registrarPedido({
+      nombre_cliente: this.nombre.trim(),
+      apellido_cliente: this.apellido.trim(),
+      telefono: this.telefono.trim(),
+      direccion: this.direccion.trim(),
+      items: items.map((i) => ({
+        nombre: i.producto.nombre,
+        cantidad: i.cantidad,
+        precio: i.producto.precio,
+      })),
+      subtotal,
+      descuento,
+      domicilio: this.DOMICILIO,
+      total,
+      lat: this.lat,
+      lng: this.lng,
+      referido_por: localStorage.getItem('ref-sabrositas'), // ← NUEVO
+    });
+
   }
 
   // ❌ El cliente canceló, cerrar modal y seguir editando

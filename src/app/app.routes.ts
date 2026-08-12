@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './guards/auth.guard';
-import { GuestGuard } from './guards/guest.guard';
+import { GuestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   // 🌐 Tienda pública
@@ -8,52 +7,78 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./pages/tienda/tienda').then((m) => m.Tienda),
   },
+  {
+  path: 'domicilios',
+  loadComponent: () =>
+    import('./pages/programa-domicilios/programa-domicilios').then((m) => m.ProgramaDomicilios),
+},
+{
+  path: 'referidos',
+  loadComponent: () =>
+    import('./pages/programa-referidos/programa-referidos').then((m) => m.ProgramaReferidos),
+},
+{
+  path: 'registro',
+  loadComponent: () => import('./pages/registro/registro').then((m) => m.Registro),
+},
+{
+  path: 'confirmado',
+  loadComponent: () => import('./pages/confirmado/confirmado').then((m) => m.Confirmado),
+},
 
-  // 🔐 Login — protegido contra usuarios ya autenticados
+  // 🔐 Logins por rol (misma página, distinto título)
   {
     path: 'admin',
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),
     canActivate: [GuestGuard],
+    data: { rolPagina: 'admin' },
+  },
+  {
+    path: 'domiciliario',
+    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+    canActivate: [GuestGuard],
+    data: { rolPagina: 'domiciliario' },
+  },
+  {
+    path: 'cliente',
+    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+    canActivate: [GuestGuard],
+    data: { rolPagina: 'cliente' },
   },
 
-  // 🛡️ Dashboard — protegido contra usuarios sin sesión
+
+  // 🛡️ Panel ADMIN
   {
     path: 'dashboard',
-    loadComponent: () =>
-      import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
-    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+    canActivate: [roleGuard('admin')],
     children: [
       { path: '', redirectTo: 'pedidos', pathMatch: 'full' },
-      {
-        path: 'pedidos',
-        loadComponent: () =>
-          import('./pages/pedidos/pedidos').then((m) => m.Pedidos),
-      },
-       {
-          path: 'clientes',
-          loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes),
-        },
-        {
-        path: 'estadisticas',
-        loadComponent: () =>
-          import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas),
-      },
-      {
-        path: 'ajustes',
-        loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes),
-      },
-      {
-        path: 'productos',
-        loadComponent: () =>
-          import('./pages/productos/productos').then((m) => m.Productos),
-      },
+      { path: 'pedidos', loadComponent: () => import('./pages/pedidos/pedidos').then((m) => m.Pedidos) },
+      { path: 'clientes', loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes) },
+      { path: 'estadisticas', loadComponent: () => import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas) },
+      { path: 'productos', loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos) },
+      { path: 'ajustes', loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes) },
     ],
   },
 
-  // ❓ Página 404 para cualquier ruta inexistente
+  // 🛵 Panel DOMICILIARIO
+  {
+    path: 'panel-domiciliario',
+    loadComponent: () => import('./pages/panel-domiciliario/panel-domiciliario').then((m) => m.PanelDomiciliario),
+    canActivate: [roleGuard('domiciliario')],
+  },
+
+  // 🎁 Panel CLIENTE
+  {
+    path: 'panel-cliente',
+    loadComponent: () => import('./pages/panel-cliente/panel-cliente').then((m) => m.PanelCliente),
+    canActivate: [roleGuard('cliente')],
+  },
+
+  // ❓ 404
   {
     path: '**',
-    loadComponent: () =>
-      import('./pages/not-found/not-found').then((m) => m.NotFound),
+    loadComponent: () => import('./pages/not-found/not-found').then((m) => m.NotFound),
   },
 ];

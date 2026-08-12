@@ -1,0 +1,222 @@
+<div class="dashboard" [class.menu-abierto]="menuAbierto()">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="img/logo.png" alt="Sabrositas" class="sidebar-logo" />
+      <h1 class="sidebar-titulo">SABROSITAS</h1>
+      <p class="sidebar-sub">Panel Domicilios 🛵</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.activo]="tab() === 'hoy'" (click)="cambiarTab('hoy')">
+        <span class="nav-icono">📦</span>
+        <span class="nav-texto">Entregas de hoy</span>
+        @if (service.enCamino().length > 0) {
+          <span class="nav-badge">{{ service.enCamino().length }}</span>
+        }
+      </button>
+      <button class="nav-item" [class.activo]="tab() === 'historial'" (click)="cambiarTab('historial')">
+        <span class="nav-icono">🗂️</span>
+        <span class="nav-texto">Historial</span>
+      </button>
+      <button class="nav-item" [class.activo]="tab() === 'ganancias'" (click)="cambiarTab('ganancias')">
+        <span class="nav-icono">💰</span>
+        <span class="nav-texto">Mis ganancias</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="avatar">{{ inicialNombre() }}</div>
+        <div class="usuario-datos">
+          <span class="usuario-nombre">{{ auth.perfil()?.nombre ?? 'Domiciliario' }}</span>
+          <span class="usuario-email">{{ auth.usuario()?.email ?? '' }}</span>
+        </div>
+      </div>
+      <button class="btn-salir" (click)="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  @if (menuAbierto()) {
+    <div class="overlay-movil" (click)="menuAbierto.set(false)"></div>
+  }
+
+  <div class="contenido">
+    <header class="topbar">
+      <button class="btn-hamburguesa" (click)="menuAbierto.set(true)">☰</button>
+      <h2 class="topbar-titulo">{{ tituloTab }}</h2>
+      <div class="topbar-derecha">
+        <button class="btn-tema" (click)="alternarTema()">{{ tema.oscuro() ? '☀️' : '🌙' }}</button>
+      </div>
+    </header>
+
+    <main class="contenido-principal">
+      <div class="pagina-interna">
+
+        @if (mensaje()) {
+          <div class="toast-exito">✅ {{ mensaje() }}</div>
+        }
+
+        <!-- ===== 📦 HOY ===== -->
+        @if (tab() === 'hoy') {
+          <div class="stats-grid">
+            <div class="stat-card stat-azul">
+              <span class="stat-icono">🛵</span>
+              <div><h3>{{ service.enCamino().length }}</h3><p>En camino</p></div>
+            </div>
+            <div class="stat-card stat-verde">
+              <span class="stat-icono">✅</span>
+              <div><h3>{{ service.entregados().length }}</h3><p>Entregados hoy</p></div>
+            </div>
+            <div class="stat-card stat-amarillo">
+              <span class="stat-icono">💵</span>
+              <div><h3>{{ service.formatearPrecio(service.porCobrarHoy()) }}</h3><p>Por cobrar hoy</p></div>
+            </div>
+            <div class="stat-card stat-dorado">
+              <span class="stat-icono">💰</span>
+              <div><h3>{{ service.formatearPrecio(service.gananciaHoy()) }}</h3><p>Mi ganancia hoy</p></div>
+            </div>
+          </div>
+
+          @if (service.pedidosHoy().length === 0) {
+            <div class="estado-vacio">📭 No tienes entregas asignadas hoy. ¡Disfruta el día!</div>
+          } @else {
+            <div class="lista-pedidos">
+              @for (pedido of service.pedidosHoy(); track pedido.id) {
+                <div class="pedido-card">
+                  <div class="pedido-cabecera" (click)="alternarDetalle(pedido.id)">
+                    <div class="col-id">
+                      <span class="numero">Pedido #{{ pedido.id }}</span>
+                      <span class="fecha">{{ service.formatearFecha(pedido.creado_en) }}</span>
+                    </div>
+
+                    <div class="col-cliente">
+                      <strong>{{ pedido.nombre_cliente }} {{ pedido.apellido_cliente }}</strong>
+                      <span>📞 {{ pedido.telefono }}</span>
+                    </div>
+
+                    <div class="col-total">
+                      <strong>{{ service.formatearPrecio(pedido.total) }}</strong>
+                      <span class="pago" [class.pagado]="pedido.estado === 'entregado'">
+                        {{ pedido.estado === 'entregado' ? '✅ Cobrado' : '💵 Al entregar' }}
+                      </span>
+                    </div>
+
+                    <div class="col-estado">
+                      <span class="estado-badge" [style.--color-estado]="colorEstado(pedido.estado)">
+                        {{ textoEstado(pedido.estado) }}
+                      </span>
+                    </div>
+
+                    <span class="flecha" [class.abierta]="pedidoExpandido() === pedido.id">▼</span>
+                  </div>
+
+                  @if (pedidoExpandido() === pedido.id) {
+                    <div class="pedido-detalle">
+                      <div class="detalle-grid">
+                        <div class="detalle-col">
+                          <h4>🛒 Productos</h4>
+                          <ul class="detalle-items">
+                            @for (item of pedido.items; track $index) {
+                              <li>
+                                <span>{{ item.cantidad }} × {{ item.nombre }}</span>
+                                <span>{{ service.formatearPrecio(item.cantidad * item.precio) }}</span>
+                              </li>
+                            }
+                          </ul>
+                          <div class="detalle-totales">
+                            <p><span>Domicilio:</span> {{ service.formatearPrecio(pedido.domicilio) }}</p>
+                            <p class="total-final">
+                              <span>Total a cobrar:</span> {{ service.formatearPrecio(pedido.total) }}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div class="detalle-col">
+                          <h4>📍 Entrega</h4>
+                          <p class="direccion">{{ pedido.direccion }}</p>
+
+                          <div class="links-accion">
+                            <a [href]="service.linkWhatsApp(pedido.telefono)" target="_blank">💬 WhatsApp</a>
+                            @if (pedido.lat && pedido.lng) {
+                              <a [href]="service.linkMapa(pedido)" target="_blank">🗺️ Ver mapa</a>
+                            }
+                          </div>
+
+                          @if (pedido.estado === 'en_camino') {
+                            <button
+                              class="btn-entregar"
+                              [disabled]="procesando() === pedido.id"
+                              (click)="marcarEntregado(pedido)"
+                            >
+                              @if (procesando() === pedido.id) {
+                                ⏳ Procesando…
+                              } @else {
+                                ✅ Marcar entregado y cobrar {{ service.formatearPrecio(pedido.total) }}
+                              }
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ===== 🗂️ HISTORIAL ===== -->
+        @if (tab() === 'historial') {
+          @if (service.historialEntregas().length === 0) {
+            <div class="estado-vacio">📭 Aún no tienes entregas registradas.</div>
+          } @else {
+            <div class="lista-pedidos">
+              @for (pedido of service.historialEntregas(); track pedido.id) {
+                <div class="pedido-card">
+                  <div class="pedido-cabecera">
+                    <div class="col-id">
+                      <span class="numero">Pedido #{{ pedido.id }}</span>
+                      <span class="fecha">{{ service.formatearFecha(pedido.creado_en) }}</span>
+                    </div>
+                    <div class="col-cliente">
+                      <strong>{{ pedido.nombre_cliente }} {{ pedido.apellido_cliente }}</strong>
+                      <span>📞 {{ pedido.telefono }}</span>
+                    </div>
+                    <div class="col-total">
+                      <strong style="color: #51cf66;">+{{ service.formatearPrecio(pedido.domicilio) }}</strong>
+                      <span class="pago pagado">💰 Ganancia</span>
+                    </div>
+                    <div class="col-estado">
+                      <span class="estado-badge" style="--color-estado: #28a745;">✅ Entregado</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ===== 💰 GANANCIAS ===== -->
+        @if (tab() === 'ganancias') {
+          <div class="stats-grid">
+            <div class="stat-card stat-dorado">
+              <span class="stat-icono">💰</span>
+              <div><h3>{{ service.formatearPrecio(service.gananciaHoy()) }}</h3><p>Hoy</p></div>
+            </div>
+            <div class="stat-card stat-verde">
+              <span class="stat-icono">📅</span>
+              <div><h3>{{ service.formatearPrecio(service.gananciaSemana()) }}</h3><p>Últimos 7 días</p></div>
+            </div>
+            <div class="stat-card stat-azul">
+              <span class="stat-icono">🛵</span>
+              <div><h3>{{ service.entregasSemana() }}</h3><p>Entregas en la semana</p></div>
+            </div>
+          </div>
+          <p class="nota-ganancias">💡 Tu ganancia es el valor del domicilio de cada pedido que entregas.</p>
+        }
+
+      </div>
+    </main>
+  </div>
+</div>

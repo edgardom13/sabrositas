@@ -458,3 +458,59 @@ body.claro .toast-pedido {
 
 body.claro .toast-texto strong { color: #b45309 !important; }
 body.claro .toast-texto span { color: rgba(58, 36, 16, 0.75) !important; }
+
+/* ===== MODO CLARO - PÁGINAS PÚBLICAS ===== */
+body.claro .landing { background: #f6f1e7 !important; color: #3a2410 !important; }
+body.claro .landing-header { background: rgba(255, 253, 248, 0.92) !important; border-bottom-color: rgba(180, 90, 20, 0.2) !important; }
+body.claro .lh-nombre { color: #b45309 !important; }
+body.claro .lh-nav a { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .lh-nav a:hover { color: #b45309 !important; }
+body.claro .landing-hero p, body.claro .section-sub, body.claro .hero-nota, body.claro .cta-final p { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .section-titulo, body.claro .paso h3, body.claro .cta-final h2 { color: #3a2410 !important; }
+body.claro .beneficio-card, body.claro .paso, body.claro .lista-requisitos li { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important; }
+body.claro .beneficio-card h3 { color: #b45309 !important; }
+body.claro .beneficio-card p, body.claro .paso p, body.claro .lista-requisitos li { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .landing-footer { border-top-color: rgba(180, 90, 20, 0.2) !important; color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .landing-footer a { color: #b45309 !important; }
+
+/* ===== MODO CLARO - FOOTER TIENDA ===== */
+body.claro .footer { background: #fffdf8 !important; border-top-color: rgba(180, 90, 20, 0.25) !important; }
+
+body.claro .footer-titulo {
+  background: linear-gradient(180deg, #b45309, #92400e) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.claro .footer-lema,
+body.claro .footer-col p { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .footer-col h4 { color: #b45309 !important; }
+
+body.claro .footer-col a { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .footer-col a:hover { color: #b45309 !important; }
+
+body.claro .footer-social a { border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .footer-social a:hover { background: rgba(180, 90, 20, 0.08) !important; }
+
+body.claro .footer-bottom {
+  border-top-color: rgba(180, 90, 20, 0.15) !important;
+  color: rgba(58, 36, 16, 0.5) !important;
+}
+
+/* ===== MODO CLARO - REGISTRO Y CONFIRMACIÓN ===== */
+body.claro .registro-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.25) !important; }
+body.claro .rol-opcion { background: #fff !important; border-color: rgba(180, 90, 20, 0.2) !important; color: #3a2410 !important; }
+body.claro .rol-opcion small { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .rol-opcion.activa { border-color: #b45309 !important; background: rgba(180, 90, 20, 0.08) !important; }
+body.claro .form-registro input { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.3) !important; }
+body.claro .registro-login { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .registro-login a { color: #b45309 !important; }
+body.claro .registro-exito h2 { color: #b45309 !important; }
+body.claro .registro-exito p { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .confirmado-card { background: #fff !important; border-color: rgba(47, 158, 68, 0.5) !important; }
+body.claro .confirmado-card h1 { color: #2f9e44 !important; }
+body.claro .confirmado-sub { color: rgba(58, 36, 16, 0.75) !important; }
+body.claro .confirmado-sub strong { color: #b45309 !important; }
+body.claro .confirmado-nombre { color: #b45309 !important; }

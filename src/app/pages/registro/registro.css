@@ -1,0 +1,61 @@
+.registro-card {
+  max-width: 520px;
+  margin: 0 auto 60px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 20px;
+  padding: 28px;
+  width: calc(100% - 40px);
+}
+
+.selector-rol { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+.rol-opcion {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 16px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  font-family: 'Rubik', sans-serif;
+}
+
+.rol-icono { font-size: 30px; display: block; margin-bottom: 6px; }
+.rol-opcion strong { font-size: 14px; }
+.rol-opcion small { display: block; color: rgba(255, 255, 255, 0.55); font-size: 11.5px; margin-top: 4px; }
+
+.rol-opcion.activa {
+  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.12);
+  box-shadow: 0 6px 18px rgba(255, 179, 0, 0.2);
+}
+
+.form-registro { display: flex; flex-direction: column; gap: 12px; }
+
+.form-registro input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 193, 7, 0.25);
+  border-radius: 12px;
+  padding: 13px 14px;
+  color: #fff;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-registro input:focus { border-color: #ffc107; }
+
+.btn-full { width: 100%; border: none; cursor: pointer; font-size: 18px; }
+.btn-full:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+.registro-error { color: #ff8080; font-size: 13.5px; margin: 0; }
+
+.registro-login { text-align: center; font-size: 13.5px; color: rgba(255, 255, 255, 0.6); margin-top: 16px; }
+.registro-login a { color: #ffd54f; }
+
+.registro-exito { text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.registro-exito h2 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: #ffd54f; margin: 0; }
+.registro-exito p { color: rgba(255, 255, 255, 0.75); max-width: 380px; }
+.registro-exito strong { color: #ffd54f; }

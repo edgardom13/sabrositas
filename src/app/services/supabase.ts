@@ -13,7 +13,6 @@ export interface Pedido {
   apellido_cliente: string;
   telefono: string;
   direccion: string;
-  referencia?: string | null;
   items: { nombre: string; cantidad: number; precio: number }[];
   subtotal: number;
   descuento: number;
@@ -21,10 +20,12 @@ export interface Pedido {
   total: number;
   estado: 'pendiente' | 'preparando' | 'en_camino' | 'entregado' | 'cancelado';
   pagado: boolean;
-  metodo_pago?: string | null;
-  notas_admin?: string | null;
-  lat?: number | null;
-  lng?: number | null;
+  metodo_pago: string | null;
+  notas_admin: string | null;
+  lat: number | null;
+  lng: number | null;
+  referido_por: string | null;      // ← nuevo (para fase 3)
+  domiciliario_id: string | null;   // ← nuevo
 }
 
 export interface RegistroPedido {
@@ -39,6 +40,7 @@ export interface RegistroPedido {
   total: number;
   lat: number | null;
   lng: number | null;
+  referido_por?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

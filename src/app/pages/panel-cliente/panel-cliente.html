@@ -1,0 +1,142 @@
+<div class="dashboard" [class.menu-abierto]="menuAbierto()">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="img/logo.png" alt="Sabrositas" class="sidebar-logo" />
+      <h1 class="sidebar-titulo">SABROSITAS</h1>
+      <p class="sidebar-sub">Mi Cuenta 🎁</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.activo]="tab() === 'puntos'" (click)="cambiarTab('puntos')">
+        <span class="nav-icono">⭐</span>
+        <span class="nav-texto">Mis puntos</span>
+      </button>
+      <button class="nav-item" [class.activo]="tab() === 'pedidos'" (click)="cambiarTab('pedidos')">
+        <span class="nav-icono">🛒</span>
+        <span class="nav-texto">Mis pedidos</span>
+      </button>
+      <button class="nav-item" [class.activo]="tab() === 'premios'" (click)="cambiarTab('premios')">
+        <span class="nav-icono">🏆</span>
+        <span class="nav-texto">Premios y canjes</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="avatar">{{ inicialNombre() }}</div>
+        <div class="usuario-datos">
+          <span class="usuario-nombre">{{ auth.perfil()?.nombre ?? 'Cliente' }}</span>
+          <span class="usuario-email">{{ auth.usuario()?.email ?? '' }}</span>
+        </div>
+      </div>
+      <button class="btn-salir" (click)="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+  </aside>
+
+  @if (menuAbierto()) {
+    <div class="overlay-movil" (click)="menuAbierto.set(false)"></div>
+  }
+
+  <div class="contenido">
+    <header class="topbar">
+      <button class="btn-hamburguesa" (click)="menuAbierto.set(true)">☰</button>
+      <h2 class="topbar-titulo">{{ tituloTab }}</h2>
+      <div class="topbar-derecha">
+        <button class="btn-tema" (click)="alternarTema()">{{ tema.oscuro() ? '☀️' : '🌙' }}</button>
+      </div>
+    </header>
+
+    <main class="contenido-principal">
+      <div class="pagina-interna">
+
+        @if (mensaje()) {
+          <div class="estado-vacio">{{ mensaje() }}</div>
+        }
+
+        <!-- ===== PUNTOS ===== -->
+        @if (tab() === 'puntos') {
+          <div class="tarjeta-puntos">
+            <span style="font-size:40px">⭐</span>
+            <div>
+              <h2>{{ auth.perfil()?.puntos ?? 0 }}</h2>
+              <p>puntos disponibles</p>
+            </div>
+          </div>
+
+          <p class="titulo-bloque">🔗 Comparte y gana 50 puntos por cada amigo que reciba su pedido</p>
+          <div class="link-box">
+            <span class="link-url">{{ referidos.linkReferido() }}</span>
+            <button class="btn-copiar" (click)="copiarLink()">{{ copiado() ? '✅ ¡Copiado!' : '📋 Copiar' }}</button>
+          </div>
+        }
+
+        <!-- ===== PEDIDOS ===== -->
+        @if (tab() === 'pedidos') {
+          @if (referidos.misPedidos().length === 0) {
+            <div class="estado-vacio">📭 Aún no tienes pedidos. ¡Haz el primero desde la tienda!</div>
+          } @else {
+            <div class="lista-cards">
+              @for (pedido of referidos.misPedidos(); track pedido.id) {
+                <div class="card-pedido">
+                  <div class="card-cabecera">
+                    <div>
+                      <span class="num">#{{ pedido.id }}</span>
+                      <span class="hora">{{ pedido.creado_en | date: 'dd MMM, hh:mm a' }}</span>
+                    </div>
+                    <strong style="color:#fff">${{ pedido.total }}</strong>
+                  </div>
+                  <div style="padding: 0 18px 16px;">
+                    @if (pedido.estado === 'cancelado') {
+                      <span class="estado-badge" style="--color-estado:#dc3545">❌ Cancelado</span>
+                    } @else {
+                      <div class="timeline">
+                        <div class="paso" [class.activo]="pasoActivo(pedido.estado) >= 0"><div class="punto"></div>Recibido</div>
+                        <div class="paso" [class.activo]="pasoActivo(pedido.estado) >= 1"><div class="punto"></div>Preparando</div>
+                        <div class="paso" [class.activo]="pasoActivo(pedido.estado) >= 2"><div class="punto"></div>En camino</div>
+                        <div class="paso" [class.activo]="pasoActivo(pedido.estado) >= 3"><div class="punto"></div>Entregado</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ===== PREMIOS ===== -->
+        @if (tab() === 'premios') {
+          <p class="titulo-bloque">🏆 Canjea tus puntos</p>
+          <div class="grid-premios">
+            @for (premio of referidos.premios(); track premio.id) {
+              <div class="premio-card">
+                <span class="premio-nombre">{{ premio.nombre }}</span>
+                <span class="premio-puntos">{{ premio.puntos }} pts</span>
+                <button class="btn-canjear" [disabled]="(auth.perfil()?.puntos ?? 0) < premio.puntos || procesando() === premio.id" (click)="canjear(premio)">
+                  Canjear
+                </button>
+              </div>
+            }
+          </div>
+
+          <p class="titulo-bloque">🎟️ Mis canjes</p>
+          @if (referidos.canjes().length === 0) {
+            <div class="estado-vacio">Aún no tienes canjes.</div>
+          } @else {
+            <div class="lista-cards">
+              @for (canje of referidos.canjes(); track canje.id) {
+                <div class="canje-card">
+                  <strong class="canje-codigo">{{ canje.codigo }}</strong>
+                  <span class="canje-estado" [class.reclamado]="canje.estado === 'reclamado'">
+                    {{ canje.estado === 'reclamado' ? '✅ Reclamado' : '⏳ Muéstralo al pedir' }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        }
+
+      </div>
+    </main>
+  </div>
+</div>

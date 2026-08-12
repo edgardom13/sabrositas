@@ -1,0 +1,51 @@
+<div class="landing">
+
+  <header class="landing-header">
+    <a routerLink="/" class="lh-marca">
+      <img src="img/logo.png" alt="Sabrositas" class="lh-logo" />
+      <span class="lh-nombre">SABROSITAS</span>
+    </a>
+  </header>
+
+  <section class="confirmado-hero">
+    @if (!listo()) {
+      <div class="confirmado-card">
+        <span class="confirmado-icono">⏳</span>
+        <h1>VERIFICANDO…</h1>
+        <p class="confirmado-sub">Estamos confirmando tu correo, un momento.</p>
+      </div>
+    } @else if (auth.rol()) {
+      <div class="confirmado-card">
+        <span class="confirmado-icono">✅</span>
+        <h1>¡CORREO CONFIRMADO!</h1>
+        <p class="confirmado-sub">
+          @if (auth.rol() === 'domiciliario') {
+            🛵 Tu cuenta de <strong>domiciliario</strong> está activa. ¡A rodar!
+          } @else if (auth.rol() === 'cliente') {
+            🎁 Tu cuenta de <strong>cliente</strong> está activa y tu link de referidos ya te espera.
+          } @else {
+            🔐 Tu cuenta de <strong>administrador</strong> está activa.
+          }
+        </p>
+        <p class="confirmado-nombre">Bienvenido(a), {{ auth.perfil()?.nombre ?? '' }}</p>
+        <a class="hero-cta" [routerLink]="auth.rutaPorRol()">ENTRAR A MI PANEL →</a>
+      </div>
+    } @else {
+      <div class="confirmado-card">
+        <span class="confirmado-icono">✅</span>
+        <h1>CORREO CONFIRMADO</h1>
+        <p class="confirmado-sub">Tu cuenta ya está activa. Inicia sesión para continuar.</p>
+        <div class="confirmado-acciones">
+          <a routerLink="/cliente" class="lh-btn">🎁 Soy cliente</a>
+          <a routerLink="/domiciliario" class="lh-btn">🛵 Soy domiciliario</a>
+          <a routerLink="/admin" class="lh-btn">🔐 Admin</a>
+        </div>
+      </div>
+    }
+  </section>
+
+  <footer class="landing-footer">
+    © 2026 Sabrositas · Empanadas Fritas ·
+    <a routerLink="/">Volver a la tienda 🥟</a>
+  </footer>
+</div>
