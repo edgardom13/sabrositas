@@ -344,9 +344,14 @@ export class BotonCarrito {
     const lineasProductos = items
       .map(
         (i, index) =>
-          `   ${index + 1}. *${i.cantidad}* x ${i.producto.nombre} ${this.emojiDe(i.producto.nombre)} — _${this.formatearPrecio(i.cantidad * i.producto.precio)}_`,
+          `   ${index + 1}. *${i.cantidad}* x ${i.producto.nombre} ${this.emojiDe(i.producto.nombre)} — _${this.formatearPrecio(i.cantidad * this.precioUnitario(i))}_`,
       )
       .join('\n');
+
+    const lineaSalsasGratis =
+      this.valorSalsasGratis() > 0
+        ? `   🎁 Salsas gratis (${this.carrito.salsasGratis()}): *-${this.formatearPrecio(this.valorSalsasGratis())}*\n`
+        : '';
 
     const linkMapa =
       this.lat !== null && this.lng !== null
@@ -386,9 +391,10 @@ export class BotonCarrito {
       `${lineasProductos}\n\n` +
       (lineaCanje ? `╭─────────────────────╮\n│   🎟️ *CANJE DE PREMIO*\n╰─────────────────────╯\n${lineaCanje}\n` : '') +
       `╭─────────────────────╮\n` +
-      `│   💰 *RESUMEN*\n` +
+        `│   💰 *RESUMEN*\n` +
       `╰─────────────────────╯\n` +
-      `   🧾 Subtotal: *${this.formatearPrecio(subtotal)}*\n` +
+      `   🧾 Subtotal: *${this.formatearPrecio(this.subtotalVisible())}*\n` +
+      lineaSalsasGratis +
       lineaCupon +
       lineaCanjeDescuento +
       lineaDomicilioGratis +
@@ -483,5 +489,21 @@ export class BotonCarrito {
     if (n.includes('corozo')) return '🍒';
     if (n.includes('queso')) return '🧀';
     return '🥟';
+  }
+
+    // 🥫 Muestra el precio configurado en el admin para salsas; precio real para el resto
+  precioUnitario(item: any): number {
+    return item.producto.categoria === 'salsa'
+      ? this.carrito.precioSalsaExtra()
+      : item.producto.precio;
+  }
+
+  valorSalsasGratis(): number {
+    return this.carrito.salsasGratis() * this.carrito.precioSalsaExtra();
+  }
+
+  // Subtotal "visible" con las salsas a su precio real
+  subtotalVisible(): number {
+    return this.carrito.totalPedido() + this.valorSalsasGratis();
   }
 }

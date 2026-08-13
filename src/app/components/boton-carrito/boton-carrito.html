@@ -11,10 +11,10 @@
       <p class="vacio">Aún no has agregado productos. ¡Agrega unas empanaditas! 🥟</p>
     } @else {
       <ul class="items">
-        @for (item of carrito.itemsSignal(); track item.producto.id) {
+                @for (item of carrito.itemsSignal(); track item.producto.id) {
           <li>
             <span>{{ item.cantidad }} x {{ item.producto.nombre }}</span>
-            <span>{{ formatearPrecio(item.cantidad * item.producto.precio) }}</span>
+            <span>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</span>
           </li>
         }
       </ul>
@@ -23,23 +23,16 @@
         🛵 El domicilio tiene un valor de {{ formatearPrecio(DOMICILIO) }} que se suma al total.
       </p>
 
-      <div class="totales">
+            <div class="totales">
         <div class="linea">
           <span>🧾 Subtotal productos</span>
-          <span>{{ formatearPrecio(carrito.totalPedido() - carrito.costoSalsasCobradas()) }}</span>
+          <span>{{ formatearPrecio(subtotalVisible()) }}</span>
         </div>
-
-        @if (carrito.costoSalsasCobradas() > 0) {
-          <div class="linea salsas-cobradas">
-            <span>🥫 Salsas extras ({{ carrito.salsasCobradas() }} x {{ formatearPrecio(carrito.precioSalsaExtra()) }})</span>
-            <span>{{ formatearPrecio(carrito.costoSalsasCobradas()) }}</span>
-          </div>
-        }
 
         @if (carrito.salsasGratis() > 0) {
           <div class="linea salsas-gratis">
             <span>🎁 Salsas gratis ({{ carrito.salsasGratis() }})</span>
-            <span>incluidas</span>
+            <span>-{{ formatearPrecio(valorSalsasGratis()) }}</span>
           </div>
         }
 
@@ -177,10 +170,10 @@
         <div class="bloque-modal">
           <h4>🛒 TU PEDIDO</h4>
           <ul class="lista-modal">
-            @for (item of carrito.itemsSignal(); track item.producto.id) {
+                        @for (item of carrito.itemsSignal(); track item.producto.id) {
               <li>
                 <span>{{ item.cantidad }} × {{ item.producto.nombre }}</span>
-                <strong>{{ formatearPrecio(item.cantidad * item.producto.precio) }}</strong>
+                <strong>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</strong>
               </li>
             }
           </ul>
@@ -190,9 +183,15 @@
           <div class="bloque-modal bloque-canje">
             <h4>🎟️ CANJE ACTIVO</h4>
             <div class="fila-modal">
-              <span>Código:</span>
-              <strong>{{ codigoCanje.trim().toUpperCase() }}</strong>
+            <span>Subtotal:</span>
+            <span>{{ formatearPrecio(subtotalVisible()) }}</span>
+          </div>
+          @if (carrito.salsasGratis() > 0) {
+            <div class="fila-modal">
+              <span>🎁 Salsas gratis ({{ carrito.salsasGratis() }}):</span>
+              <span class="descuento">-{{ formatearPrecio(valorSalsasGratis()) }}</span>
             </div>
+          }
             <div class="fila-modal">
               <span>Premio:</span>
               <strong>{{ canje.premio }}</strong>
