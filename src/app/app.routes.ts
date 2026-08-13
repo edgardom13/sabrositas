@@ -8,23 +8,23 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/tienda/tienda').then((m) => m.Tienda),
   },
   {
-  path: 'domicilios',
-  loadComponent: () =>
-    import('./pages/programa-domicilios/programa-domicilios').then((m) => m.ProgramaDomicilios),
-},
-{
-  path: 'referidos',
-  loadComponent: () =>
-    import('./pages/programa-referidos/programa-referidos').then((m) => m.ProgramaReferidos),
-},
-{
-  path: 'registro',
-  loadComponent: () => import('./pages/registro/registro').then((m) => m.Registro),
-},
-{
-  path: 'confirmado',
-  loadComponent: () => import('./pages/confirmado/confirmado').then((m) => m.Confirmado),
-},
+    path: 'domicilios',
+    loadComponent: () =>
+      import('./pages/programa-domicilios/programa-domicilios').then((m) => m.ProgramaDomicilios),
+  },
+  {
+    path: 'referidos',
+    loadComponent: () =>
+      import('./pages/programa-referidos/programa-referidos').then((m) => m.ProgramaReferidos),
+  },
+  {
+    path: 'registro',
+    loadComponent: () => import('./pages/registro/registro').then((m) => m.Registro),
+  },
+  {
+    path: 'confirmado',
+    loadComponent: () => import('./pages/confirmado/confirmado').then((m) => m.Confirmado),
+  },
 
   // 🔐 Logins por rol (misma página, distinto título)
   {
@@ -46,7 +46,6 @@ export const routes: Routes = [
     data: { rolPagina: 'cliente' },
   },
 
-
   // 🛡️ Panel ADMIN
   {
     path: 'dashboard',
@@ -58,6 +57,8 @@ export const routes: Routes = [
       { path: 'clientes', loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes) },
       { path: 'estadisticas', loadComponent: () => import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas) },
       { path: 'productos', loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos) },
+      { path: 'referidos', loadComponent: () => import('./pages/referidos/referidos').then((m) => m.ReferidosAdmin) },
+      { path: 'usuarios', loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosAdmin) },
       { path: 'ajustes', loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes) },
     ],
   },

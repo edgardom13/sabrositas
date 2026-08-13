@@ -1,0 +1,55 @@
+<div class="admin-page">
+
+  @if (mensaje()) { <div class="toast-exito">{{ mensaje() }}</div> }
+
+  <!-- Crear usuario -->
+  <div class="bloque">
+    <h4>➕ Crear usuario (domiciliario o cliente)</h4>
+    <div class="form-inline">
+      <input [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" placeholder="Nombre completo" />
+      <input [ngModel]="telefono()" (ngModelChange)="telefono.set($event)" placeholder="Teléfono" />
+      <input [ngModel]="email()" (ngModelChange)="email.set($event)" placeholder="Correo" type="email" />
+      <input [ngModel]="password()" (ngModelChange)="password.set($event)" placeholder="Contraseña" type="text" />
+      <select [ngModel]="rol()" (ngModelChange)="rol.set($event)">
+        <option value="domiciliario">🛵 Domiciliario</option>
+        <option value="cliente">🎁 Cliente</option>
+      </select>
+      <button class="btn-mini-admin" (click)="crear()" [disabled]="creando()">
+        {{ creando() ? '⏳ Creando…' : '✅ Crear usuario' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="chips">
+    <button class="chip" [class.activo]="filtroRol() === 'todos'" (click)="filtroRol.set('todos')">🌐 Todos ({{ service.perfiles().length }})</button>
+    <button class="chip" [class.activo]="filtroRol() === 'admin'" (click)="filtroRol.set('admin')">🔐 Admins</button>
+    <button class="chip" [class.activo]="filtroRol() === 'domiciliario'" (click)="filtroRol.set('domiciliario')">🛵 Domiciliarios</button>
+    <button class="chip" [class.activo]="filtroRol() === 'cliente'" (click)="filtroRol.set('cliente')">🎁 Clientes</button>
+  </div>
+
+  <!-- Lista -->
+  <div class="bloque">
+    <h4>👥 Usuarios de la plataforma</h4>
+    @if (lista().length === 0) {
+      <div class="estado-vacio">No hay usuarios con este rol.</div>
+    } @else {
+      @for (p of lista(); track p.id) {
+        <div class="fila-admin">
+          <span class="nombre">{{ p.nombre ?? 'Sin nombre' }}</span>
+          <span class="codigo">📞 {{ p.telefono ?? '—' }}</span>
+          <span class="badge-rol" [style.color]="colorRol(p.rol)" [style.border-color]="colorRol(p.rol)">
+            {{ p.rol }}
+          </span>
+          @if (p.codigo_referido) {
+            <span class="codigo">{{ p.codigo_referido }}</span>
+          }
+          <span class="badge-pts">⭐ {{ p.puntos }}</span>
+          @if (p.rol === 'cliente') {
+            <button class="btn-mini-admin" (click)="ajustarPuntos(p.id, p.puntos, p.nombre ?? 'cliente')">✏️ Puntos</button>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

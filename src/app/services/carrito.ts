@@ -143,4 +143,24 @@ export class Carrito {
       return [];
     }
   }
+
+    // 🛒 Agregar múltiples productos de una vez (para canjes)
+  agregarMultiples(productos: { productoId: number; cantidad: number }[], catalogo: any[]): void {
+    this.items.update((items) => {
+      const nuevos = [...items];
+      for (const p of productos) {
+        const producto = catalogo.find((prod) => prod.id === p.productoId);
+        if (!producto) continue;
+
+        const existe = nuevos.find((i) => i.producto.id === p.productoId);
+        if (existe) {
+          nuevos[nuevos.indexOf(existe)] = { ...existe, cantidad: existe.cantidad + p.cantidad };
+        } else {
+          nuevos.push({ producto, cantidad: p.cantidad });
+        }
+      }
+      return nuevos;
+    });
+    this.guardar();
+  }
 }

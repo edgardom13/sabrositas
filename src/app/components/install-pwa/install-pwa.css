@@ -1,0 +1,85 @@
+.btn-instalar {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border: none;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c1010;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 179, 0, 0.35);
+  transition: all 0.2s;
+  animation: brillo 2.5s ease-in-out infinite;
+}
+
+.btn-instalar:hover { transform: translateY(-2px); }
+
+@keyframes brillo {
+  0%, 100% { box-shadow: 0 4px 14px rgba(255, 179, 0, 0.35); }
+  50% { box-shadow: 0 4px 22px rgba(255, 179, 0, 0.65); }
+}
+
+.overlay-ios {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ayuda-ios {
+  background: linear-gradient(160deg, #2b1608, #1d0e06);
+  border: 2px solid rgba(255, 193, 7, 0.5);
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+
+.ayuda-ios h4 {
+  color: #ffd54f;
+  font-size: 18px;
+  margin: 0 0 14px;
+}
+
+.ayuda-ios ol {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 2;
+  padding-left: 20px;
+  margin: 0 0 18px;
+}
+
+.ayuda-ios strong { color: #ffd54f; }
+
+.btn-entendido {
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  border: none;
+  border-radius: 999px;
+  padding: 11px 26px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+body.claro .ayuda-ios {
+  background: #fffdf8 !important;
+  border-color: rgba(180, 90, 20, 0.5) !important;
+}
+
+body.claro .ayuda-ios h4 { color: #b45309 !important; }
+body.claro .ayuda-ios ol { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .ayuda-ios strong { color: #b45309 !important; }
+
+.ayuda-icono {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(255, 193, 7, 0.4));
+}

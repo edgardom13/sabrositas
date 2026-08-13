@@ -137,3 +137,32 @@
 @media (max-width: 700px) {
   .stats { grid-template-columns: 1fr; }
 }
+
+.btn-compartir {
+  display: inline-block;
+  margin-top: 10px;
+  background: linear-gradient(180deg, #25d366, #128c4b) !important;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.mov-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.mov-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mov-cantidad.mas { color: #51cf66; font-weight: 700; }
+.mov-cantidad.menos { color: #ff8080; font-weight: 700; }
+
+body.claro .mov-row { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .mov-cantidad.mas { color: #2f9e44 !important; }
+body.claro .mov-cantidad.menos { color: #c92a2a !important; }

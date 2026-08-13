@@ -3,6 +3,10 @@ import { PedidosService, EstadoPedido } from '../../services/pedidos.service';
 import { Pedido } from '../../services/supabase';
 import { ConfigService } from '../../services/config.service';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase';
+
+interface Domiciliario { id: string; nombre: string; }
+interface InfoCanje { codigo: string; premio: string; tipo: string; valor: number; cantidad: number; }
 
 @Component({
   selector: 'app-pedidos',
@@ -14,55 +18,46 @@ import { AuthService } from '../../services/auth.service';
 export class Pedidos implements OnInit, OnDestroy {
   pedidosService = inject(PedidosService);
   private auth = inject(AuthService);
+  private supabase = inject(SupabaseService);
+  private configService = inject(ConfigService);
 
   filtroEstado = signal<'todos' | EstadoPedido>('todos');
   busqueda = signal('');
   pedidoExpandido = signal<number | null>(null);
   procesando = signal<number | null>(null);
   mensajeExito = signal<string | null>(null);
-  
-domiciliariosDisponibles = signal<any[]>([]);
 
-  // 📅 Por defecto: solo el día de hoy
+  domiciliariosDisponibles = signal<Domiciliario[]>([]);
+  canjesInfo = signal<Map<number, InfoCanje>>(new Map()); // pedidoId -> info canje
+
   fechaSeleccionada = signal<string>(this.hoyLocal());
   verHistorico = signal(false);
 
   private intervalo?: ReturnType<typeof setInterval>;
-  private configService = inject(ConfigService);
 
   filtros: { valor: 'todos' | EstadoPedido; etiqueta: string }[] = [
     { valor: 'todos', etiqueta: '🌐 Todos' },
     { valor: 'pendiente', etiqueta: '⏳ Pendientes' },
-    { valor: 'preparando', etiqueta: '👨‍ Preparando' },
+    { valor: 'preparando', etiqueta: '👨‍🍳 Preparando' },
     { valor: 'en_camino', etiqueta: '🛵 En camino' },
     { valor: 'entregado', etiqueta: '✅ Entregados' },
     { valor: 'cancelado', etiqueta: '❌ Cancelados' },
   ];
 
   estadosPedido: EstadoPedido[] = [
-    'pendiente',
-    'preparando',
-    'en_camino',
-    'entregado',
-    'cancelado',
+    'pendiente', 'preparando', 'en_camino', 'entregado', 'cancelado',
   ];
 
-  // ===== 📅 Pedidos del día elegido (o histórico) =====
   pedidosFecha = computed(() => {
     if (this.verHistorico()) return this.pedidosService.pedidos();
     const fecha = this.fechaSeleccionada();
     return this.pedidosService.pedidos().filter((p) => this.esMismoDia(p.creado_en, fecha));
   });
 
-  // ===== Lista final (día + estado + búsqueda) =====
   pedidosFiltrados = computed(() => {
     let lista = this.pedidosFecha();
-
     const estado = this.filtroEstado();
-    if (estado !== 'todos') {
-      lista = lista.filter((p) => p.estado === estado);
-    }
-
+    if (estado !== 'todos') lista = lista.filter((p) => p.estado === estado);
     const q = this.busqueda().trim().toLowerCase();
     if (q) {
       lista = lista.filter(
@@ -72,18 +67,18 @@ domiciliariosDisponibles = signal<any[]>([]);
           String(p.id).includes(q),
       );
     }
-
     return lista;
   });
 
-  // ===== 📊 Estadísticas del día elegido =====
   statsDia = computed(() => {
     const lista = this.pedidosFecha();
     const entregados = lista.filter((p) => p.estado === 'entregado');
+    const conCanje = lista.filter((p) => (p as any).codigo_canje).length;
     return {
       pendientes: lista.filter((p) => p.estado === 'pendiente').length,
       enCamino: lista.filter((p) => p.estado === 'en_camino').length,
       entregados: entregados.length,
+      conCanje,
       recogido: entregados.reduce((t, p) => t + Number(p.total), 0),
       productos: entregados.reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0),
       domicilios: entregados.reduce((t, p) => t + Number(p.domicilio), 0),
@@ -93,19 +88,14 @@ domiciliariosDisponibles = signal<any[]>([]);
   textoFecha = computed(() => {
     const [y, m, d] = this.fechaSeleccionada().split('-').map((n) => Number(n));
     return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     });
   });
 
   ngOnInit(): void {
-     this.pedidosService.cargarPedidos();
-  this.cargarDomiciliarios(); // ← nuevo
-  this.intervalo = setInterval(() => {
     this.pedidosService.cargarPedidos();
-  }, 30000);
+    this.cargarDomiciliarios();
+    this.intervalo = setInterval(() => this.pedidosService.cargarPedidos(), 30000);
   }
 
   ngOnDestroy(): void {
@@ -113,37 +103,91 @@ domiciliariosDisponibles = signal<any[]>([]);
   }
 
   async cargarDomiciliarios(): Promise<void> {
-  const { data } = await this.auth['supabase'].client
-    .from('perfiles')
-    .select('id, nombre')
-    .eq('rol', 'domiciliario');
-  this.domiciliariosDisponibles.set(data ?? []);
-}
-
-async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
-  const id = (evento.target as HTMLSelectElement).value || null;
-  this.procesando.set(pedido.id);
-  const { error } = await this.pedidosService['supabase'].client
-    .from('pedidos')
-    .update({ domiciliario_id: id })
-    .eq('id', pedido.id);
-  this.procesando.set(null);
-
-  if (!error) {
-    this.pedidosService.pedidos.update((lista) =>
-      lista.map((p) => (p.id === pedido.id ? { ...p, domiciliario_id: id } : p)),
-    );
-    this.mostrarMensaje(id ? '🛵 Domiciliario asignado' : 'Sin domiciliario');
+    const { data } = await this.supabase.client
+      .from('perfiles')
+      .select('id, nombre')
+      .eq('rol', 'domiciliario');
+    this.domiciliariosDisponibles.set((data as Domiciliario[]) ?? []);
   }
-}
 
+  // 🔎 Obtiene el nombre del domiciliario asignado a un pedido
+  nombreDomiciliario(pedido: Pedido): string {
+    if (!pedido.domiciliario_id) return '';
+    const dom = this.domiciliariosDisponibles().find((d) => d.id === pedido.domiciliario_id);
+    return dom?.nombre ?? 'Desconocido';
+  }
 
-  // ===== 📅 Manejo de fechas =====
+  async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
+    const id = (evento.target as HTMLSelectElement).value || null;
+    this.procesando.set(pedido.id);
+    const { error } = await this.supabase.client
+      .from('pedidos')
+      .update({ domiciliario_id: id })
+      .eq('id', pedido.id);
+    this.procesando.set(null);
+
+    if (!error) {
+      this.pedidosService.pedidos.update((lista) =>
+        lista.map((p) => (p.id === pedido.id ? { ...p, domiciliario_id: id } : p)),
+      );
+      const dom = id ? this.domiciliariosDisponibles().find((d) => d.id === id)?.nombre : null;
+      this.mostrarMensaje(dom ? `🛵 Asignado a ${dom}` : 'Domiciliario removido');
+    }
+  }
+
+  // 🎟️ Verifica si un pedido tiene canje activo
+  tieneCanje(pedido: Pedido): boolean {
+    return !!(pedido as any).codigo_canje;
+  }
+
+  // 📦 Carga la info completa del canje (premio) del pedido
+  async cargarInfoCanje(pedido: Pedido): Promise<InfoCanje | null> {
+    const codigo = (pedido as any).codigo_canje;
+    if (!codigo) return null;
+
+    const existente = this.canjesInfo().get(pedido.id);
+    if (existente) return existente;
+
+    const { data } = await this.supabase.client
+      .from('canjes')
+      .select('codigo, premio:premios(nombre, tipo, valor, cantidad)')
+      .eq('codigo', codigo)
+      .maybeSingle();
+
+    if (!data) return null;
+
+    const premio = (data as any).premio;
+    const info: InfoCanje = {
+      codigo: (data as any).codigo,
+      premio: premio?.nombre ?? 'Premio',
+      tipo: premio?.tipo ?? 'otro',
+      valor: Number(premio?.valor ?? 0),
+      cantidad: Number(premio?.cantidad ?? 1),
+    };
+
+    this.canjesInfo.update((map) => {
+      const nuevo = new Map(map);
+      nuevo.set(pedido.id, info);
+      return nuevo;
+    });
+
+    return info;
+  }
+
+  infoCanje(pedido: Pedido): InfoCanje | null {
+    return this.canjesInfo().get(pedido.id) ?? null;
+  }
+
+  emojiTipoCanje(tipo: string): string {
+    const i: Record<string, string> = {
+      empanada: '🥟', jugo: '🍹', domicilio: '🛵', monto: '💰', otro: '🎁',
+    };
+    return i[tipo ?? 'otro'] ?? '🎁';
+  }
+
   private hoyLocal(): string {
     const d = new Date();
-    const m = `${d.getMonth() + 1}`.padStart(2, '0');
-    const dia = `${d.getDate()}`.padStart(2, '0');
-    return `${d.getFullYear()}-${m}-${dia}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   private esMismoDia(iso: string, fecha: string): boolean {
@@ -154,29 +198,20 @@ async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
 
   cambiarFecha(evento: Event): void {
     const valor = (evento.target as HTMLInputElement).value;
-    if (valor) {
-      this.fechaSeleccionada.set(valor);
-      this.verHistorico.set(false);
-    }
+    if (valor) { this.fechaSeleccionada.set(valor); this.verHistorico.set(false); }
   }
 
-  irAHoy(): void {
-    this.fechaSeleccionada.set(this.hoyLocal());
-    this.verHistorico.set(false);
-  }
+  irAHoy(): void { this.fechaSeleccionada.set(this.hoyLocal()); this.verHistorico.set(false); }
 
-  // ===== Contadores de los chips =====
   conteoDe(valor: 'todos' | EstadoPedido): number {
     if (valor === 'todos') return this.pedidosFecha().length;
     return this.pedidosFecha().filter((p) => p.estado === valor).length;
   }
 
-  // ===== ▶️ Avance rápido de estado =====
   siguienteEstado(estado: EstadoPedido): EstadoPedido | null {
     const flujo: EstadoPedido[] = ['pendiente', 'preparando', 'en_camino', 'entregado'];
     const i = flujo.indexOf(estado);
-    if (i === -1 || i === flujo.length - 1) return null;
-    return flujo[i + 1];
+    return i === -1 || i === flujo.length - 1 ? null : flujo[i + 1];
   }
 
   async avanzarEstado(pedido: Pedido): Promise<void> {
@@ -186,6 +221,10 @@ async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
 
   alternarDetalle(id: number): void {
     this.pedidoExpandido.update((v) => (v === id ? null : id));
+    if (this.pedidoExpandido() === id) {
+      const pedido = this.pedidosService.pedidos().find((p) => p.id === id);
+      if (pedido && this.tieneCanje(pedido)) this.cargarInfoCanje(pedido);
+    }
   }
 
   actualizarBusqueda(evento: Event): void {
@@ -194,32 +233,20 @@ async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
 
   async cambiarEstado(pedido: Pedido, estado: EstadoPedido): Promise<void> {
     if (pedido.estado === estado) return;
-
-    // 🛡️ Confirmación antes de cancelar
     if (estado === 'cancelado') {
-      if (!confirm(`¿Cancelar el pedido #${pedido.id}? Esta acción no se puede deshacer.`)) {
-        return;
-      }
+      if (!confirm(`¿Cancelar el pedido #${pedido.id}?`)) return;
     }
-
     this.procesando.set(pedido.id);
     const ok = await this.pedidosService.cambiarEstado(pedido.id, estado);
-        if (ok && estado === 'entregado') {
-      await this.pedidosService.otorgarPuntosReferido(pedido.id);
-    }
     this.procesando.set(null);
-    if (ok) {
-      this.mostrarMensaje(`Pedido #${pedido.id} → ${this.pedidosService.textoEstado(estado)}`);
-    }
+    if (ok) this.mostrarMensaje(`Pedido #${pedido.id} → ${this.pedidosService.textoEstado(estado)}`);
   }
 
   async marcarPagado(pedido: Pedido, metodo: string): Promise<void> {
     this.procesando.set(pedido.id);
     const ok = await this.pedidosService.marcarComoPagado(pedido.id, metodo);
     this.procesando.set(null);
-    if (ok) {
-      this.mostrarMensaje(`Pedido #${pedido.id} marcado como PAGADO 💰`);
-    }
+    if (ok) this.mostrarMensaje(`Pedido #${pedido.id} marcado como PAGADO 💰`);
   }
 
   esNuevo(pedido: Pedido): boolean {
@@ -236,8 +263,7 @@ async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
   }
 
   linkWhatsApp(telefono: string): string {
-    const limpio = telefono.replace(/\D/g, '');
-    return `https://wa.me/57${limpio}`;
+    return `https://wa.me/57${telefono.replace(/\D/g, '')}`;
   }
 
   linkMapa(pedido: Pedido): string {
@@ -249,25 +275,22 @@ async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
     setTimeout(() => this.mensajeExito.set(null), 3000);
   }
 
-  // ===== 💬 Plantillas de WhatsApp =====
-enviarWhatsapp(pedido: Pedido, tipo: 'recibido' | 'camino' | 'entregado'): void {
-  const config = this.configService.config();
-  const plantilla =
-    tipo === 'recibido' ? config.plantilla_recibido :
-    tipo === 'camino' ? config.plantilla_camino :
-    config.plantilla_entregado;
+  enviarWhatsapp(pedido: Pedido, tipo: 'recibido' | 'camino' | 'entregado'): void {
+    const config = this.configService.config();
+    const plantilla =
+      tipo === 'recibido' ? config.plantilla_recibido :
+      tipo === 'camino' ? config.plantilla_camino :
+      config.plantilla_entregado;
+    const mensaje = this.aplicarPlantilla(plantilla, pedido);
+    window.open(`https://wa.me/57${pedido.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`, '_blank');
+  }
 
-  const mensaje = this.aplicarPlantilla(plantilla, pedido);
-  const limpio = pedido.telefono.replace(/\D/g, '');
-  window.open(`https://wa.me/57${limpio}?text=${encodeURIComponent(mensaje)}`, '_blank');
-}
-
-private aplicarPlantilla(plantilla: string, pedido: Pedido): string {
-  return plantilla
-    .split('{nombre}').join(`${pedido.nombre_cliente} ${pedido.apellido_cliente}`)
-    .split('{pedido}').join(`#${pedido.id}`)
-    .split('{total}').join(this.pedidosService.formatearPrecio(pedido.total))
-    .split('{direccion}').join(pedido.direccion)
-    .split('{negocio}').join('Sabrositas');
-}
+  private aplicarPlantilla(plantilla: string, pedido: Pedido): string {
+    return plantilla
+      .split('{nombre}').join(`${pedido.nombre_cliente} ${pedido.apellido_cliente}`)
+      .split('{pedido}').join(`#${pedido.id}`)
+      .split('{total}').join(this.pedidosService.formatearPrecio(pedido.total))
+      .split('{direccion}').join(pedido.direccion)
+      .split('{negocio}').join('Sabrositas');
+  }
 }

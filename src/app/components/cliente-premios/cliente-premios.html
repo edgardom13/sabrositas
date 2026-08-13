@@ -1,0 +1,77 @@
+<p class="titulo-bloque">🏆 Canjea tus puntos</p>
+<div class="grid-premios-mejorado">
+  @for (premio of referidos.premios(); track premio.id) {
+    <div class="premio-card-mejorada" [class.bloqueado]="botonBloqueado(premio)">
+      <div class="premio-tipo-badge">
+        {{ iconoTipo(premio.tipo ?? 'otro') }} {{ premio.tipo ?? 'otro' }}
+      </div>
+      <span class="premio-nombre-grande">{{ premio.nombre }}</span>
+      @if (premio.tipo === 'monto' && premio.valor) {
+        <span class="premio-valor">Valor: {{ formatearPrecio(premio.valor) }}</span>
+      }
+      <div class="premio-puntos-grande">
+        <span class="pts-num">{{ premio.puntos }}</span>
+        <span class="pts-label">puntos</span>
+      </div>
+      <button
+        class="btn-canjear-mejorado"
+        [disabled]="botonBloqueado(premio)"
+        (click)="canjear(premio)"
+      >
+        {{ textoBoton(premio) }}
+      </button>
+      @if (canjeadoEsteMes(premio.id)) {
+        <small class="reactiva-el">🔄 Se reactiva el {{ fechaReactivacion() }}</small>
+      }
+    </div>
+  }
+</div>
+
+<p class="titulo-bloque" style="margin-top: 30px;">🎟️ Mis canjes</p>
+@if (referidos.canjes().length === 0) {
+  <div class="estado-vacio">Aún no tienes canjes. ¡Canjea tu primer premio!</div>
+} @else {
+  <div class="lista-cards">
+    @for (canje of referidos.canjes(); track canje.id) {
+      <div class="canje-card" [class.estado-reclamado]="canje.estado === 'reclamado'" [class.estado-anulado]="canje.estado === 'anulado'">
+        <div class="canje-info">
+          <strong class="canje-codigo">{{ canje.codigo }}</strong>
+          <span class="canje-premio">{{ canje.premio?.nombre ?? 'Premio' }}</span>
+        </div>
+        <div class="canje-acciones">
+          @if (canje.estado === 'pendiente') {
+            <button class="btn-mini-usar" (click)="abrirCanjeExistente(canje)">
+              🛒 Reclamar en tienda
+            </button>
+          } @else if (canje.estado === 'reclamado') {
+            <span class="canje-estado reclamado">✅ Reclamado</span>
+          } @else {
+            <span class="canje-estado anulado">🚫 Anulado</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- 🎉 MODAL DE CANJE EXITOSO -->
+@if (canjeReciente(); as c) {
+  <div class="modal-overlay-premio" (click)="cerrarModal()">
+    <div class="modal-premio" (click)="$event.stopPropagation()">
+      <span class="modal-premio-icono">🎉</span>
+      <h3>¡PREMIO CANJEADO!</h3>
+      <p class="modal-premio-nombre">{{ c.premio.nombre }}</p>
+      <div class="modal-codigo">{{ c.codigo }}</div>
+      <p class="modal-ayuda">
+        Reclámalo en la tienda y agregaremos los productos del premio a tu carrito automáticamente.
+      </p>
+      <div class="modal-acciones-premio">
+        <button class="btn-mini-copiar" (click)="copiarCodigo()">
+          {{ copiadoModal() ? '✅ Copiado' : '📋 Copiar' }}
+        </button>
+        <button class="btn-mini-usar" (click)="reclamarEnTienda()">🛒 Reclamar en tienda</button>
+      </div>
+      <button class="modal-cerrar" (click)="cerrarModal()">Seguir viendo premios</button>
+    </div>
+  </div>
+}

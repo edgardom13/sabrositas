@@ -11,6 +11,7 @@ export interface ConfigNegocio {
   plantilla_recibido: string;   // ← nuevos
   plantilla_camino: string;
   plantilla_entregado: string;
+  puntos_referido: number; // ← nuevo
 }
 
 const DEFAULT: ConfigNegocio = {
@@ -23,6 +24,7 @@ const DEFAULT: ConfigNegocio = {
   plantilla_recibido: 'Hola {nombre}! 🥟 Recibimos tu pedido {pedido} en Sabrositas. Ya lo estamos preparando con mucho amor. Total a pagar: {total}. Te avisamos cuando salga a domicilio. ❤️',
   plantilla_camino: 'Hola {nombre}! 🛵 Tu pedido {pedido} ya va en camino a: {direccion}. Total a pagar: {total}. ¡Estar pendiente porfa! 🥟',
   plantilla_entregado: 'Hola {nombre}! ✅ Tu pedido {pedido} fue entregado. ¡Gracias por elegir Sabrositas! ❤️ Vuelve pronto por más empanaditas. 🥟',
+  puntos_referido: 50 // ← nuevo
 };
 
 @Injectable({ providedIn: 'root' })

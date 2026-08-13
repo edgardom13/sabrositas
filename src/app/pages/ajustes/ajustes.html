@@ -24,6 +24,8 @@
 
     <!-- 🎁 PROMOCIONES Y SALSAS -->
     <div class="ajuste-card">
+      <label>Puntos por pedido referido entregado</label>
+      <input type="number" [ngModel]="puntosReferido()" (ngModelChange)="puntosReferido.set(+$event || 0)" />
       <h4>🎁 Promociones y salsas</h4>
       <p class="nota-ajustes">Cupón y reglas de salsas de la tienda.</p>
 

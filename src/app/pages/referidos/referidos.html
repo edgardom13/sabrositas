@@ -1,0 +1,86 @@
+<div class="admin-page">
+
+  @if (mensaje()) { <div class="toast-exito">{{ mensaje() }}</div> }
+
+  <div class="stats-grid">
+    <div class="stat-card stat-dorado"><span class="stat-icono">⭐</span><div><h3>{{ stats().puntosCirculacion }}</h3><p>Puntos en circulación</p></div></div>
+    <div class="stat-card stat-verde"><span class="stat-icono">🔗</span><div><h3>{{ stats().pedidosReferidos }}</h3><p>Pedidos referidos</p></div></div>
+    <div class="stat-card stat-amarillo"><span class="stat-icono">🎟️</span><div><h3>{{ stats().canjesPendientes }}</h3><p>Canjes pendientes</p></div></div>
+    <div class="stat-card stat-azul"><span class="stat-icono">🏆</span><div><h3>{{ stats().premiosActivos }}</h3><p>Premios activos</p></div></div>
+  </div>
+
+  <!-- 👑 Ranking -->
+  <div class="bloque">
+    <h4>👑 Ranking de referidores</h4>
+    @if (ranking().length === 0) {
+      <div class="estado-vacio">Aún no hay referidores registrados.</div>
+    } @else {
+      @for (r of ranking(); track r.perfil.id; let i = $index) {
+        <div class="fila-admin">
+          <span class="pos">#{{ i + 1 }}</span>
+          <span class="nombre">{{ r.perfil.nombre ?? 'Sin nombre' }}</span>
+          <span class="codigo">{{ r.perfil.codigo_referido }}</span>
+          <span class="codigo">{{ r.referidos }} referidos</span>
+          <span class="badge-pts">⭐ {{ r.perfil.puntos }}</span>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- 🎟️ Canjes -->
+  <div class="bloque">
+    <h4>🎟️ Canjes de premios</h4>
+    @if (service.canjes().length === 0) {
+      <div class="estado-vacio">Aún no hay canjes.</div>
+    } @else {
+      @for (c of service.canjes(); track c.id) {
+        <div class="fila-admin">
+          <span class="codigo">{{ c.codigo }}</span>
+          <span class="nombre">{{ c.usuario?.nombre ?? 'Cliente' }} · {{ c.premio?.nombre ?? 'Premio' }}</span>
+          @if (c.estado === 'pendiente') {
+            <button class="btn-mini-admin verde" [disabled]="procesando() === c.id" (click)="estadoCanje(c.id, 'reclamado')">✅ Reclamado</button>
+            <button class="btn-mini-admin rojo" [disabled]="procesando() === c.id" (click)="estadoCanje(c.id, 'anulado')">🚫 Anular</button>
+          } @else {
+            <span class="badge-pts">{{ c.estado === 'reclamado' ? '✅ Reclamado' : '🚫 Anulado' }}</span>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- 🔗 Pedidos referidos -->
+  <div class="bloque">
+    <h4>🔗 Pedidos referidos</h4>
+    @if (service.pedidosReferidos().length === 0) {
+      <div class="estado-vacio">Ningún pedido ha llegado por referidos todavía.</div>
+    } @else {
+      @for (p of service.pedidosReferidos(); track p.id) {
+        <div class="fila-admin">
+          <span class="pos">#{{ p.id }}</span>
+          <span class="nombre">{{ p.nombre_cliente }} {{ p.apellido_cliente }}</span>
+          <span class="codigo">via {{ p.referido_por }}</span>
+          <span class="badge-pts">{{ p.puntos_otorgado ? '⭐ +50' : '⏳ sin puntos' }}</span>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- 🏆 Premios -->
+  <div class="bloque">
+    <h4>🏆 Gestión de premios</h4>
+    <div class="form-inline">
+      <input [ngModel]="nombrePremio()" (ngModelChange)="nombrePremio.set($event)" placeholder="Nombre del premio" />
+      <input type="number" [ngModel]="puntosPremio()" (ngModelChange)="puntosPremio.set(+$event || 0)" placeholder="Puntos" style="width: 100px;" />
+      <button class="btn-mini-admin" (click)="crearPremio()">➕ Crear premio</button>
+    </div>
+    @for (p of service.premios(); track p.id) {
+      <div class="fila-admin">
+        <span class="nombre">{{ p.nombre }}</span>
+        <span class="badge-pts">{{ p.puntos }} pts</span>
+        <button class="btn-mini-admin" (click)="togglePremio(p.id, p.activo)">
+          {{ p.activo ? '⏸️ Desactivar' : '▶️ Activar' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -514,3 +514,291 @@ body.claro .confirmado-card h1 { color: #2f9e44 !important; }
 body.claro .confirmado-sub { color: rgba(58, 36, 16, 0.75) !important; }
 body.claro .confirmado-sub strong { color: #b45309 !important; }
 body.claro .confirmado-nombre { color: #b45309 !important; }
+
+/* ===== MODO CLARO - REFERIDOS Y USUARIOS ===== */
+body.claro .stat-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .stat-card h3 { color: #3a2410 !important; }
+body.claro .stat-dorado h3 { color: #b45309 !important; }
+body.claro .stat-card p { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .bloque { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important; }
+body.claro .bloque h4 { color: #b45309 !important; }
+body.claro .fila-admin { border-bottom-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .nombre { color: #3a2410 !important; }
+body.claro .codigo { color: rgba(58, 36, 16, 0.6) !important; background: rgba(180, 90, 20, 0.06) !important; }
+body.claro .badge-pts { background: rgba(180, 90, 20, 0.1) !important; color: #b45309 !important; }
+body.claro .btn-mini-admin { border-color: rgba(180, 90, 20, 0.4) !important; color: #b45309 !important; }
+body.claro .btn-mini-admin:hover { background: rgba(180, 90, 20, 0.08) !important; }
+body.claro .btn-mini-admin.verde { border-color: rgba(47, 158, 68, 0.5) !important; color: #2f9e44 !important; }
+body.claro .btn-mini-admin.rojo { border-color: rgba(201, 42, 42, 0.5) !important; color: #c92a2a !important; }
+body.claro .form-inline input, body.claro .form-inline select { background: #fff !important; color: #3a2410 !important; border-color: rgba(180, 90, 20, 0.3) !important; }
+body.claro .chip { background: #fff !important; border-color: rgba(180, 90, 20, 0.2) !important; color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .chip.activo { background: linear-gradient(180deg, #ffd54f, #ffb300) !important; color: #5c1010 !important; }
+body.claro .estado-vacio { background: #fff !important; color: rgba(58, 36, 16, 0.6) !important; border-color: rgba(180, 90, 20, 0.25) !important; }
+
+/* =====================================================
+   MODO CLARO - CONTENIDO PANELES CLIENTE Y DOMICILIARIO
+   ===================================================== */
+body.claro .pagina-interna { color: #3a2410; }
+
+/* Puntos */
+body.claro .tarjeta-puntos {
+  background: linear-gradient(135deg, rgba(180, 90, 20, 0.12), rgba(180, 90, 20, 0.05)) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+}
+body.claro .tarjeta-puntos h2 { color: #b45309 !important; }
+body.claro .tarjeta-puntos p { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .titulo-bloque { color: #3a2410 !important; }
+
+/* Link de referidos */
+body.claro .link-box {
+  background: rgba(180, 90, 20, 0.05) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+}
+body.claro .link-url { color: rgba(58, 36, 16, 0.75) !important; }
+
+/* Premios */
+body.claro .premio-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important; }
+body.claro .premio-nombre { color: #3a2410 !important; }
+body.claro .premio-puntos { color: #b45309 !important; }
+
+/* Canjes */
+body.claro .canje-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .canje-codigo { color: #b45309 !important; }
+body.claro .canje-estado { color: #b45309 !important; }
+body.claro .canje-estado.reclamado { color: #2f9e44 !important; }
+
+/* Estados vacíos */
+body.claro .estado-vacio {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+  color: rgba(58, 36, 16, 0.6) !important;
+}
+
+/* Mis pedidos (timeline del cliente) */
+body.claro .card-pedido { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important; }
+body.claro .card-cabecera .num { color: #b45309 !important; }
+body.claro .card-cabecera .cliente { color: #3a2410 !important; }
+body.claro .card-cabecera .hora { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .paso { color: rgba(58, 36, 16, 0.45) !important; }
+body.claro .paso .punto { background: rgba(58, 36, 16, 0.15) !important; }
+body.claro .paso.activo { color: #2f9e44 !important; }
+body.claro .paso.activo .punto { background: #2f9e44 !important; }
+body.claro .paso.cancelado { color: #c92a2a !important; }
+body.claro .paso.cancelado .punto { background: #c92a2a !important; }
+
+/* Nota de ganancias del domiciliario */
+body.claro .nota-ganancias {
+  color: rgba(58, 36, 16, 0.7) !important;
+  background: rgba(180, 90, 20, 0.06) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+/* =====================================================
+   MODO CLARO - PANELES CLIENTE Y DOMICILIARIO (DEFINITIVO)
+   Pega esto al FINAL de styles.css
+   ===================================================== */
+body.claro .pagina-interna { color: #3a2410; }
+
+/* Historial de movimientos */
+body.claro .mov-row {
+  background: #fff !important;
+  border: 1px solid rgba(180, 90, 20, 0.15) !important;
+  color: rgba(58, 36, 16, 0.85) !important;
+}
+body.claro .mov-cantidad.mas { color: #2f9e44 !important; }
+body.claro .mov-cantidad.menos { color: #c92a2a !important; }
+
+/* Tarjeta de puntos */
+body.claro .tarjeta-puntos {
+  background: linear-gradient(135deg, rgba(180, 90, 20, 0.12), rgba(180, 90, 20, 0.05)) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+}
+body.claro .tarjeta-puntos h2 { color: #b45309 !important; }
+body.claro .tarjeta-puntos p { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .titulo-bloque { color: #3a2410 !important; }
+
+/* Link de referidos */
+body.claro .link-box { background: #fff !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .link-url { color: rgba(58, 36, 16, 0.8) !important; }
+
+/* Premios */
+body.claro .premio-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important; }
+body.claro .premio-nombre { color: #3a2410 !important; }
+body.claro .premio-puntos { color: #b45309 !important; }
+
+/* Canjes */
+body.claro .canje-card { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; }
+body.claro .canje-codigo { color: #b45309 !important; }
+body.claro .canje-estado { color: #b45309 !important; }
+body.claro .canje-estado.reclamado { color: #2f9e44 !important; }
+
+/* Estados vacíos */
+body.claro .estado-vacio {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+  color: rgba(58, 36, 16, 0.6) !important;
+}
+
+/* Mis pedidos (timeline del cliente) */
+body.claro .card-pedido { background: #fff !important; border-color: rgba(180, 90, 20, 0.15) !important; box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important; }
+body.claro .card-cabecera .num { color: #b45309 !important; }
+body.claro .card-cabecera .cliente { color: #3a2410 !important; }
+body.claro .card-cabecera .hora { color: rgba(58, 36, 16, 0.5) !important; }
+body.claro .paso { color: rgba(58, 36, 16, 0.45) !important; }
+body.claro .paso .punto { background: rgba(58, 36, 16, 0.15) !important; }
+body.claro .paso.activo { color: #2f9e44 !important; }
+body.claro .paso.activo .punto { background: #2f9e44 !important; }
+body.claro .paso.cancelado { color: #c92a2a !important; }
+body.claro .paso.cancelado .punto { background: #c92a2a !important; }
+
+/* Nota de ganancias del domiciliario */
+body.claro .nota-ganancias {
+  color: rgba(58, 36, 16, 0.7) !important;
+  background: rgba(180, 90, 20, 0.06) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+/* ===== FIX: texto del historial de puntos en modo claro ===== */
+body.claro app-panel-cliente .mov-row > span:first-child {
+  color: rgba(58, 36, 16, 0.85) !important;
+}
+
+body.claro app-panel-cliente .mov-cantidad.mas {
+  color: #2f9e44 !important;
+}
+
+body.claro app-panel-cliente .mov-cantidad.menos {
+  color: #c92a2a !important;
+}
+
+/* Refuerzo: cualquier texto suelto blanco dentro del panel en modo claro */
+body.claro app-panel-cliente .pagina-interna {
+  color: #3a2410;
+}
+
+body.claro app-panel-cliente .titulo-bloque {
+  color: #3a2410 !important;
+}
+
+/* =====================================================
+   FIX MODO CLARO - PREMIOS Y CANJES (panel cliente)
+   ===================================================== */
+
+/* Tarjetas de premio legibles en claro */
+body.claro app-panel-cliente .premio-card-mejorada {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important;
+}
+
+/* Bloqueado = no le alcanzan los puntos: se atenúa pero SIGUE legible */
+body.claro app-panel-cliente .premio-card-mejorada.bloqueado {
+  opacity: 0.85 !important;
+}
+
+body.claro app-panel-cliente .premio-nombre-grande { color: #3a2410 !important; }
+
+body.claro app-panel-cliente .premio-tipo-badge {
+  background: rgba(180, 90, 20, 0.12) !important;
+  color: #b45309 !important;
+}
+
+body.claro app-panel-cliente .pts-num { color: #b45309 !important; }
+body.claro app-panel-cliente .pts-label { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro app-panel-cliente .premio-valor { color: #2f9e44 !important; }
+
+/* Botón canjear: habilitado verde, deshabilitado legible */
+body.claro app-panel-cliente .btn-canjear-mejorado {
+  background: linear-gradient(180deg, #51cf66, #2f9e44) !important;
+  color: #fff !important;
+}
+
+body.claro app-panel-cliente .btn-canjear-mejorado:disabled {
+  background: rgba(58, 36, 16, 0.08) !important;
+  color: rgba(58, 36, 16, 0.5) !important;
+}
+
+/* Canjes */
+body.claro app-panel-cliente .canje-card {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+  box-shadow: 0 4px 14px rgba(120, 70, 20, 0.08) !important;
+}
+
+body.claro app-panel-cliente .canje-card.estado-reclamado {
+  border-color: rgba(47, 158, 68, 0.4) !important;
+  background: rgba(47, 158, 68, 0.05) !important;
+}
+
+body.claro app-panel-cliente .canje-codigo { color: #b45309 !important; }
+body.claro app-panel-cliente .canje-premio { color: rgba(58, 36, 16, 0.65) !important; }
+
+body.claro app-panel-cliente .btn-mini-copiar {
+  color: #b45309 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  background: #fff !important;
+}
+
+body.claro app-panel-cliente .btn-mini-usar {
+  color: #2f9e44 !important;
+  border-color: rgba(47, 158, 68, 0.5) !important;
+  background: rgba(47, 158, 68, 0.06) !important;
+}
+
+body.claro app-panel-cliente .canje-estado.reclamado {
+  color: #2f9e44 !important;
+  background: rgba(47, 158, 68, 0.1) !important;
+  border: 1px solid rgba(47, 158, 68, 0.3) !important;
+}
+
+body.claro app-panel-cliente .canje-estado.anulado {
+  color: #c92a2a !important;
+  background: rgba(201, 42, 42, 0.08) !important;
+  border: 1px solid rgba(201, 42, 42, 0.3) !important;
+}
+
+body.claro app-panel-cliente .titulo-bloque { color: #3a2410 !important; }
+
+/* =====================================================
+   FIX MODO CLARO - MIS PUNTOS (panel cliente)
+   ===================================================== */
+
+/* Tarjeta hero de puntos */
+body.claro app-panel-cliente .tarjeta-puntos-hero {
+  background: linear-gradient(135deg, rgba(180, 90, 20, 0.14), rgba(180, 90, 20, 0.05)) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  box-shadow: 0 12px 30px rgba(180, 90, 20, 0.12) !important;
+}
+
+body.claro app-panel-cliente .puntos-principal h2 { color: #b45309 !important; }
+body.claro app-panel-cliente .puntos-principal p { color: rgba(58, 36, 16, 0.75) !important; }
+
+/* Barra de progreso al siguiente premio */
+body.claro app-panel-cliente .progreso-box { background: rgba(180, 90, 20, 0.06) !important; }
+body.claro app-panel-cliente .progreso-header { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro app-panel-cliente .progreso-header strong { color: #b45309 !important; }
+body.claro app-panel-cliente .progreso-barra { background: rgba(58, 36, 16, 0.12) !important; }
+body.claro app-panel-cliente .progreso-fill { background: linear-gradient(90deg, #b45309, #2f9e44) !important; }
+body.claro app-panel-cliente .progreso-box small { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro app-panel-cliente .progreso-box small strong { color: #b45309 !important; }
+
+/* Stats mini (Pedidos / Entregados / Gastado / Referidos) */
+body.claro app-panel-cliente .stat-mini {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(120, 70, 20, 0.06) !important;
+}
+
+body.claro app-panel-cliente .stat-mini strong { color: #3a2410 !important; }
+body.claro app-panel-cliente .stat-mini small { color: rgba(58, 36, 16, 0.6) !important; }
+
+/* Hint de "Gana 50 puntos..." */
+body.claro app-panel-cliente .hint-texto {
+  background: rgba(180, 90, 20, 0.05) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+  color: rgba(58, 36, 16, 0.75) !important;
+}
+
+body.claro app-panel-cliente .hint-texto strong { color: #b45309 !important; }

@@ -1,0 +1,35 @@
+@if (mostrarBoton) {
+  <button class="btn-instalar" (click)="instalar()">📲 Instalar app</button>
+}
+
+<!-- 🤖 Ayuda para Android (Chrome) -->
+@if (mostrarAyuda() === 'android') {
+  <div class="overlay-ios" (click)="cerrarAyuda()">
+    <div class="ayuda-ios" (click)="$event.stopPropagation()">
+      <span class="ayuda-icono">🤖</span>
+      <h4>Instala Sabrositas en Android</h4>
+      <ol>
+        <li>Toca el menú <strong>⋮</strong> arriba a la derecha en Chrome</li>
+        <li>Elige <strong>"Instalar app"</strong> o <strong>"Agregar a pantalla de inicio"</strong></li>
+        <li>Confirma con <strong>"Instalar"</strong> ✅</li>
+      </ol>
+      <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
+    </div>
+  </div>
+}
+
+<!-- 🍏 Ayuda para iPhone (Safari) -->
+@if (mostrarAyuda() === 'ios') {
+  <div class="overlay-ios" (click)="cerrarAyuda()">
+    <div class="ayuda-ios" (click)="$event.stopPropagation()">
+      <span class="ayuda-icono">🍏</span>
+      <h4>Instala Sabrositas en tu iPhone</h4>
+      <ol>
+        <li>Toca <strong>Compartir</strong> en Safari ⬆️</li>
+        <li>Elige <strong>"Agregar a inicio"</strong> ➕</li>
+        <li>Confirma con <strong>"Agregar"</strong> ✅</li>
+      </ol>
+      <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
+    </div>
+  </div>
+}

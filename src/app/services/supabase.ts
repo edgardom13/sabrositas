@@ -24,8 +24,10 @@ export interface Pedido {
   notas_admin: string | null;
   lat: number | null;
   lng: number | null;
-  referido_por: string | null;      // ← nuevo (para fase 3)
-  domiciliario_id: string | null;   // ← nuevo
+  referido_por: string | null;
+  domiciliario_id: string | null;
+  puntos_otorgado: boolean;
+  codigo_canje: string | null;   // ← AGREGADO
 }
 
 export interface RegistroPedido {
@@ -41,6 +43,7 @@ export interface RegistroPedido {
   lat: number | null;
   lng: number | null;
   referido_por?: string | null;
+  codigo_canje?: string | null;  // ← AGREGADO
 }
 
 @Injectable({ providedIn: 'root' })

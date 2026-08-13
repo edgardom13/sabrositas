@@ -1,0 +1,154 @@
+@if (referidos.misPedidos().length === 0) {
+  <div class="estado-vacio-pedidos">
+    <span class="vacio-icono">📭</span>
+    <h3>Aún no tienes pedidos</h3>
+    <p>Haz tu primer pedido desde la tienda y síguelo en tiempo real.</p>
+    <a routerLink="/" class="btn-ir-tienda">Ir a la tienda 🥟</a>
+  </div>
+} @else {
+
+  <!-- Resumen rápido -->
+  <div class="pedidos-resumen">
+    <div class="resumen-item">
+      <span class="resumen-icono">📦</span>
+      <div>
+        <strong>{{ referidos.misPedidos().length }}</strong>
+        <small>Total</small>
+      </div>
+    </div>
+    <div class="resumen-item">
+      <span class="resumen-icono">🛵</span>
+      <div>
+        <strong>{{ referidos.misPedidos().filter(p => p.estado === 'en_camino' || p.estado === 'preparando').length }}</strong>
+        <small>En proceso</small>
+      </div>
+    </div>
+    <div class="resumen-item">
+      <span class="resumen-icono">✅</span>
+      <div>
+        <strong>{{ referidos.misPedidos().filter(p => p.estado === 'entregado').length }}</strong>
+        <small>Entregados</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de pedidos -->
+  <div class="lista-pedidos-pro">
+    @for (pedido of referidos.misPedidos(); track pedido.id) {
+      <div class="pedido-pro" [class.expandido]="pedidoExpandido() === pedido.id" [class.estado-final]="pedido.estado === 'entregado' || pedido.estado === 'cancelado'">
+
+        <!-- ====== CABECERA CLICKEABLE ====== -->
+        <div class="pedido-cabecera" (click)="alternarDetalle(pedido.id)">
+
+          <div class="pedido-icono-grande">
+            {{ iconoEstado(pedido.estado) }}
+          </div>
+
+          <div class="pedido-info">
+            <div class="pedido-linea1">
+              <span class="pedido-num">#{{ pedido.id }}</span>
+              <span class="pedido-estado-badge" [style.--color]="colorEstado(pedido.estado)">
+                {{ textoEstado(pedido.estado) }}
+              </span>
+            </div>
+            <div class="pedido-linea2">
+              <span>📅 {{ formatearFecha(pedido.creado_en) }}</span>
+              <span>🕐 {{ formatearHora(pedido.creado_en) }}</span>
+              <span class="pedido-hace">{{ tiempoTranscurrido(pedido.creado_en) }}</span>
+            </div>
+          </div>
+
+          <div class="pedido-total-box">
+            <span class="pedido-total">{{ formatearPrecio(pedido.total) }}</span>
+            <small>{{ pedido.items.length }} item{{ pedido.items.length !== 1 ? 's' : '' }}</small>
+          </div>
+
+          <span class="pedido-flecha" [class.abierta]="pedidoExpandido() === pedido.id">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <!-- ====== TIMELINE VERTICAL ====== -->
+        <div class="pedido-timeline-vertical">
+          <div class="tl-paso" [class.activo]="pasoActivo(pedido.estado) >= 0" [class.cancelado]="pedido.estado === 'cancelado'">
+            <div class="tl-punto">⏳</div>
+            <div class="tl-texto"><strong>Recibido</strong><small>Pedido en cola</small></div>
+          </div>
+          <div class="tl-paso" [class.activo]="pasoActivo(pedido.estado) >= 1" [class.cancelado]="pedido.estado === 'cancelado'">
+            <div class="tl-punto">👨‍🍳</div>
+            <div class="tl-texto"><strong>Preparando</strong><small>Cocinando con amor</small></div>
+          </div>
+          <div class="tl-paso" [class.activo]="pasoActivo(pedido.estado) >= 2" [class.cancelado]="pedido.estado === 'cancelado'">
+            <div class="tl-punto">🛵</div>
+            <div class="tl-texto"><strong>En camino</strong><small>Ya va para tu casa</small></div>
+          </div>
+          <div class="tl-paso" [class.activo]="pasoActivo(pedido.estado) >= 3" [class.cancelado]="pedido.estado === 'cancelado'">
+            <div class="tl-punto">✅</div>
+            <div class="tl-texto"><strong>Entregado</strong><small>¡A disfrutar!</small></div>
+          </div>
+        </div>
+
+        <!-- ====== DETALLE EXPANDIBLE ====== -->
+        @if (pedidoExpandido() === pedido.id) {
+          <div class="pedido-detalle-pro">
+
+            <div class="detalle-grid-pro">
+
+              <!-- Productos -->
+              <div class="detalle-col-pro">
+                <h4>🛒 Productos</h4>
+                <ul class="productos-lista-pro">
+                  @for (item of pedido.items; track $index) {
+                    <li>
+                      <span class="prod-info">
+                        <span class="prod-emoji">{{ emojiProducto(item.nombre) }}</span>
+                        <span class="prod-nombre">{{ item.nombre }}</span>
+                        <span class="prod-cantidad">×{{ item.cantidad }}</span>
+                      </span>
+                      <span class="prod-precio">{{ formatearPrecio(item.cantidad * item.precio) }}</span>
+                    </li>
+                  }
+                </ul>
+
+                <div class="totales-desglose">
+                  <div class="td-linea"><span>Subtotal</span><span>{{ formatearPrecio(pedido.subtotal) }}</span></div>
+                  @if (pedido.descuento > 0) {
+                    <div class="td-linea td-descuento"><span>🎁 Descuento</span><span>-{{ formatearPrecio(pedido.descuento) }}</span></div>
+                  }
+                  <div class="td-linea"><span>🛵 Domicilio</span><span>{{ formatearPrecio(pedido.domicilio) }}</span></div>
+                  <div class="td-linea td-total"><span>Total pagado</span><strong>{{ formatearPrecio(pedido.total) }}</strong></div>
+                </div>
+              </div>
+
+              <!-- Entrega -->
+              <div class="detalle-col-pro">
+                <h4>📍 Dirección de entrega</h4>
+                <p class="direccion-pro">{{ pedido.direccion }}</p>
+
+                <div class="detalle-info-extra">
+                  <div class="die-linea"><span>💳 Método:</span><strong>{{ metodoPagoTexto(pedido.metodo_pago) }}</strong></div>
+                  <div class="die-linea"><span>📞 Teléfono:</span><strong>{{ pedido.telefono }}</strong></div>
+                </div>
+
+                <div class="acciones-pro">
+                  @if (pedido.lat && pedido.lng) {
+                    <a [href]="linkMapa(pedido)" target="_blank" class="btn-accion-pro btn-mapa">
+                      🗺️ Ver en mapa
+                    </a>
+                  }
+                  @if (pedido.estado === 'entregado') {
+                    <a routerLink="/" class="btn-accion-pro btn-reordenar">
+                      🔄 Pedir de nuevo
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

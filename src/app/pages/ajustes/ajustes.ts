@@ -21,6 +21,7 @@ export class Ajustes implements OnInit {
   // 🏪 Negocio
   whatsapp = signal('');
   domicilio = signal(0);
+  puntosReferido = signal(50);
 
   // 🎁 Promociones y salsas
   cuponUmbral = signal(0);
@@ -50,6 +51,7 @@ export class Ajustes implements OnInit {
     this.cuponPorcentaje.set(c.cupon_porcentaje);
     this.salsasGratis.set(c.salsas_gratis);
     this.salsaPrecio.set(c.salsa_precio);
+    this.puntosReferido.set(c.puntos_referido);
   }
 
   // ===== 🏪 Negocio =====
@@ -91,9 +93,11 @@ export class Ajustes implements OnInit {
       cupon_porcentaje: this.cuponPorcentaje(),
       salsas_gratis: this.salsasGratis(),
       salsa_precio: this.salsaPrecio(),
+      puntos_referido: this.puntosReferido(),
     });
     this.guardando.set(false);
     this.mostrarMensaje(ok ? 'Promociones y salsas actualizadas' : 'Error al guardar');
+
   }
 
   // ===== 🔐 Seguridad =====

@@ -44,6 +44,10 @@ export class Dashboard implements OnInit, OnDestroy {
           this.tituloRuta.set('Gestión de Productos');
         } else if (evento.url.includes('ajustes')) {
           this.tituloRuta.set('Ajustes');
+        } else if (evento.url.includes('referidos')) {
+          this.tituloRuta.set('Referidos y Canjes');
+        } else if (evento.url.includes('usuarios')) {
+          this.tituloRuta.set('Usuarios');
         } else {
           this.tituloRuta.set('Panel de Control');
         }

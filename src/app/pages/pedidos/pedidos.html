@@ -1,11 +1,9 @@
 <div class="pedidos-page">
 
-  <!-- ✅ Toast de éxito -->
   @if (mensajeExito()) {
     <div class="toast-exito">✅ {{ mensajeExito() }}</div>
   }
 
-  <!-- 📅 Filtro por día -->
   <div class="filtro-fecha">
     <button class="chip" [class.activo]="!verHistorico()" (click)="irAHoy()">📅 Hoy</button>
     <input
@@ -51,6 +49,13 @@
         <p>Entregados</p>
       </div>
     </div>
+    <div class="stat-card stat-morado">
+      <span class="stat-icono">🎟️</span>
+      <div>
+        <h3>{{ statsDia().conCanje }}</h3>
+        <p>Con canje / regalo</p>
+      </div>
+    </div>
     <div class="stat-card stat-dorado">
       <span class="stat-icono">💰</span>
       <div>
@@ -64,7 +69,6 @@
     </div>
   </div>
 
-  <!-- 🔍 Barra de herramientas -->
   <div class="toolbar">
     <div class="buscador">
       <span class="icono-buscar">🔍</span>
@@ -83,7 +87,6 @@
     </button>
   </div>
 
-  <!-- 🎛️ Filtros por estado con contadores -->
   <div class="filtros">
     @for (filtro of filtros; track filtro.valor) {
       <button
@@ -96,7 +99,6 @@
     }
   </div>
 
-  <!-- 📦 Lista de pedidos -->
   @if (pedidosService.cargando() && pedidosService.pedidos().length === 0) {
     <div class="estado-vacio">⏳ Cargando pedidos…</div>
   } @else if (pedidosFiltrados().length === 0) {
@@ -104,14 +106,16 @@
   } @else {
     <div class="lista-pedidos">
       @for (pedido of pedidosFiltrados(); track pedido.id) {
-        <div class="pedido-card" [class.nuevo]="esNuevo(pedido)">
+        <div class="pedido-card" [class.nuevo]="esNuevo(pedido)" [class.con-canje]="tieneCanje(pedido)">
 
-          <!-- Cabecera clickeable -->
           <div class="pedido-cabecera" (click)="alternarDetalle(pedido.id)">
             <div class="col-id">
               <span class="numero">Pedido #{{ pedido.id }}</span>
               @if (esNuevo(pedido)) {
                 <span class="badge-nuevo">NUEVO</span>
+              }
+              @if (tieneCanje(pedido)) {
+                <span class="badge-canje">🎟️ CANJE</span>
               }
               <span class="fecha">{{ pedidosService.formatearFecha(pedido.creado_en) }}</span>
               <span class="tiempo-relativo">⏱️ {{ tiempoRelativo(pedido.creado_en) }}</span>
@@ -120,6 +124,9 @@
             <div class="col-cliente">
               <strong>{{ pedido.nombre_cliente }} {{ pedido.apellido_cliente }}</strong>
               <span>📞 {{ pedido.telefono }}</span>
+              @if (pedido.domiciliario_id) {
+                <span class="domiciliario-mini">🛵 {{ nombreDomiciliario(pedido) }}</span>
+              }
             </div>
 
             <div class="col-total">
@@ -138,7 +145,6 @@
               </span>
             </div>
 
-            <!-- ▶️ Avance rápido de estado -->
             @if (siguienteEstado(pedido.estado); as sig) {
               <button
                 class="btn-avanzar"
@@ -151,12 +157,31 @@
             <span class="flecha" [class.abierta]="pedidoExpandido() === pedido.id">▼</span>
           </div>
 
-          <!-- Detalle expandible -->
           @if (pedidoExpandido() === pedido.id) {
             <div class="pedido-detalle">
-              <div class="detalle-grid">
 
-                <!-- Columna productos -->
+              <!-- 🎟️ BANNER DE CANJE (si aplica) -->
+              @if (tieneCanje(pedido); as tieneC) {
+                @if (infoCanje(pedido); as info) {
+                  <div class="canje-banner">
+                    <div class="canje-banner-icono">{{ emojiTipoCanje(info.tipo) }}</div>
+                    <div class="canje-banner-info">
+                      <strong>🎟️ PEDIDO CON CANJE / REGALO</strong>
+                      <p>{{ info.premio }}</p>
+                      <small>Código: <strong>{{ info.codigo }}</strong> · Tipo: {{ info.tipo }} · Cantidad: {{ info.cantidad }}</small>
+                    </div>
+                    <div class="canje-banner-accion">
+                      @if (info.tipo === 'otro') {
+                        <span class="canje-recordar">⚠️ Entregar físicamente al cliente</span>
+                      } @else {
+                        <span class="canje-recordar ok">✅ Descuento aplicado automáticamente</span>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+
+              <div class="detalle-grid">
                 <div class="detalle-col">
                   <h4>🛒 Productos</h4>
                   <ul class="detalle-items">
@@ -170,7 +195,7 @@
                   <div class="detalle-totales">
                     <p><span>Subtotal:</span> {{ pedidosService.formatearPrecio(pedido.subtotal) }}</p>
                     @if (pedido.descuento > 0) {
-                      <p><span>Descuento:</span> -{{ pedidosService.formatearPrecio(pedido.descuento) }}</p>
+                      <p class="td-descuento"><span>🎁 Descuento:</span> -{{ pedidosService.formatearPrecio(pedido.descuento) }}</p>
                     }
                     <p><span>Domicilio:</span> {{ pedidosService.formatearPrecio(pedido.domicilio) }}</p>
                     <p class="total-final">
@@ -179,7 +204,6 @@
                   </div>
                 </div>
 
-                <!-- Columna entrega + acciones -->
                 <div class="detalle-col">
                   <h4>📍 Entrega</h4>
                   <p class="direccion">{{ pedido.direccion }}</p>
@@ -199,16 +223,27 @@
                   </div>
 
                   <h4>🛵 Asignar domiciliario</h4>
-                  <select
-                    [value]="pedido.domiciliario_id ?? ''"
-                    (change)="asignarDomiciliario(pedido, $event)"
-                    class="select-domiciliario"
-                  >
-                    <option value="">Sin asignar</option>
-                    @for (dom of domiciliariosDisponibles(); track dom.id) {
-                      <option [value]="dom.id">{{ dom.nombre }}</option>
+                  <div class="domiciliario-box">
+                    @if (pedido.domiciliario_id) {
+                      <div class="domiciliario-actual">
+                        <span>Asignado actualmente:</span>
+                        <strong>🛵 {{ nombreDomiciliario(pedido) }}</strong>
+                      </div>
                     }
-                  </select>
+                    <select
+                      [value]="pedido.domiciliario_id ?? ''"
+                      (change)="asignarDomiciliario(pedido, $event)"
+                      class="select-domiciliario"
+                      [disabled]="procesando() === pedido.id"
+                    >
+                      <option value="">Sin asignar</option>
+                      @for (dom of domiciliariosDisponibles(); track dom.id) {
+                        <option [value]="dom.id" [selected]="dom.id === pedido.domiciliario_id">
+                          {{ dom.nombre }}
+                        </option>
+                      }
+                    </select>
+                  </div>
 
                   <h4>🔄 Cambiar estado</h4>
                   <div class="botones-estado">
@@ -236,7 +271,6 @@
                     <p class="pagado-info">✅ Pagado · {{ pedido.metodo_pago }}</p>
                   }
                 </div>
-
               </div>
             </div>
           }

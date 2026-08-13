@@ -582,3 +582,178 @@ body.claro .select-domiciliario {
 }
 
 body.claro .select-domiciliario option { background: #fff !important; color: #3a2410 !important; }
+
+/* ===== 🎟️ BADGE DE CANJE EN CABECERA ===== */
+.badge-canje {
+  background: linear-gradient(180deg, #e91e63, #c2185b);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.4);
+  animation: pulso 1.5s ease-in-out infinite;
+}
+
+.pedido-card.con-canje {
+  border-left: 4px solid #e91e63;
+}
+
+.pedido-card.con-canje .numero {
+  color: #f06292;
+}
+
+/* ===== 🎟️ BANNER DE CANJE EN DETALLE ===== */
+.canje-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.18), rgba(156, 39, 176, 0.12));
+  border: 1.5px solid rgba(233, 30, 99, 0.5);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(233, 30, 99, 0.2);
+}
+
+.canje-banner-icono {
+  font-size: 38px;
+  filter: drop-shadow(0 2px 8px rgba(233, 30, 99, 0.5));
+}
+
+.canje-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.canje-banner-info strong {
+  color: #f06292;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.canje-banner-info p {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.canje-banner-info small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11.5px;
+}
+
+.canje-banner-info small strong {
+  color: #ffd54f;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.canje-recordar {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.5);
+  color: #ffc107;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.canje-recordar.ok {
+  background: rgba(81, 207, 102, 0.12);
+  border-color: rgba(81, 207, 102, 0.5);
+  color: #51cf66;
+}
+
+/* ===== 🛵 DOMICILIARIO MEJORADO ===== */
+.domiciliario-mini {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: #51cf66;
+  font-weight: 600;
+  background: rgba(81, 207, 102, 0.1);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(81, 207, 102, 0.3);
+}
+
+.domiciliario-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.domiciliario-actual {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(81, 207, 102, 0.08);
+  border: 1px solid rgba(81, 207, 102, 0.3);
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.domiciliario-actual span { color: rgba(255, 255, 255, 0.7); }
+.domiciliario-actual strong { color: #51cf66; }
+
+.select-domiciliario:disabled { opacity: 0.6; cursor: wait; }
+
+/* ===== 🟣 STAT CARD MORADA (canjes) ===== */
+.stat-morado { border-left: 4px solid #e91e63; }
+.stat-morado h3 { color: #f06292; }
+
+/* ===== TD descuento en verde ===== */
+.td-descuento { color: #51cf66 !important; }
+.td-descuento span { color: #51cf66 !important; }
+
+/* ===== Modo claro ===== */
+body.claro .pedido-card.con-canje {
+  border-left-color: #c2185b !important;
+}
+
+body.claro .pedido-card.con-canje .numero { color: #c2185b !important; }
+
+body.claro .canje-banner {
+  background: linear-gradient(135deg, rgba(194, 24, 91, 0.08), rgba(156, 39, 176, 0.05)) !important;
+  border-color: rgba(194, 24, 91, 0.4) !important;
+}
+
+body.claro .canje-banner-info strong { color: #c2185b !important; }
+body.claro .canje-banner-info p { color: #3a2410 !important; }
+body.claro .canje-banner-info small { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .domiciliario-mini {
+  color: #2f9e44 !important;
+  background: rgba(47, 158, 68, 0.08) !important;
+  border-color: rgba(47, 158, 68, 0.3) !important;
+}
+
+body.claro .domiciliario-actual {
+  background: rgba(47, 158, 68, 0.06) !important;
+  border-color: rgba(47, 158, 68, 0.3) !important;
+}
+
+body.claro .domiciliario-actual span { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .domiciliario-actual strong { color: #2f9e44 !important; }
+
+body.claro .stat-morado h3 { color: #c2185b !important; }
+
+@media (max-width: 700px) {
+  .canje-banner {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icono info"
+      "accion accion";
+  }
+  .canje-banner-icono { grid-area: icono; }
+  .canje-banner-info { grid-area: info; }
+  .canje-banner-accion { grid-area: accion; }
+  .canje-recordar { width: 100%; text-align: center; }
+}

@@ -1,0 +1,52 @@
+<div class="tarjeta-puntos-hero">
+  <div class="puntos-principal">
+    <span class="puntos-icono-grande">⭐</span>
+    <div>
+      <h2>{{ auth.perfil()?.puntos ?? 0 }}</h2>
+      <p>puntos disponibles</p>
+    </div>
+  </div>
+  @if (siguientePremio(); as sp) {
+    <div class="progreso-box">
+      <div class="progreso-header">
+        <span>🎯 Siguiente premio</span>
+        <strong>{{ sp.nombre }}</strong>
+      </div>
+      <div class="progreso-barra">
+        <div class="progreso-fill" [style.width.%]="progresoSiguiente()"></div>
+      </div>
+      <small>Te faltan <strong>{{ sp.puntos - (auth.perfil()?.puntos ?? 0) }}</strong> puntos</small>
+    </div>
+  }
+</div>
+
+<div class="stats-cliente">
+  <div class="stat-mini"><span class="sm-icono">🛒</span><div><strong>{{ stats().totalPedidos }}</strong><small>Pedidos</small></div></div>
+  <div class="stat-mini"><span class="sm-icono">✅</span><div><strong>{{ stats().entregados }}</strong><small>Entregados</small></div></div>
+  <div class="stat-mini"><span class="sm-icono">💵</span><div><strong>{{ formatearPrecio(stats().gastado) }}</strong><small>Gastado</small></div></div>
+  <div class="stat-mini"><span class="sm-icono">👥</span><div><strong>{{ stats().referidosExitosos }}</strong><small>Referidos</small></div></div>
+</div>
+
+<p class="titulo-bloque">🔗 Tu link personal</p>
+<div class="link-box">
+  <span class="link-url">{{ referidos.linkReferido() }}</span>
+  <button class="btn-copiar" (click)="copiarLink()">{{ copiado() ? '✅ ¡Copiado!' : '📋 Copiar' }}</button>
+</div>
+<a class="btn-copiar btn-compartir" [href]="linkCompartir()" target="_blank">💬 Compartir por WhatsApp</a>
+<p class="hint-texto">💡 Gana entre <strong>12 a 15 puntos</strong> por cada amigo que pida con tu link y reciba su pedido.</p>
+
+<p class="titulo-bloque" style="margin-top: 24px;">📒 Historial de puntos</p>
+@if (referidos.movimientos().length === 0) {
+  <div class="estado-vacio">Aún no tienes movimientos. ¡Comparte tu link!</div>
+} @else {
+  <div class="mov-lista">
+    @for (m of referidos.movimientos(); track m.id) {
+      <div class="mov-row">
+        <span class="mov-concepto">{{ m.concepto }}</span>
+        <span class="mov-cantidad" [class.mas]="m.cantidad > 0" [class.menos]="m.cantidad < 0">
+          {{ m.cantidad > 0 ? '+' : '' }}{{ m.cantidad }}
+        </span>
+      </div>
+    }
+  </div>
+}

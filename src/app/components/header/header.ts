@@ -1,10 +1,12 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { Tema } from '../../services/tema';
+import { InstallPwa } from '../install-pwa/install-pwa';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
   styleUrl: './header.css',
+  imports: [InstallPwa], // ← Quité RouterLink (no se usa en este template)
 })
 export class Header {
   menuAbierto = false;
@@ -21,8 +23,8 @@ export class Header {
 
   // Navega a la sección y cierra el menú
   irA(event: Event, id: string): void {
-    event.preventDefault(); // anulamos la ancla por defecto
-    this.menuAbierto = false; // cerramos el menú (en móvil y escritorio)
+    event.preventDefault();
+    this.menuAbierto = false;
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }
 }

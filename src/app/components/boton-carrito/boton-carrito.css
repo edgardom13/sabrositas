@@ -602,3 +602,144 @@ body.claro .btn-cancelar:hover { border-color: #b45309 !important; background: r
   opacity: 0.7;
   filter: none;
 }
+
+/* ===== 🎟️ CUPÓN DE CANJE ===== */
+.cupon-canje {
+  margin: 16px 0;
+  padding: 14px;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1.5px dashed rgba(255, 193, 7, 0.4);
+  border-radius: 14px;
+}
+
+.cupon-canje h4 {
+  margin: 0 0 6px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: #ffd54f;
+}
+
+.cupon-hint {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cupon-hint strong { color: #ffd54f; }
+
+.cupon-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cupon-input input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 193, 7, 0.35);
+  border-radius: 10px;
+  padding: 11px 40px 11px 14px;
+  color: #fff;
+  font-family: 'Rubik', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.cupon-input input:focus { border-color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+.cupon-input input.valido { border-color: #51cf66; background: rgba(81, 207, 102, 0.08); }
+.cupon-input input.invalido { border-color: #dc3545; background: rgba(220, 53, 69, 0.08); }
+
+.btn-limpiar-cupon {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-limpiar-cupon:hover { color: #ff8080; background: rgba(220, 53, 69, 0.12); }
+
+.cupon-estado {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cupon-estado.validando { color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+.cupon-estado.valido {
+  color: #51cf66;
+  background: rgba(81, 207, 102, 0.12);
+  border: 1px solid rgba(81, 207, 102, 0.4);
+}
+.cupon-estado.valido strong { color: #fff; font-size: 13px; }
+.cupon-estado.invalido { color: #ff8080; background: rgba(220, 53, 69, 0.1); }
+
+/* Salsas gratis */
+.salsas-gratis { color: #51cf66; }
+
+/* Bloque canje en modal */
+.bloque-canje {
+  background: rgba(81, 207, 102, 0.1) !important;
+  border: 1.5px solid rgba(81, 207, 102, 0.4) !important;
+}
+
+.bloque-canje h4 { color: #51cf66; }
+
+.aviso-canje {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .cupon-canje {
+  background: rgba(180, 90, 20, 0.06) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+}
+
+body.claro .cupon-canje h4 { color: #b45309 !important; }
+body.claro .cupon-hint { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .cupon-hint strong { color: #b45309 !important; }
+
+body.claro .cupon-input input {
+  background: #fff !important;
+  color: #3a2410 !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+
+body.claro .cupon-input input.valido {
+  border-color: #2f9e44 !important;
+  background: rgba(47, 158, 68, 0.08) !important;
+}
+
+body.claro .cupon-input input.invalido {
+  border-color: #c92a2a !important;
+  background: rgba(201, 42, 42, 0.08) !important;
+}
+
+body.claro .cupon-estado.valido { color: #2f9e44 !important; }
+body.claro .cupon-estado.valido strong { color: #3a2410 !important; }
+body.claro .cupon-estado.invalido { color: #c92a2a !important; }
+
+body.claro .bloque-canje {
+  background: rgba(47, 158, 68, 0.08) !important;
+  border-color: rgba(47, 158, 68, 0.4) !important;
+}
+
+body.claro .bloque-canje h4 { color: #2f9e44 !important; }
+body.claro .aviso-canje { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .salsas-gratis { color: #2f9e44 !important; }

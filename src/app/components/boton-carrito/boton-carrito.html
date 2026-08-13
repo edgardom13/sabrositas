@@ -20,39 +20,46 @@
       </ul>
 
       <p class="nota-domicilio">
-        🛵 El domicilio tiene un valor de {{ formatearPrecio(DOMICILIO) }}
-        que se suma al total del pedido.
+        🛵 El domicilio tiene un valor de {{ formatearPrecio(DOMICILIO) }} que se suma al total.
       </p>
 
       <div class="totales">
         <div class="linea">
-          <span>Subtotal</span>
+          <span>🧾 Subtotal productos</span>
           <span>{{ formatearPrecio(carrito.totalPedido() - carrito.costoSalsasCobradas()) }}</span>
         </div>
 
-        @if (carrito.totalSalsas() > 0) {
-          <div class="linea salsas-info">
-            <span>🥫 Salsas ({{ carrito.totalSalsas() }})</span>
-            <span>{{ carrito.salsasGratis() }} gratis</span>
+        @if (carrito.costoSalsasCobradas() > 0) {
+          <div class="linea salsas-cobradas">
+            <span>🥫 Salsas extras ({{ carrito.salsasCobradas() }} x {{ formatearPrecio(carrito.precioSalsaExtra()) }})</span>
+            <span>{{ formatearPrecio(carrito.costoSalsasCobradas()) }}</span>
           </div>
-          @if (carrito.costoSalsasCobradas() > 0) {
-            <div class="linea salsas-cobradas">
-              <span>Salsas extras ({{ carrito.salsasCobradas() }} x $500)</span>
-              <span>{{ formatearPrecio(carrito.costoSalsasCobradas()) }}</span>
-            </div>
-          }
+        }
+
+        @if (carrito.salsasGratis() > 0) {
+          <div class="linea salsas-gratis">
+            <span>🎁 Salsas gratis ({{ carrito.salsasGratis() }})</span>
+            <span>incluidas</span>
+          </div>
         }
 
         @if (carrito.descuento() > 0) {
           <div class="linea descuento">
-            <span>🎁 Cupón {{ carrito.porcentajeCuponTexto() }}%</span>
+            <span>🎟️ Cupón {{ carrito.porcentajeCuponTexto() }}% (pedidos +{{ formatearPrecio(carrito.umbralCupon()) }})</span>
             <span>-{{ formatearPrecio(carrito.descuento()) }}</span>
           </div>
         }
 
+        @if (descuentoCanje() > 0) {
+          <div class="linea descuento">
+            <span>🎟️ Canje: {{ canjeValido()?.premio }}</span>
+            <span>-{{ formatearPrecio(descuentoCanje()) }}</span>
+          </div>
+        }
+
         <div class="linea">
-          <span>Domicilio</span>
-          <span>{{ formatearPrecio(DOMICILIO) }}</span>
+          <span>🛵 Domicilio</span>
+          <span>{{ domicilioFinal() === 0 ? 'GRATIS 🎉' : formatearPrecio(domicilioFinal()) }}</span>
         </div>
 
         <div class="linea total">
@@ -61,18 +68,44 @@
         </div>
       </div>
 
+      <!-- 🎟️ CUPÓN DE CANJE -->
+      <div class="cupon-canje">
+        <h4>🎟️ ¿Tienes un premio canjeado?</h4>
+        <p class="cupon-hint">Ingresa tu código <strong>CANJE-XXXX</strong> aquí</p>
+        <div class="cupon-input">
+          <input
+            [(ngModel)]="codigoCanje"
+            (ngModelChange)="validarCanje()"
+            placeholder="CANJE-XXXXXX"
+            [class.valido]="canjeValido()"
+            [class.invalido]="errorCanje()"
+          />
+          @if (codigoCanje) {
+            <button type="button" class="btn-limpiar-cupon" (click)="limpiarCanje()">✕</button>
+          }
+        </div>
+
+        @if (validandoCanje()) {
+          <p class="cupon-estado validando">⏳ Validando código…</p>
+        } @else if (canjeValido(); as canje) {
+          <div class="cupon-estado valido">
+            <span>✅ ¡Código válido!</span>
+            <strong>{{ canje.premio }}</strong>
+          </div>
+        } @else if (errorCanje()) {
+          <p class="cupon-estado invalido">{{ errorCanje() }}</p>
+        }
+      </div>
+
       <h3 class="titulo-entrega">DATOS DE ENTREGA</h3>
 
       <div class="info-pedido">
-        <button type="button" class="btn-info" (click)="mostrarInfo = !mostrarInfo"
-          aria-label="¿Por qué pedimos estos datos?">?</button>
+        <button type="button" class="btn-info" (click)="mostrarInfo = !mostrarInfo">?</button>
         <span>¿Por qué pedimos estos datos?</span>
       </div>
       @if (mostrarInfo) {
         <p class="info-detalle">
-          🔒 Usamos tu nombre y teléfono solo para confirmar tu pedido, y la dirección
-          (o tu ubicación en tiempo real) para que el domiciliario llegue directo a tu
-          puerta sin perderte. Tus datos no se comparten con nadie más. ❤️
+          🔒 Usamos tu nombre y teléfono solo para confirmar tu pedido, y la dirección para que el domiciliario llegue directo a tu puerta. ❤️
         </p>
       }
 
@@ -85,21 +118,11 @@
           @if (obteniendoUbicacion) { ⏳ Obteniendo ubicación… } @else { 📍 Usar mi ubicación actual }
         </button>
 
-        <input 
-          [(ngModel)]="direccion" 
-          (ngModelChange)="onDireccionChange()"
-          name="direccion" 
-          placeholder="Dirección de entrega" 
-          required 
-        />
+        <input [(ngModel)]="direccion" (ngModelChange)="onDireccionChange()" name="direccion" placeholder="Dirección de entrega" required />
 
-        @if (errorUbicacion) {
-          <p class="error">{{ errorUbicacion }}</p>
-        }
+        @if (errorUbicacion) { <p class="error">{{ errorUbicacion }}</p> }
 
-        @if (mapaUrl) {
-          <iframe class="mapa" [src]="mapaUrl" title="Mapa de entrega" loading="lazy"></iframe>
-        }
+        @if (mapaUrl) { <iframe class="mapa" [src]="mapaUrl" title="Mapa de entrega" loading="lazy"></iframe> }
 
         @if (!formularioValido) {
           <p class="error">Por favor completa todos los datos para enviar el pedido.</p>
@@ -107,16 +130,11 @@
 
         @if (!carrito.tieneProductosPrincipales() && carrito.itemsSignal().length > 0) {
           <p class="error">
-            🥟 Debes agregar al menos un producto (empanada, jugo o frío).
-            Las salsas son un complemento y no se pueden pedir solas.
+            🥟 Debes agregar al menos un producto (empanada, jugo o frío). Las salsas son un complemento.
           </p>
         }
 
-        <button 
-          type="submit" 
-          class="btn-confirmar"
-          [disabled]="!carrito.tieneProductosPrincipales()"
-        >
+        <button type="submit" class="btn-confirmar" [disabled]="!carrito.tieneProductosPrincipales()">
           @if (!carrito.tieneProductosPrincipales() && carrito.itemsSignal().length > 0) {
             ⚠️ Agrega un producto primero
           } @else {
@@ -153,9 +171,7 @@
         <div class="bloque-modal">
           <h4>🏠 DIRECCIÓN DE ENTREGA</h4>
           <p class="direccion-modal">{{ direccion }}</p>
-          @if (mapaUrl) {
-            <iframe class="mapa-modal" [src]="mapaUrl" title="Mapa de entrega"></iframe>
-          }
+          @if (mapaUrl) { <iframe class="mapa-modal" [src]="mapaUrl" title="Mapa de entrega"></iframe> }
         </div>
 
         <div class="bloque-modal">
@@ -170,6 +186,21 @@
           </ul>
         </div>
 
+        @if (canjeValido(); as canje) {
+          <div class="bloque-modal bloque-canje">
+            <h4>🎟️ CANJE ACTIVO</h4>
+            <div class="fila-modal">
+              <span>Código:</span>
+              <strong>{{ codigoCanje.trim().toUpperCase() }}</strong>
+            </div>
+            <div class="fila-modal">
+              <span>Premio:</span>
+              <strong>{{ canje.premio }}</strong>
+            </div>
+            <p class="aviso-canje">⚠️ Muéstrale al domiciliario que tienes un canje para recibir tu premio.</p>
+          </div>
+        }
+
         <div class="bloque-modal totales-modal">
           <div class="fila-modal">
             <span>Subtotal:</span>
@@ -181,9 +212,15 @@
               <span class="descuento">-{{ formatearPrecio(carrito.descuento()) }}</span>
             </div>
           }
+          @if (descuentoCanje() > 0) {
+            <div class="fila-modal">
+              <span>🎟️ Canje {{ canjeValido()?.premio }}:</span>
+              <span class="descuento">-{{ formatearPrecio(descuentoCanje()) }}</span>
+            </div>
+          }
           <div class="fila-modal">
-            <span>Domicilio:</span>
-            <span>{{ formatearPrecio(DOMICILIO) }}</span>
+            <span>🛵 Domicilio:</span>
+            <span>{{ domicilioFinal() === 0 ? 'GRATIS 🎉' : formatearPrecio(domicilioFinal()) }}</span>
           </div>
           <div class="fila-modal total">
             <span>TOTAL A PAGAR:</span>
@@ -193,20 +230,13 @@
 
         <p class="aviso-final">
           ⚠️ Por favor confirma que el <strong>teléfono</strong> y la <strong>dirección</strong> son correctos.
-          El domiciliario usará estos datos para llevarte tu pedido.
         </p>
       </div>
 
       <div class="modal-acciones">
-        <button class="btn-cancelar" (click)="cancelarEnvio()">
-          ✏️ Corregir
-        </button>
+        <button class="btn-cancelar" (click)="cancelarEnvio()">✏️ Corregir</button>
         <button class="btn-confirmar-modal" (click)="confirmarEnvio()" [disabled]="enviandoPedido">
-          @if (enviandoPedido) {
-            ⏳ Enviando...
-          } @else {
-            ✅ Sí, enviar pedido
-          }
+          @if (enviandoPedido) { ⏳ Enviando... } @else { ✅ Sí, enviar pedido }
         </button>
       </div>
     </div>
