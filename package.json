@@ -20,7 +20,8 @@
     "@angular/service-worker": "^22.0.0",
     "@supabase/supabase-js": "^2.112.2",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.2"
   },
   "devDependencies": {
     "@angular/build": "^22.0.3",
