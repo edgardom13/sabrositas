@@ -12,8 +12,6 @@ export class InstallPwa implements OnInit {
   mostrarAyuda = signal<'ios' | 'android' | null>(null);
   modalInvasivo = signal(false);
 
-  private yaMostroInvasivo = false;
-
   ngOnInit(): void {
     const previo = (window as any).__deferredInstallPrompt;
     if (previo) this.deferredPrompt.set(previo);
@@ -27,20 +25,23 @@ export class InstallPwa implements OnInit {
       this.deferredPrompt.set(e);
     });
 
+    // 🎉 Cuando el usuario instala la app, guardamos flag permanente
     window.addEventListener('appinstalled', () => {
       this.deferredPrompt.set(null);
       this.modalInvasivo.set(false);
       (window as any).__deferredInstallPrompt = null;
+      localStorage.setItem('pwa-instalada', '1'); // ← para identificar usuarios con app
+      localStorage.setItem('pwa-invasivo-visto', '1'); // ya no mostrar modal
     });
 
-    // 🔥 INVASIVO: a los 3s en móvil, si no está instalada, muestra el modal
+    // 🔥 INVASIVO: solo 1 vez en la vida (localStorage), a los 3s en móvil
     if (this.esMovil && !this.yaInstalada) {
-      const vio = sessionStorage.getItem('pwa-invasivo-visto');
-      if (!vio) {
+      const yaVio = localStorage.getItem('pwa-invasivo-visto');
+      if (!yaVio) {
         setTimeout(() => {
           this.modalInvasivo.set(true);
-          this.yaMostroInvasivo = true;
-          sessionStorage.setItem('pwa-invasivo-visto', '1');
+          // Marcamos como visto para que NUNCA vuelva a aparecer
+          localStorage.setItem('pwa-invasivo-visto', '1');
         }, 3000);
       }
     }
@@ -49,7 +50,8 @@ export class InstallPwa implements OnInit {
   get yaInstalada(): boolean {
     return (
       window.matchMedia('(display-mode: standalone)').matches ||
-      (navigator as any).standalone === true
+      (navigator as any).standalone === true ||
+      localStorage.getItem('pwa-instalada') === '1'
     );
   }
 
@@ -73,7 +75,6 @@ export class InstallPwa implements OnInit {
     return this.deferredPrompt() !== null;
   }
 
-  // 🚀 Instala con prompt nativo o muestra instrucciones
   async instalar(): Promise<void> {
     const prompt = this.deferredPrompt();
 
@@ -84,6 +85,8 @@ export class InstallPwa implements OnInit {
         if (choice.outcome === 'accepted') {
           this.deferredPrompt.set(null);
           this.modalInvasivo.set(false);
+          localStorage.setItem('pwa-instalada', '1');
+          localStorage.setItem('pwa-invasivo-visto', '1');
           (window as any).__deferredInstallPrompt = null;
           return;
         }
@@ -92,13 +95,13 @@ export class InstallPwa implements OnInit {
       }
     }
 
-    // Sin prompt → instrucciones según plataforma
     this.modalInvasivo.set(false);
     this.mostrarAyuda.set(this.esIOS ? 'ios' : 'android');
   }
 
   cerrarInvasivo(): void {
     this.modalInvasivo.set(false);
+    // Ya quedó marcado como visto en ngOnInit, no vuelve a salir
   }
 
   cerrarAyuda(): void {
