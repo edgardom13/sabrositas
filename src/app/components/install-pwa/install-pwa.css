@@ -83,3 +83,114 @@ body.claro .ayuda-ios strong { color: #b45309 !important; }
   margin-bottom: 8px;
   filter: drop-shadow(0 4px 12px rgba(255, 193, 7, 0.4));
 }
+
+/* 💡 Badge sutil (menos invasivo que el botón) */
+.badge-instalar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255, 179, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 900;
+  animation: slideUp 0.4s ease;
+}
+
+.badge-icon { font-size: 16px; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.badge-instalar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 179, 0, 0.5);
+}
+
+/* 📋 Pasos visuales mejorados */
+.pasos-visuales {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.paso-visual {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.paso-num {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.paso-visual p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.paso-visual strong {
+  color: #ffd54f;
+}
+
+.nota-final {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 12px 0 0;
+  font-style: italic;
+}
+
+body.claro .paso-visual {
+  background: rgba(180, 90, 20, 0.06) !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+}
+
+body.claro .paso-visual p {
+  color: rgba(58, 36, 16, 0.85) !important;
+}
+
+body.claro .paso-num {
+  background: linear-gradient(135deg, #b45309, #92400e) !important;
+  color: #fff !important;
+}
+
+body.claro .nota-final {
+  color: rgba(58, 36, 16, 0.6) !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .badge-instalar {
+    bottom: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

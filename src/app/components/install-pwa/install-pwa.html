@@ -1,34 +1,66 @@
-@if (mostrarBoton) {
-  <button class="btn-instalar" (click)="instalar()">📲 Instalar app</button>
+<!-- 🎯 Botón principal (solo si puede instalar + 2+ visitas) -->
+@if (mostrarBoton && !yaVioAyuda) {
+  <button class="btn-instalar" (click)="instalar()" title="Instalar como app">
+    📲 Instalar app
+  </button>
 }
 
-<!-- 🤖 Ayuda para Android (Chrome) -->
+<!-- 💡 Badge sutil (primera visita, sin ser molesto) -->
+@if (mostrarBadge && !yaVioAyuda) {
+  <div class="badge-instalar" (click)="instalar()" title="Puedes instalar esta app">
+    <span class="badge-icon">📲</span>
+    <span class="badge-texto">Instalar</span>
+  </div>
+}
+
+<!-- 🤖 Ayuda Android -->
 @if (mostrarAyuda() === 'android') {
   <div class="overlay-ios" (click)="cerrarAyuda()">
     <div class="ayuda-ios" (click)="$event.stopPropagation()">
       <span class="ayuda-icono">🤖</span>
-      <h4>Instala Sabrositas en Android</h4>
-      <ol>
-        <li>Toca el menú <strong>⋮</strong> arriba a la derecha en Chrome</li>
-        <li>Elige <strong>"Instalar app"</strong> o <strong>"Agregar a pantalla de inicio"</strong></li>
-        <li>Confirma con <strong>"Instalar"</strong> ✅</li>
-      </ol>
+      <h4>Instala Sabrositas como app</h4>
+      <div class="pasos-visuales">
+        <div class="paso-visual">
+          <div class="paso-num">1</div>
+          <p>Toca <strong>⋮</strong> en Chrome</p>
+        </div>
+        <div class="paso-visual">
+          <div class="paso-num">2</div>
+          <p>Elige <strong>"Instalar app"</strong></p>
+        </div>
+        <div class="paso-visual">
+          <div class="paso-num">3</div>
+          <p>Confirma <strong>"Instalar"</strong></p>
+        </div>
+      </div>
+      <p class="nota-final">
+        Si no ves "Instalar app", prueba con <strong>"Agregar a pantalla de inicio"</strong>
+      </p>
       <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
     </div>
   </div>
 }
 
-<!-- 🍏 Ayuda para iPhone (Safari) -->
+<!-- 🍏 Ayuda iOS -->
 @if (mostrarAyuda() === 'ios') {
   <div class="overlay-ios" (click)="cerrarAyuda()">
     <div class="ayuda-ios" (click)="$event.stopPropagation()">
       <span class="ayuda-icono">🍏</span>
-      <h4>Instala Sabrositas en tu iPhone</h4>
-      <ol>
-        <li>Toca <strong>Compartir</strong> en Safari ⬆️</li>
-        <li>Elige <strong>"Agregar a inicio"</strong> ➕</li>
-        <li>Confirma con <strong>"Agregar"</strong> ✅</li>
-      </ol>
+      <h4>Instala Sabrositas en iPhone</h4>
+      <div class="pasos-visuales">
+        <div class="paso-visual">
+          <div class="paso-num">1</div>
+          <p>Toca <strong>⬆️ Compartir</strong></p>
+        </div>
+        <div class="paso-visual">
+          <div class="paso-num">2</div>
+          <p>Elige <strong>"Agregar a inicio"</strong></p>
+        </div>
+        <div class="paso-visual">
+          <div class="paso-num">3</div>
+          <p>Confirma con <strong>"Agregar"</strong></p>
+        </div>
+      </div>
       <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
     </div>
   </div>
