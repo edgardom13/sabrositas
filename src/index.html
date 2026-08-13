@@ -15,11 +15,17 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- 📲 Captura temprana del prompt de instalación (Android/Chrome) -->
+    <!-- 📲 Captura temprana del prompt de instalación (Android/Chrome) -->
 <script>
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     window.__deferredInstallPrompt = e;
     window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+  });
+  
+  window.addEventListener('appinstalled', function () {
+    window.__deferredInstallPrompt = null;
+    window.dispatchEvent(new CustomEvent('pwa-installed'));
   });
 </script>
   </head>

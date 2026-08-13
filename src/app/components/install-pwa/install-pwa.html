@@ -1,15 +1,30 @@
-<!-- 🎯 Botón principal (solo si puede instalar + 2+ visitas) -->
-@if (mostrarBoton && !yaVioAyuda) {
-  <button class="btn-instalar" (click)="instalar()" title="Instalar como app">
-    📲 Instalar app
-  </button>
+<!-- 📲 Botón en el header -->
+@if (mostrar) {
+  <button class="btn-instalar" (click)="instalar()">📲 Instalar</button>
 }
 
-<!-- 💡 Badge sutil (primera visita, sin ser molesto) -->
-@if (mostrarBadge && !yaVioAyuda) {
-  <div class="badge-instalar" (click)="instalar()" title="Puedes instalar esta app">
-    <span class="badge-icon">📲</span>
-    <span class="badge-texto">Instalar</span>
+<!-- 🔥 MODAL INVASIVO (aparece solo a los 3s en móvil) -->
+@if (modalInvasivo()) {
+  <div class="overlay-invasivo">
+    <div class="card-invasiva">
+      <span class="invasiva-icono">🥟</span>
+      <h3>Llévanos en tu bolsillo</h3>
+      <p>Instala <strong>Sabrositas</strong> como app y pide tus empanadas en 1 toque.</p>
+
+      @if (tienePrompt) {
+        <button class="btn-invasivo-principal" (click)="instalar()">
+          📲 INSTALAR AHORA
+        </button>
+      } @else {
+        <button class="btn-invasivo-principal" (click)="instalar()">
+          📲 CÓMO INSTALAR
+        </button>
+      }
+
+      <button class="btn-invasivo-secundario" (click)="cerrarInvasivo()">
+        Ahora no
+      </button>
+    </div>
   </div>
 }
 
@@ -20,22 +35,10 @@
       <span class="ayuda-icono">🤖</span>
       <h4>Instala Sabrositas como app</h4>
       <div class="pasos-visuales">
-        <div class="paso-visual">
-          <div class="paso-num">1</div>
-          <p>Toca <strong>⋮</strong> en Chrome</p>
-        </div>
-        <div class="paso-visual">
-          <div class="paso-num">2</div>
-          <p>Elige <strong>"Instalar app"</strong></p>
-        </div>
-        <div class="paso-visual">
-          <div class="paso-num">3</div>
-          <p>Confirma <strong>"Instalar"</strong></p>
-        </div>
+        <div class="paso-visual"><div class="paso-num">1</div><p>Toca <strong>⋮</strong> en Chrome</p></div>
+        <div class="paso-visual"><div class="paso-num">2</div><p>Elige <strong>"Instalar app"</strong></p></div>
+        <div class="paso-visual"><div class="paso-num">3</div><p>Confirma <strong>"Instalar"</strong></p></div>
       </div>
-      <p class="nota-final">
-        Si no ves "Instalar app", prueba con <strong>"Agregar a pantalla de inicio"</strong>
-      </p>
       <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
     </div>
   </div>
@@ -48,18 +51,9 @@
       <span class="ayuda-icono">🍏</span>
       <h4>Instala Sabrositas en iPhone</h4>
       <div class="pasos-visuales">
-        <div class="paso-visual">
-          <div class="paso-num">1</div>
-          <p>Toca <strong>⬆️ Compartir</strong></p>
-        </div>
-        <div class="paso-visual">
-          <div class="paso-num">2</div>
-          <p>Elige <strong>"Agregar a inicio"</strong></p>
-        </div>
-        <div class="paso-visual">
-          <div class="paso-num">3</div>
-          <p>Confirma con <strong>"Agregar"</strong></p>
-        </div>
+        <div class="paso-visual"><div class="paso-num">1</div><p>Toca <strong>⬆️ Compartir</strong></p></div>
+        <div class="paso-visual"><div class="paso-num">2</div><p>Elige <strong>"Agregar a inicio"</strong></p></div>
+        <div class="paso-visual"><div class="paso-num">3</div><p>Confirma con <strong>"Agregar"</strong></p></div>
       </div>
       <button class="btn-entendido" (click)="cerrarAyuda()">¡Entendido!</button>
     </div>
