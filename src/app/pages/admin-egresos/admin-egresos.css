@@ -1,0 +1,232 @@
+.modulo-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px;
+}
+
+.modulo-admin h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  color: #ffd54f;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
+}
+
+.egresos-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+}
+
+/* ===== Form ===== */
+.egreso-form {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1.5px solid rgba(255, 193, 7, 0.25);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: fit-content;
+}
+
+.egreso-form h3 {
+  margin: 0 0 8px;
+  color: #ffd54f;
+  font-size: 17px;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+.egreso-form input,
+.egreso-form select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  color-scheme: dark;
+}
+
+.egreso-form input:focus,
+.egreso-form select:focus {
+  border-color: rgba(255, 193, 7, 0.6);
+}
+
+.egreso-form select option {
+  background: #1d0e06;
+  color: #fff;
+}
+
+.btn-guardar {
+  background: linear-gradient(180deg, #51cf66, #2f9e44);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 6px 18px rgba(47, 158, 68, 0.3);
+}
+
+.btn-guardar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(47, 158, 68, 0.45);
+}
+
+/* ===== Lista ===== */
+.egreso-lista {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.egreso-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(220, 53, 69, 0.05));
+  border: 1.5px solid rgba(220, 53, 69, 0.35);
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+
+.egreso-total span {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.egreso-total strong {
+  color: #ff8080;
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.egreso-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.egreso-item:hover {
+  border-color: rgba(255, 193, 7, 0.3);
+  transform: translateX(2px);
+}
+
+.egreso-item strong {
+  color: #fff;
+  font-size: 14.5px;
+  display: block;
+}
+
+.egreso-item small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.egreso-monto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.egreso-monto span {
+  color: #ff8080;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+.egreso-monto button {
+  background: rgba(220, 53, 69, 0.12);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.egreso-monto button:hover {
+  background: rgba(220, 53, 69, 0.25);
+  transform: scale(1.1);
+}
+
+.vacio {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 30px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ===== Modo claro ===== */
+body.claro .modulo-admin h2 { color: #b45309 !important; text-shadow: none !important; }
+
+body.claro .egreso-form,
+body.claro .egreso-lista {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+  box-shadow: 0 4px 14px rgba(120, 70, 20, 0.06) !important;
+}
+
+body.claro .egreso-form h3 { color: #b45309 !important; }
+
+body.claro .egreso-form input,
+body.claro .egreso-form select {
+  background: #fffdf8 !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+  color: #3a2410 !important;
+  color-scheme: light;
+}
+
+body.claro .egreso-form select option { background: #fff !important; color: #3a2410 !important; }
+
+body.claro .egreso-total {
+  background: linear-gradient(135deg, rgba(201, 42, 42, 0.08), rgba(201, 42, 42, 0.03)) !important;
+  border-color: rgba(201, 42, 42, 0.3) !important;
+}
+body.claro .egreso-total span { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .egreso-total strong { color: #c92a2a !important; }
+
+body.claro .egreso-item {
+  background: #fffdf8 !important;
+  border-color: rgba(180, 90, 20, 0.12) !important;
+}
+body.claro .egreso-item strong { color: #3a2410 !important; }
+body.claro .egreso-item small { color: rgba(58, 36, 16, 0.55) !important; }
+body.claro .egreso-monto span { color: #c92a2a !important; }
+
+body.claro .vacio { color: rgba(58, 36, 16, 0.5) !important; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .egresos-layout { grid-template-columns: 1fr; }
+  .egreso-lista { max-height: none; }
+}

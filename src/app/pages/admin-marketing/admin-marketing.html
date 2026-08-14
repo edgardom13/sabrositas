@@ -1,0 +1,153 @@
+<div class="mk-page">
+
+  <div class="mk-header">
+    <div>
+      <h2>📣 Marketing por WhatsApp</h2>
+      <p class="mk-sub">Envía mensajes personalizados a tus clientes</p>
+    </div>
+    <div class="mk-stats-mini">
+      <div class="stat-mini">
+        <strong>{{ totalClientes() }}</strong>
+        <span>Clientes</span>
+      </div>
+      <div class="stat-mini">
+        <strong>{{ enviados() }}</strong>
+        <span>Enviados</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mk-tabs">
+    <button [class.activo]="tab() === 'crear'" (click)="tab.set('crear')">✨ Crear mensaje</button>
+    <button [class.activo]="tab() === 'clientes'" (click)="tab.set('clientes')">👥 Clientes ({{ totalClientes() }})</button>
+  </div>
+
+  @if (tab() === 'crear') {
+    <div class="mk-crear">
+
+      <div class="mk-form-panel">
+        <h3>📝 Contenido del mensaje</h3>
+
+        <button class="btn-plantilla" (click)="usarPlantilla()">✨ Usar plantilla con promo activa</button>
+
+        <label>Mensaje</label>
+        <textarea [(ngModel)]="mensaje" rows="8" placeholder="Escribe tu mensaje... usa &#123;nombre&#125; para personalizar"></textarea>
+
+        <label>Imagen (opcional)</label>
+        <label class="subir-img">
+          @if (subiendo()) { ⏳ Subiendo... } @else { 📷 Adjuntar foto }
+          <input type="file" accept="image/*" hidden (change)="subirImagen($event)" />
+        </label>
+
+        @if (imagenUrl) {
+          <img [src]="imagenUrl" class="preview-img" />
+        }
+
+        <p class="hint">💡 Usa <strong>&#123;nombre&#125;</strong> para personalizar el mensaje</p>
+      </div>
+
+      <div class="mk-preview-panel">
+        <h3>📱 Vista previa</h3>
+
+        <div class="wa-preview">
+          <div class="wa-header">
+            <div class="wa-avatar">🥟</div>
+            <div>
+              <strong>Sabrositas</strong>
+              <small>Empresa verificada ✓</small>
+            </div>
+          </div>
+          <div class="wa-burbuja">
+            @if (mensaje) {
+              <p>{{ vistaPrevia() }}</p>
+            } @else {
+              <p class="placeholder">Tu mensaje aparecerá aquí...</p>
+            }
+            @if (imagenUrl) {
+              <img [src]="imagenUrl" class="wa-imagen" />
+            }
+            <div class="wa-meta">hoy, 14:30</div>
+          </div>
+        </div>
+
+        <button class="btn-preparar" [disabled]="!mensaje.trim()" (click)="prepararCola()">
+          📤 Preparar envío a {{ totalClientes() }} clientes
+        </button>
+      </div>
+    </div>
+
+    @if (cola().length > 0 || enviados() > 0) {
+      <div class="mk-cola-envio">
+        <div class="cola-header">
+          <h3>🚀 Enviando mensajes</h3>
+          <button class="btn-cancelar" (click)="cancelarCola()">✕ Cancelar</button>
+        </div>
+
+        <div class="cola-stats">
+          <div class="cola-stat"><strong>{{ enviados() }}</strong><span>Enviados</span></div>
+          <div class="cola-stat"><strong>{{ cola().length }}</strong><span>Pendientes</span></div>
+          <div class="cola-stat"><strong>{{ progreso }}%</strong><span>Progreso</span></div>
+        </div>
+
+        <div class="barra-progreso">
+          <div class="progreso" [style.width.%]="progreso"></div>
+        </div>
+
+        @if (siguiente; as sig) {
+          <div class="siguiente-cliente">
+            <div class="cliente-info">
+              <div class="cliente-avatar">{{ sig.nombre.charAt(0) }}</div>
+              <div>
+                <strong>{{ sig.nombre }}</strong>
+                <small>📞 {{ sig.telefono }} · {{ sig.pedidos }} pedido(s)</small>
+              </div>
+            </div>
+            <button class="btn-enviar-siguiente" (click)="enviarSiguiente()">💬 Enviar y siguiente</button>
+          </div>
+        } @else {
+          <div class="cola-completada">
+            <span class="icono-exito">✅</span>
+            <h4>¡Campaña completada!</h4>
+            <p>Enviaste {{ enviados() }} mensajes exitosamente</p>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (tab() === 'clientes') {
+    <div class="mk-clientes">
+      <div class="clientes-header">
+        <h3>👥 Tus clientes</h3>
+        <p>Lista completa de clientes que han hecho pedidos</p>
+      </div>
+
+      <div class="clientes-grid">
+        @for (c of marketing.clientes(); track c.telefono) {
+          <div class="cliente-card">
+            <div class="cliente-top">
+              <div class="cliente-avatar-grande">{{ c.nombre.charAt(0) }}</div>
+              <div class="cliente-info">
+                <strong>{{ c.nombre }}</strong>
+                <small>📞 {{ c.telefono }}</small>
+              </div>
+            </div>
+            <div class="cliente-stats">
+              <div class="cliente-stat"><strong>{{ c.pedidos }}</strong><span>Pedidos</span></div>
+              <div class="cliente-stat"><strong>{{ formatearFecha(c.ultimo) }}</strong><span>Último</span></div>
+            </div>
+            <button class="btn-enviar-individual" (click)="enviarIndividual(c)">💬 Enviar mensaje</button>
+          </div>
+        }
+      </div>
+
+      @if (marketing.clientes().length === 0) {
+        <div class="vacio">
+          <span class="icono-vacio">📭</span>
+          <p>Aún no tienes clientes registrados</p>
+        </div>
+      }
+    </div>
+  }
+
+</div>

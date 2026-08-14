@@ -1,0 +1,124 @@
+/* ===== OVERLAY transparente (se ve la tienda detrás) ===== */
+.promo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 4, 1, 0.25);   /* ← casi transparente (antes 0.55) */
+  backdrop-filter: none;               /* ← sin desenfoque */
+  -webkit-backdrop-filter: none;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeInPromo 0.35s ease;
+  cursor: pointer;
+}
+
+@keyframes fadeInPromo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== MARCO que entra con pop ===== */
+.promo-marco {
+  position: relative;
+  cursor: default;
+  animation: popPromo 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes popPromo {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ===== ✕ BOTÓN CERRAR ===== */
+.promo-cerrar {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border: 3px solid #5c1010;
+  color: #5c1010;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 3px rgba(255, 213, 79, 0.35),
+    0 6px 20px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease;
+  animation: pulsoCerrar 1.8s ease-in-out infinite;
+}
+
+.promo-cerrar:hover {
+  transform: rotate(90deg) scale(1.12);
+  background: linear-gradient(180deg, #ff6b6b, #dc3545);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 24px rgba(220, 53, 69, 0.7);
+}
+
+@keyframes pulsoCerrar {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.35), 0 6px 20px rgba(0,0,0,.6); }
+  50% { box-shadow: 0 0 0 6px rgba(255, 213, 79, 0.2), 0 6px 26px rgba(0,0,0,.7); }
+}
+
+/* ===== IMAGEN GIGANTE CLICABLE ===== */
+.promo-img {
+  width: min(94vw, 820px);
+  max-height: 86vh;
+  object-fit: contain;
+  border-radius: 22px;
+  border: 3px solid rgba(255, 193, 7, 0.8);
+  box-shadow:
+    0 0 0 5px rgba(92, 16, 16, 0.95),
+    0 0 60px rgba(255, 179, 0, 0.45),
+    0 30px 80px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: brilloPromo 2.2s ease-in-out 0.6s infinite;
+  transition: transform 0.25s ease;
+  display: block;
+}
+
+.promo-img:hover { transform: scale(1.02); }
+.promo-img:active { transform: scale(0.97); }
+
+@keyframes brilloPromo {
+  0%, 100% {
+    box-shadow: 0 0 0 5px rgba(92,16,16,.95), 0 0 45px rgba(255,179,0,.35), 0 30px 80px rgba(0,0,0,.7);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(92,16,16,.95), 0 0 90px rgba(255,179,0,.65), 0 30px 80px rgba(0,0,0,.7);
+  }
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .promo-overlay { background: rgba(58, 36, 16, 0.2) !important; }
+
+body.claro .promo-img {
+  border-color: rgba(180, 90, 20, 0.9) !important;
+  box-shadow:
+    0 0 0 5px rgba(255, 253, 248, 0.95),
+    0 0 60px rgba(180, 90, 20, 0.4),
+    0 30px 80px rgba(120, 70, 20, 0.4) !important;
+}
+
+body.claro .promo-cerrar {
+  border-color: #fffdf8 !important;
+  box-shadow: 0 0 0 3px rgba(180, 90, 20, 0.3), 0 6px 20px rgba(120, 70, 20, 0.4) !important;
+}
+
+/* ===== MÓVIL ===== */
+@media (max-width: 480px) {
+  .promo-overlay { padding: 10px; }
+  .promo-img { width: 96vw; border-radius: 16px; border-width: 2.5px; }
+  .promo-cerrar { top: -12px; right: -8px; width: 42px; height: 42px; font-size: 18px; }
+}

@@ -35,6 +35,12 @@
             <span>-{{ formatearPrecio(valorSalsasGratis()) }}</span>
           </div>
         }
+                @if (carrito.descuentoPromo() > 0) {
+          <div class="linea descuento">
+            <span>🏷️ Promo: {{ carrito.promoAplicada()?.nombre }}</span>
+            <span>-{{ formatearPrecio(carrito.descuentoPromo()) }}</span>
+          </div>
+        }
 
         @if (carrito.descuento() > 0) {
           <div class="linea descuento">
@@ -190,6 +196,12 @@
             <div class="fila-modal">
               <span>🎁 Salsas gratis ({{ carrito.salsasGratis() }}):</span>
               <span class="descuento">-{{ formatearPrecio(valorSalsasGratis()) }}</span>
+            </div>
+          }
+                    @if (carrito.descuentoPromo() > 0) {
+            <div class="fila-modal">
+              <span>🏷️ Promo {{ carrito.promoAplicada()?.nombre }}:</span>
+              <span class="descuento">-{{ formatearPrecio(carrito.descuentoPromo()) }}</span>
             </div>
           }
             <div class="fila-modal">

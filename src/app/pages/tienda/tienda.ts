@@ -12,6 +12,7 @@ import { Horario } from '../../services/horario';
 import { ProductosService } from '../../services/productos.service';
 import { ConfigService } from '../../services/config.service';
 import { Carrito } from '../../services/carrito';
+import { PromoInicio } from '../../components/promo-inicio/promo-inicio';
 
 @Component({
   selector: 'app-tienda',
@@ -26,6 +27,7 @@ import { Carrito } from '../../services/carrito';
     Loading,
     Cerrado,
     Aparecer,
+    PromoInicio,   // ← unificado en un solo array
   ],
   templateUrl: './tienda.html',
   styleUrl: './tienda.css',

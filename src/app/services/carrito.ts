@@ -35,9 +35,24 @@ export class Carrito {
       .reduce((total, i) => total + i.cantidad, 0),
   );
 
-  salsasGratis = computed(() => Math.min(this.totalSalsas(), this.maxSalsasGratis()));
+  // 🏷️ Promoción aplicada
+  promoAplicada = signal<{ nombre: string; descuento: number } | null>(null);
 
-  salsasCobradas = computed(() => Math.max(0, this.totalSalsas() - this.maxSalsasGratis()));
+  aplicarPromo(nombre: string, descuento: number): void {
+    this.promoAplicada.set({ nombre, descuento: Number(descuento) || 0 });
+  }
+
+  descuentoPromo(): number {
+    return Number(this.promoAplicada()?.descuento ?? 0) || 0;
+  }
+
+  // 🎯 Si hay promo activa, NO se regalan salsas (todas se cobran)
+  salsasGratis = computed(() => {
+    if (this.promoAplicada()) return 0; // Promo exclusiva: sin salsas gratis
+    return Math.min(this.totalSalsas(), this.maxSalsasGratis());
+  });
+
+  salsasCobradas = computed(() => Math.max(0, this.totalSalsas() - this.salsasGratis()));
 
   salsasGratisDisponibles = computed(() =>
     Math.max(0, this.maxSalsasGratis() - this.totalSalsas()),
@@ -71,6 +86,9 @@ export class Carrito {
     const item = this.items().find((i) => i.producto.id === producto.id);
     if (!item) return 0;
 
+    // Si hay promo activa, todas las salsas se cobran
+    if (this.promoAplicada()) return item.cantidad;
+
     const maxGratis = this.maxSalsasGratis();
     const ordenadas = this.items()
       .filter((i) => i.producto.categoria === 'salsa')
@@ -90,11 +108,20 @@ export class Carrito {
   salsasGratisDe(producto: Producto): number {
     const item = this.items().find((i) => i.producto.id === producto.id);
     if (!item || item.producto.categoria !== 'salsa') return 0;
+    
+    // Si hay promo activa, no hay salsas gratis
+    if (this.promoAplicada()) return 0;
+    
     return item.cantidad - this.salsasCobradasDe(producto);
   }
 
   // ===== Operaciones =====
   agregar(producto: Producto): void {
+    // 🏷️ Si hay promo activa, quitarla (el cliente modificó el combo)
+    if (this.promoAplicada()) {
+      this.promoAplicada.set(null);
+    }
+
     this.items.update((items) => {
       const existe = items.find((i) => i.producto.id === producto.id);
       if (existe) {
@@ -108,6 +135,11 @@ export class Carrito {
   }
 
   quitar(idProducto: number): void {
+    // 🏷️ Si hay promo activa, quitarla (el cliente modificó el combo)
+    if (this.promoAplicada()) {
+      this.promoAplicada.set(null);
+    }
+
     this.items.update((items) =>
       items
         .map((i) => (i.producto.id === idProducto ? { ...i, cantidad: i.cantidad - 1 } : i))
@@ -119,6 +151,7 @@ export class Carrito {
   vaciar(): void {
     this.items.set([]);
     this.guardar();
+    this.promoAplicada.set(null);
   }
 
   cantidadDe(idProducto: number): number {
@@ -126,7 +159,7 @@ export class Carrito {
     return item ? item.cantidad : 0;
   }
 
-    // ===== 🛡️ Validación: el pedido debe tener al menos 1 producto principal (no salsa) =====
+  // ===== 🛡️ Validación: el pedido debe tener al menos 1 producto principal (no salsa) =====
   tieneProductosPrincipales = computed(() =>
     this.items().some((i) => i.producto.categoria !== 'salsa'),
   );
@@ -144,7 +177,7 @@ export class Carrito {
     }
   }
 
-    // 🛒 Agregar múltiples productos de una vez (para canjes)
+  // 🛒 Agregar múltiples productos de una vez (para canjes)
   agregarMultiples(productos: { productoId: number; cantidad: number }[], catalogo: any[]): void {
     this.items.update((items) => {
       const nuevos = [...items];

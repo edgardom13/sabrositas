@@ -4,6 +4,7 @@ import { Pedido } from '../../services/supabase';
 import { ConfigService } from '../../services/config.service';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseService } from '../../services/supabase';
+import { EgresosService } from '../../services/egresos.service';
 
 interface Domiciliario { id: string; nombre: string; }
 interface InfoCanje { codigo: string; premio: string; tipo: string; valor: number; cantidad: number; }
@@ -17,6 +18,7 @@ interface InfoCanje { codigo: string; premio: string; tipo: string; valor: numbe
 })
 export class Pedidos implements OnInit, OnDestroy {
   pedidosService = inject(PedidosService);
+  egresosService = inject(EgresosService);
   private auth = inject(AuthService);
   private supabase = inject(SupabaseService);
   private configService = inject(ConfigService);
@@ -28,7 +30,7 @@ export class Pedidos implements OnInit, OnDestroy {
   mensajeExito = signal<string | null>(null);
 
   domiciliariosDisponibles = signal<Domiciliario[]>([]);
-  canjesInfo = signal<Map<number, InfoCanje>>(new Map()); // pedidoId -> info canje
+  canjesInfo = signal<Map<number, InfoCanje>>(new Map());
 
   fechaSeleccionada = signal<string>(this.hoyLocal());
   verHistorico = signal(false);
@@ -95,6 +97,7 @@ export class Pedidos implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.pedidosService.cargarPedidos();
     this.cargarDomiciliarios();
+    this.egresosService.cargar(this.hoyLocal());
     this.intervalo = setInterval(() => this.pedidosService.cargarPedidos(), 30000);
   }
 
@@ -110,7 +113,6 @@ export class Pedidos implements OnInit, OnDestroy {
     this.domiciliariosDisponibles.set((data as Domiciliario[]) ?? []);
   }
 
-  // 🔎 Obtiene el nombre del domiciliario asignado a un pedido
   nombreDomiciliario(pedido: Pedido): string {
     if (!pedido.domiciliario_id) return '';
     const dom = this.domiciliariosDisponibles().find((d) => d.id === pedido.domiciliario_id);
@@ -135,12 +137,10 @@ export class Pedidos implements OnInit, OnDestroy {
     }
   }
 
-  // 🎟️ Verifica si un pedido tiene canje activo
   tieneCanje(pedido: Pedido): boolean {
     return !!(pedido as any).codigo_canje;
   }
 
-  // 📦 Carga la info completa del canje (premio) del pedido
   async cargarInfoCanje(pedido: Pedido): Promise<InfoCanje | null> {
     const codigo = (pedido as any).codigo_canje;
     if (!codigo) return null;
@@ -198,10 +198,19 @@ export class Pedidos implements OnInit, OnDestroy {
 
   cambiarFecha(evento: Event): void {
     const valor = (evento.target as HTMLInputElement).value;
-    if (valor) { this.fechaSeleccionada.set(valor); this.verHistorico.set(false); }
+    if (valor) {
+      this.fechaSeleccionada.set(valor);
+      this.verHistorico.set(false);
+      this.egresosService.cargar(valor);
+    }
   }
 
-  irAHoy(): void { this.fechaSeleccionada.set(this.hoyLocal()); this.verHistorico.set(false); }
+  irAHoy(): void {
+    const hoy = this.hoyLocal();
+    this.fechaSeleccionada.set(hoy);
+    this.verHistorico.set(false);
+    this.egresosService.cargar(hoy);
+  }
 
   conteoDe(valor: 'todos' | EstadoPedido): number {
     if (valor === 'todos') return this.pedidosFecha().length;

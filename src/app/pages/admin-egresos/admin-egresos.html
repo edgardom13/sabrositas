@@ -1,0 +1,42 @@
+<div class="modulo-admin">
+  <h2>💸 Egresos del día</h2>
+
+  <div class="egresos-layout">
+    <!-- Formulario -->
+    <div class="egreso-form">
+      <h3>Registrar gasto</h3>
+      <input type="date" [value]="fecha" (change)="cambiarFecha($any($event.target).value)" />
+      <input [(ngModel)]="descripcion" placeholder="Descripción (ej: harina, aceite...)" />
+      <select [(ngModel)]="categoria">
+        @for (c of categorias; track c.valor) {
+          <option [value]="c.valor">{{ c.etiqueta }}</option>
+        }
+      </select>
+      <input [(ngModel)]="monto" type="number" min="0" placeholder="Monto ($)" />
+      <button class="btn-guardar" (click)="guardar()">💾 Guardar egreso</button>
+    </div>
+
+    <!-- Lista -->
+    <div class="egreso-lista">
+      <div class="egreso-total">
+        <span>Total gastado:</span>
+        <strong>{{ formatearPrecio(egresosService.totalDia()) }}</strong>
+      </div>
+      @for (e of egresosService.egresos(); track e.id) {
+        <div class="egreso-item">
+          <div>
+            <strong>{{ e.descripcion }}</strong>
+            <small>{{ e.categoria }}</small>
+          </div>
+          <div class="egreso-monto">
+            <span>-{{ formatearPrecio(e.monto) }}</span>
+            <button (click)="eliminar(e.id)">🗑️</button>
+          </div>
+        </div>
+      }
+      @if (egresosService.egresos().length === 0) {
+        <p class="vacio">Sin egresos registrados este día.</p>
+      }
+    </div>
+  </div>
+</div>

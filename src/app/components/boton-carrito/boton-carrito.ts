@@ -60,6 +60,14 @@ export class BotonCarrito {
   constructor() {
     this.configService.cargar();
 
+    // 🛒 Evento global: la promo lo dispara para abrir el carrito (funciona en móvil y escritorio)
+    window.addEventListener('abrir-carrito', () => {
+      this.ngZone.run(() => {
+        this.panelAbierto = true;
+        this.cdr.detectChanges();
+      });
+    });
+
     // 🎯 Si hay un canje pendiente en localStorage, aplicarlo automáticamente
     const codigoPendiente = localStorage.getItem('canje_pendiente');
     if (codigoPendiente) {
@@ -85,18 +93,19 @@ export class BotonCarrito {
     this.panelAbierto = !this.panelAbierto;
   }
 
-  // ✅ Total final coherente con cupón + canje + domicilio ajustado
+  // ✅ Total final coherente con cupón + canje + promo + domicilio
   totalConDomicilio(): number {
     return (
       this.carrito.totalPedido() -
       this.carrito.descuento() -
-      this.descuentoCanje() +
+      this.descuentoCanje() -
+      this.carrito.descuentoPromo() +
       this.domicilioFinal()
     );
   }
 
   // ===== 💰 Descuento que aplica el canje según el tipo de premio (con cantidad) =====
- descuentoCanje(): number {
+  descuentoCanje(): number {
     const canje = this.canjeValido();
     if (!canje) return 0;
 
@@ -330,7 +339,8 @@ export class BotonCarrito {
     const subtotal = this.carrito.totalPedido();
     const descuentoCupon = this.carrito.descuento();
     const descuentoCanje = this.descuentoCanje();
-    const descuentoTotal = descuentoCupon + descuentoCanje;
+    const descuentoPromo = this.carrito.descuentoPromo();
+    const descuentoTotal = descuentoCupon + descuentoCanje + descuentoPromo;
     const domicilio = this.domicilioFinal();
     const total = subtotal - descuentoTotal + domicilio;
 
@@ -351,6 +361,11 @@ export class BotonCarrito {
     const lineaSalsasGratis =
       this.valorSalsasGratis() > 0
         ? `   🎁 Salsas gratis (${this.carrito.salsasGratis()}): *-${this.formatearPrecio(this.valorSalsasGratis())}*\n`
+        : '';
+
+    const lineaPromo =
+      descuentoPromo > 0
+        ? `   🏷️ Promo ${this.carrito.promoAplicada()?.nombre}: *-${this.formatearPrecio(descuentoPromo)}*\n`
         : '';
 
     const linkMapa =
@@ -391,10 +406,11 @@ export class BotonCarrito {
       `${lineasProductos}\n\n` +
       (lineaCanje ? `╭─────────────────────╮\n│   🎟️ *CANJE DE PREMIO*\n╰─────────────────────╯\n${lineaCanje}\n` : '') +
       `╭─────────────────────╮\n` +
-        `│   💰 *RESUMEN*\n` +
+      `│   💰 *RESUMEN*\n` +
       `╰─────────────────────╯\n` +
       `   🧾 Subtotal: *${this.formatearPrecio(this.subtotalVisible())}*\n` +
       lineaSalsasGratis +
+      lineaPromo +
       lineaCupon +
       lineaCanjeDescuento +
       lineaDomicilioGratis +
@@ -491,7 +507,7 @@ export class BotonCarrito {
     return '🥟';
   }
 
-    // 🥫 Muestra el precio configurado en el admin para salsas; precio real para el resto
+  // 🥫 Muestra el precio configurado en el admin para salsas; precio real para el resto
   precioUnitario(item: any): number {
     return item.producto.categoria === 'salsa'
       ? this.carrito.precioSalsaExtra()

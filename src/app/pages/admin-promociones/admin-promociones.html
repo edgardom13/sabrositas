@@ -1,0 +1,59 @@
+<div class="modulo-admin">
+  <h2>🏷️ Promociones</h2>
+
+  <div class="promo-layout">
+    <!-- Creador -->
+    <div class="promo-form">
+      <h3>Crear promoción</h3>
+      <input [(ngModel)]="nombre" placeholder="Nombre (ej: Combo Martes Locos)" />
+      <input [(ngModel)]="descripcion" placeholder="Descripción corta" />
+
+      <label class="subir-img">
+        @if (subiendo()) { ⏳ Subiendo… } @else { 📷 Subir foto }
+        <input type="file" accept="image/*" hidden (change)="subirImagen($event)" />
+      </label>
+      @if (imagenUrl) { <img [src]="imagenUrl" class="preview-img" /> }
+
+      <h4>Arma el combo con productos:</h4>
+      <div class="selector-productos">
+        @for (p of catalogo; track p.id) {
+          <div class="fila-producto">
+            <span>{{ p.nombre }}</span>
+            <div class="stepper">
+              <button (click)="restar(p.id)">−</button>
+              <strong>{{ cantidadDe(p.id) }}</strong>
+              <button (click)="sumar(p.id)">+</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="promo-resumen">
+        <p>Valor real: <strong>{{ formatearPrecio(valorReal) }}</strong></p>
+        <input [(ngModel)]="precio" type="number" placeholder="Precio de la promo ($)" />
+        @if (precio && valorReal > 0) {
+          <p class="ahorro">El cliente ahorra {{ formatearPrecio(valorReal - precio) }} 🔥</p>
+        }
+      </div>
+
+      <button class="btn-guardar" (click)="crear()">🚀 Lanzar promoción</button>
+    </div>
+
+    <!-- Lista -->
+    <div class="promo-lista">
+      @for (p of promos.todas(); track p.id) {
+        <div class="promo-card" [class.inactiva]="!p.activa">
+          @if (p.imagen) { <img [src]="p.imagen" /> }
+          <div class="promo-info">
+            <strong>{{ p.nombre }}</strong>
+            <small>{{ p.productos.length }} producto(s) · {{ formatearPrecio(p.precio) }}</small>
+          </div>
+          <div class="promo-acciones">
+            <button (click)="toggle(p.id, p.activa)">{{ p.activa ? '🟢 Activa' : '⚪ Inactiva' }}</button>
+            <button (click)="eliminar(p.id)">🗑️</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

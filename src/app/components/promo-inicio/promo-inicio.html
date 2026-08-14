@@ -1,0 +1,21 @@
+@if (visible()) {
+  @if (promociones.activa(); as p) {
+    <!-- Clic fuera = cerrar sin reclamar -->
+    <div class="promo-overlay" (click)="cerrar()">
+      <div class="promo-marco" (click)="$event.stopPropagation()">
+        <!-- ✕ Botón cerrar con estilo -->
+        <button class="promo-cerrar" (click)="cerrar()" aria-label="Cerrar promoción">✕</button>
+
+        <!-- Clic en la imagen = reclamar la promo -->
+        @if (p.imagen) {
+          <img
+            [src]="p.imagen"
+            class="promo-img"
+            [alt]="p.nombre"
+            (click)="querer()"
+          />
+        }
+      </div>
+    </div>
+  }
+}

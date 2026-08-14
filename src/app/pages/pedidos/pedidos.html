@@ -67,6 +67,20 @@
         </span>
       </div>
     </div>
+        <div class="stat-card stat-rojo">
+      <span class="stat-icono">💸</span>
+      <div>
+        <h3>{{ pedidosService.formatearPrecio(egresosService.totalDia()) }}</h3>
+        <p>Egresos del día</p>
+      </div>
+    </div>
+    <div class="stat-card stat-verde">
+      <span class="stat-icono">📈</span>
+      <div>
+        <h3>{{ pedidosService.formatearPrecio(statsDia().recogido - egresosService.totalDia()) }}</h3>
+        <p>GANANCIA NETA</p>
+      </div>
+    </div>
   </div>
 
   <div class="toolbar">

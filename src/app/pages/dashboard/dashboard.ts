@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { PedidosService } from '../../services/pedidos.service';
 import { NotificacionesService } from '../../services/notificaciones.service';
 import { Tema } from '../../services/tema';
+import { EgresosService } from '../../services/egresos.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class Dashboard implements OnInit, OnDestroy {
   pedidosService = inject(PedidosService);
   notificaciones = inject(NotificacionesService);
   tema = inject(Tema);
+  egresosService = inject(EgresosService);
 
   menuAbierto = signal(false);
   tituloRuta = signal('Gestión de Pedidos');
@@ -28,9 +30,16 @@ export class Dashboard implements OnInit, OnDestroy {
     this.emailUsuario().charAt(0).toUpperCase() || 'A',
   );
 
+    private hoyLocal(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+
   ngOnInit(): void {
     this.pedidosService.cargarPedidos();
     this.notificaciones.iniciar(); // 🔔 escucha pedidos en vivo
+    this.egresosService.cargar(this.hoyLocal());
 
     this.router.events.subscribe((evento) => {
       if (evento instanceof NavigationEnd) {
