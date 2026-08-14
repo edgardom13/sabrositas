@@ -1,33 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
-    <title>Sabrositas</title>
+    <title>Sabrositas - Empanadas Fritas y Algo Más</title>
     <base href="/" />
+
+    <!-- 🎨 Icono de la pestaña (favicon) con tu logo -->
+    <link rel="icon" type="image/png" sizes="any" href="icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
     <!-- 📲 PWA -->
     <meta name="theme-color" content="#b45309" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Sabrositas" />
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.webmanifest" />
+
     <!-- 📲 Captura temprana del prompt de instalación (Android/Chrome) -->
-    <!-- 📲 Captura temprana del prompt de instalación (Android/Chrome) -->
-<script>
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    window.__deferredInstallPrompt = e;
-    window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
-  });
-  
-  window.addEventListener('appinstalled', function () {
-    window.__deferredInstallPrompt = null;
-    window.dispatchEvent(new CustomEvent('pwa-installed'));
-  });
-</script>
+    <script>
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        window.__deferredInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+      });
+
+      window.addEventListener('appinstalled', function () {
+        window.__deferredInstallPrompt = null;
+        window.dispatchEvent(new CustomEvent('pwa-installed'));
+      });
+    </script>
   </head>
   <body>
     <app-root></app-root>
