@@ -3,21 +3,12 @@
   <!-- 🎛️ Selector de período -->
   <div class="selector-periodo">
     @for (p of periodos; track p.valor) {
-      <button
-        class="chip"
-        [class.activo]="service.periodo() === p.valor"
-        (click)="cambiarPeriodo(p.valor)"
-      >
+      <button class="chip" [class.activo]="service.periodo() === p.valor" (click)="cambiarPeriodo(p.valor)">
         {{ p.etiqueta }}
       </button>
     }
     @if (service.periodo() === 'personalizado') {
-      <input
-        type="date"
-        class="input-fecha"
-        [value]="service.fechaElegida()"
-        (change)="cambiarFecha($event)"
-      />
+      <input type="date" class="input-fecha" [value]="service.fechaElegida()" (change)="cambiarFecha($event)" />
     }
   </div>
 
@@ -25,195 +16,424 @@
     <p class="fecha-elegida">📅 Viendo: {{ service.textoFechaElegida() }}</p>
   }
 
-  <!-- 📊 KPIs principales -->
-  <div class="stats-grid">
-    <div class="stat-card stat-dorado">
-      <span class="stat-icono">💰</span>
-      <div>
-        <h3>{{ service.formatearPrecio(service.ventas()) }}</h3>
-        <p>Ventas productos</p>
-        <span class="tendencia" [class.sube]="service.crecimiento() >= 0" [class.baja]="service.crecimiento() < 0">
-          {{ service.crecimiento() >= 0 ? '▲' : '▼' }} {{ service.crecimientoAbs() }}% vs anterior
-        </span>
-      </div>
-    </div>
-
-    <div class="stat-card stat-amarillo">
-      <span class="stat-icono">🧾</span>
-      <div>
-        <h3>{{ service.totalPedidos() }}</h3>
-        <p>Pedidos ({{ service.entregados() }} entregados)</p>
-      </div>
-    </div>
-
-    <div class="stat-card stat-azul">
-      <span class="stat-icono">🎯</span>
-      <div>
-        <h3>{{ service.formatearPrecio(service.ticketPromedio()) }}</h3>
-        <p>Ticket promedio</p>
-      </div>
-    </div>
-
-    <div class="stat-card stat-verde">
-      <span class="stat-icono">👥</span>
-      <div>
-        <h3>{{ service.clientesUnicos() }}</h3>
-        <p>Clientes activos</p>
-      </div>
-    </div>
+  <!-- 🧭 TABS PRINCIPALES -->
+  <div class="stats-tabs">
+    @for (t of tabs; track t.id) {
+      <button class="tab-btn" [class.activo]="tab() === t.id" (click)="tab.set(t.id)">
+        <span class="tab-icono">{{ t.icono }}</span>
+        <span class="tab-nombre">{{ t.nombre }}</span>
+      </button>
+    }
   </div>
 
-  <!-- ⚠️ Indicadores secundarios -->
-  <div class="indicadores">
-    <div class="indicador">
-      <span>❌ Cancelación:</span>
-      <strong>{{ service.tasaCancelacion() }}%</strong>
-    </div>
-    <div class="indicador">
-      <span>⏳ En proceso:</span>
-      <strong>{{ service.enProceso() }}</strong>
-    </div>
-    <div class="indicador">
-      <span>💵 Por cobrar:</span>
-      <strong>{{ service.formatearPrecio(service.porCobrar()) }}</strong>
-    </div>
-  </div>
-
-  @if (service.totalPedidos() === 0) {
-    <div class="estado-vacio">📭 No hay pedidos en este período para mostrar estadísticas.</div>
+  @if (service.totalPedidos() === 0 && service.egresosPeriodo().length === 0) {
+    <div class="estado-vacio">📭 No hay datos en este período para mostrar estadísticas.</div>
   } @else {
 
-    <div class="grid-graficos">
+    <!-- ============ TAB: VENTAS Y PEDIDOS ============ -->
+    @if (tab() === 'ventas') {
+      <div class="tab-content">
 
-      <!-- 💰 Desglose de ingresos -->
-      <div class="grafico-card ancho-completo">
-        <h4>💰 Desglose de ingresos (entregados)</h4>
-        <div class="desglose-grid">
-          <div class="desglose-item">
-            <span class="desglose-icono">💵</span>
+        <!-- KPIs principales -->
+        <div class="stats-grid">
+          <div class="stat-card stat-dorado">
+            <span class="stat-icono">💰</span>
             <div>
-              <strong>{{ service.formatearPrecio(service.ventas()) }}</strong>
-              <p>Ventas de productos</p>
+              <h3>{{ service.formatearPrecio(service.ventas()) }}</h3>
+              <p>Ventas productos</p>
+              <span class="tendencia" [class.sube]="service.crecimiento() >= 0" [class.baja]="service.crecimiento() < 0">
+                {{ service.crecimiento() >= 0 ? '▲' : '▼' }} {{ service.crecimientoAbs() }}% vs anterior
+              </span>
             </div>
           </div>
-          <div class="desglose-item">
-            <span class="desglose-icono">🛵</span>
+          <div class="stat-card stat-amarillo">
+            <span class="stat-icono">🧾</span>
             <div>
-              <strong>{{ service.formatearPrecio(service.domicilios()) }}</strong>
-              <p>Domicilios</p>
+              <h3>{{ service.totalPedidos() }}</h3>
+              <p>Pedidos ({{ service.entregados() }} entregados)</p>
             </div>
           </div>
-          <div class="desglose-item total">
-            <span class="desglose-icono">💰</span>
+          <div class="stat-card stat-azul">
+            <span class="stat-icono">🎯</span>
             <div>
-              <strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong>
-              <p>Total ingresos</p>
+              <h3>{{ service.formatearPrecio(service.ticketPromedio()) }}</h3>
+              <p>Ticket promedio</p>
+            </div>
+          </div>
+          <div class="stat-card stat-verde">
+            <span class="stat-icono">👥</span>
+            <div>
+              <h3>{{ service.clientesUnicos() }}</h3>
+              <p>Clientes únicos</p>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 📈 Ventas en el período -->
-      <div class="grafico-card ancho-completo">
-        <h4>📈 Ventas del período</h4>
-        @if (service.mejorMomento(); as mejor) {
-          <p class="insight">🔥 Mejor momento: {{ mejor.texto }} con {{ service.formatearPrecio(mejor.valor) }}</p>
-        }
-        <div class="barras">
-          @for (punto of service.serieVentas(); track $index) {
-            <div
-              class="barra"
-              [style.height.%]="alturaBarra(punto.valor)"
-              [title]="punto.etiqueta + ': ' + service.formatearPrecio(punto.valor)"
-            ></div>
-          }
+        <!-- Indicadores -->
+        <div class="indicadores">
+          <div class="indicador"><span>❌ Cancelación:</span><strong>{{ service.tasaCancelacion() }}%</strong></div>
+          <div class="indicador"><span>⏳ En proceso:</span><strong>{{ service.enProceso() }}</strong></div>
+          <div class="indicador"><span>💵 Por cobrar:</span><strong>{{ service.formatearPrecio(service.porCobrar()) }}</strong></div>
         </div>
-        <div class="barras-etiquetas">
-          @for (punto of service.serieVentas(); track $index; let i = $index) {
-            <span>{{ mostrarEtiqueta(i) ? punto.etiqueta : '' }}</span>
-          }
-        </div>
-      </div>
 
-      <!-- 🍩 Estados de pedidos -->
-      <div class="grafico-card">
-        <h4>Estados de pedidos</h4>
-        <div class="donut-contenedor">
-          <div class="donut" [style.background]="service.gradienteDonut()"></div>
-          <div class="leyenda">
-            @for (r of service.distribucionEstados(); track r.etiqueta) {
-              <div class="leyenda-item">
-                <span class="punto" [style.background]="r.color"></span>
-                <span class="leyenda-texto">{{ r.etiqueta }}</span>
-                <strong>{{ r.cantidad }}</strong>
-                <span class="leyenda-porcentaje">{{ r.porcentaje | number: '1.0-0' }}%</span>
+        <div class="grid-graficos">
+
+          <!-- Desglose de ingresos -->
+          <div class="grafico-card ancho-completo">
+            <h4>💰 Desglose de ingresos (entregados)</h4>
+            <div class="desglose-grid">
+              <div class="desglose-item">
+                <span class="desglose-icono">💵</span>
+                <div><strong>{{ service.formatearPrecio(service.ventas()) }}</strong><p>Ventas de productos</p></div>
+              </div>
+              <div class="desglose-item">
+                <span class="desglose-icono">🛵</span>
+                <div><strong>{{ service.formatearPrecio(service.domicilios()) }}</strong><p>Domicilios</p></div>
+              </div>
+              <div class="desglose-item total">
+                <span class="desglose-icono">💰</span>
+                <div><strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong><p>Total ingresos</p></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Serie de ventas -->
+          <div class="grafico-card ancho-completo">
+            <h4>📈 Ventas del período</h4>
+            @if (service.mejorMomento(); as mejor) {
+              <p class="insight">🔥 Mejor momento: {{ mejor.texto }} con {{ service.formatearPrecio(mejor.valor) }}</p>
+            }
+            <div class="barras">
+              @for (punto of service.serieVentas(); track $index) {
+                <div class="barra" [style.height.%]="alturaBarra(punto.valor)"
+                  [title]="punto.etiqueta + ': ' + service.formatearPrecio(punto.valor)"></div>
+              }
+            </div>
+            <div class="barras-etiquetas">
+              @for (punto of service.serieVentas(); track $index; let i = $index) {
+                <span>{{ mostrarEtiqueta(i) ? punto.etiqueta : '' }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Estados -->
+          <div class="grafico-card">
+            <h4>Estados de pedidos</h4>
+            <div class="donut-contenedor">
+              <div class="donut" [style.background]="service.gradienteDonut()"></div>
+              <div class="leyenda">
+                @for (r of service.distribucionEstados(); track r.etiqueta) {
+                  <div class="leyenda-item">
+                    <span class="punto" [style.background]="r.color"></span>
+                    <span class="leyenda-texto">{{ r.etiqueta }}</span>
+                    <strong>{{ r.cantidad }}</strong>
+                    <span class="leyenda-porcentaje">{{ r.porcentaje | number:'1.0-0' }}%</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Métodos de pago -->
+          <div class="grafico-card">
+            <h4>💳 Métodos de pago</h4>
+            @if (service.metodosPago().length === 0) {
+              <p class="sin-datos">Aún no hay pagos registrados.</p>
+            } @else {
+              <div class="metodos">
+                @for (m of service.metodosPago(); track m.metodo) {
+                  <div class="metodo-item">
+                    <div class="metodo-cabecera">
+                      <span>{{ m.metodo }}</span>
+                      <strong>{{ m.cantidad }} ({{ m.porcentaje }}%)</strong>
+                    </div>
+                    <div class="progreso"><div class="progreso-barra" [style.width.%]="m.porcentaje"></div></div>
+                  </div>
+                }
               </div>
             }
           </div>
+
+          <!-- Top productos -->
+          <div class="grafico-card">
+            <h4>🥇 Productos más vendidos</h4>
+            @if (service.productoEstrella(); as estrella) {
+              <p class="insight">⭐ Estrella: {{ estrella.nombre }} ({{ estrella.cantidad }} vendidos)</p>
+            }
+            <div class="lista-top">
+              @for (item of service.topProductos(); track item.nombre) {
+                <div class="fila-top">
+                  <div class="top-cabecera">
+                    <span>{{ item.nombre }}</span>
+                    <strong>{{ item.cantidad }} u.</strong>
+                  </div>
+                  <div class="progreso">
+                    <div class="progreso-barra dorada" [style.width.%]="(item.cantidad / service.maxTopProducto()) * 100"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Top clientes -->
+          <div class="grafico-card">
+            <h4>👑 Mejores clientes</h4>
+            <div class="lista-top">
+              @for (c of service.topClientes(); track c.telefono) {
+                <div class="fila-top">
+                  <div class="top-cabecera">
+                    <span>{{ c.nombre }} <small>({{ c.pedidos }} pedidos)</small></span>
+                    <strong>{{ service.formatearPrecio(c.gastado) }}</strong>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
         </div>
       </div>
+    }
 
-      <!-- 💳 Métodos de pago -->
-      <div class="grafico-card">
-        <h4>💳 Métodos de pago</h4>
-        @if (service.metodosPago().length === 0) {
-          <p class="sin-datos">Aún no hay pagos registrados en este período.</p>
-        } @else {
-          <div class="metodos">
-            @for (m of service.metodosPago(); track m.metodo) {
-              <div class="metodo-item">
-                <div class="metodo-cabecera">
-                  <span>{{ m.metodo }}</span>
-                  <strong>{{ m.cantidad }} ({{ m.porcentaje }}%)</strong>
+    <!-- ============ TAB: FINANZAS ============ -->
+    @if (tab() === 'finanzas') {
+      <div class="tab-content">
+
+        <!-- KPIs financieros -->
+        <div class="stats-grid">
+          <div class="stat-card stat-verde">
+            <span class="stat-icono">💰</span>
+            <div>
+              <h3>{{ service.formatearPrecio(service.ingresosTotales()) }}</h3>
+              <p>Ingresos totales</p>
+            </div>
+          </div>
+          <div class="stat-card stat-rojo">
+            <span class="stat-icono">💸</span>
+            <div>
+              <h3>{{ service.formatearPrecio(service.totalEgresos()) }}</h3>
+              <p>Egresos del período</p>
+            </div>
+          </div>
+          <div class="stat-card" [class.stat-verde]="service.gananciaNeta() >= 0" [class.stat-rojo]="service.gananciaNeta() < 0">
+            <span class="stat-icono">📈</span>
+            <div>
+              <h3>{{ service.formatearPrecio(service.gananciaNeta()) }}</h3>
+              <p>Ganancia neta</p>
+            </div>
+          </div>
+          <div class="stat-card stat-morado">
+            <span class="stat-icono">💼</span>
+            <div>
+              <h3>{{ service.totalEmpleados() }}</h3>
+              <p>Empleados activos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-graficos">
+
+          <!-- Balance financiero -->
+          <div class="grafico-card ancho-completo">
+            <h4>📊 Balance financiero del período</h4>
+            <div class="desglose-grid">
+              <div class="desglose-item">
+                <span class="desglose-icono">💵</span>
+                <div>
+                  <strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong>
+                  <p>Ingresos (ventas + domicilios)</p>
                 </div>
-                <div class="progreso">
-                  <div class="progreso-barra" [style.width.%]="m.porcentaje"></div>
+              </div>
+              <div class="desglose-item">
+                <span class="desglose-icono">💸</span>
+                <div>
+                  <strong>-{{ service.formatearPrecio(service.totalEgresos()) }}</strong>
+                  <p>Egresos</p>
                 </div>
+              </div>
+              <div class="desglose-item total">
+                <span class="desglose-icono">💎</span>
+                <div>
+                  <strong>{{ service.formatearPrecio(service.gananciaNeta()) }}</strong>
+                  <p>Ganancia neta</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Egresos por categoría -->
+          <div class="grafico-card">
+            <h4>💸 Egresos por categoría</h4>
+            @if (service.egresosPorCategoria().length === 0) {
+              <p class="sin-datos">Sin egresos en este período.</p>
+            } @else {
+              <div class="lista-top">
+                @for (e of service.egresosPorCategoria(); track e.categoria) {
+                  <div class="fila-top">
+                    <div class="top-cabecera">
+                      <span>{{ emojiCategoria(e.categoria) }} {{ e.categoria }}</span>
+                      <strong>{{ service.formatearPrecio(e.monto) }}</strong>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
-        }
-      </div>
 
-      <!-- 🥇 Top productos -->
-      <div class="grafico-card">
-        <h4>🥇 Productos más vendidos</h4>
-        @if (service.productoEstrella(); as estrella) {
-          <p class="insight">⭐ Estrella: {{ estrella.nombre }} ({{ estrella.cantidad }} vendidos)</p>
-        }
-        <div class="lista-top">
-          @for (item of service.topProductos(); track item.nombre) {
-            <div class="fila-top">
-              <div class="top-cabecera">
-                <span>{{ item.nombre }}</span>
-                <strong>{{ item.cantidad }} u.</strong>
+          <!-- Costos operativos -->
+          <div class="grafico-card">
+            <h4>💼 Costos operativos</h4>
+            <div class="lista-top">
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>👥 Nómina del período</span>
+                  <strong>{{ service.formatearPrecio(service.nominaPeriodo()) }}</strong>
+                </div>
               </div>
-              <div class="progreso">
-                <div
-                  class="progreso-barra dorada"
-                  [style.width.%]="(item.cantidad / service.maxTopProducto()) * 100"
-                ></div>
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>💼 Pagos a inversor</span>
+                  <strong>{{ service.formatearPrecio(service.pagosInversorPeriodo()) }}</strong>
+                </div>
               </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- 👑 Top clientes -->
-      <div class="grafico-card">
-        <h4>👑 Mejores clientes</h4>
-        <div class="lista-top">
-          @for (c of service.topClientes(); track c.telefono) {
-            <div class="fila-top">
-              <div class="top-cabecera">
-                <span>{{ c.nombre }} <small>({{ c.pedidos }} pedidos)</small></span>
-                <strong>{{ service.formatearPrecio(c.gastado) }}</strong>
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>💸 Otros egresos</span>
+                  <strong>{{ service.formatearPrecio(service.totalEgresos()) }}</strong>
+                </div>
               </div>
             </div>
-          }
+          </div>
+
         </div>
       </div>
+    }
 
-    </div>
+        <!-- ============ TAB: MARKETING ============ -->
+    @if (tab() === 'marketing') {
+      <div class="tab-content">
+
+        <!-- KPIs marketing -->
+        <div class="stats-grid">
+          <div class="stat-card stat-naranja">
+            <span class="stat-icono">🏷️</span>
+            <div>
+              <h3>{{ service.totalPromos() }}</h3>
+              <p>Promos reclamadas</p>
+            </div>
+          </div>
+          <div class="stat-card stat-morado">
+            <span class="stat-icono">🎟️</span>
+            <div>
+              <h3>{{ service.canjesReclamados() }}</h3>
+              <p>Canjes reclamados</p>
+            </div>
+          </div>
+          <div class="stat-card stat-azul">
+            <span class="stat-icono">🎯</span>
+            <div>
+              <h3>{{ service.pedidosReferidos() }}</h3>
+              <p>Pedidos por referidos</p>
+            </div>
+          </div>
+          <div class="stat-card stat-verde">
+            <span class="stat-icono">👥</span>
+            <div>
+              <h3>{{ service.clientesUnicos() }}</h3>
+              <p>Clientes únicos</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-graficos">
+
+          <!-- Promos más usadas -->
+          <div class="grafico-card">
+            <h4>🏷️ Promociones más usadas</h4>
+            @if (service.promosUsadas().length === 0) {
+              <p class="sin-datos">Sin promos aplicadas en este período.</p>
+            } @else {
+              <div class="lista-top">
+                @for (p of service.promosUsadas(); track p.nombre) {
+                  <div class="fila-top">
+                    <div class="top-cabecera">
+                      <span>{{ p.nombre }}</span>
+                      <strong>{{ p.cantidad }} usos</strong>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Estado de canjes -->
+          <div class="grafico-card">
+            <h4>🎟️ Estado de canjes</h4>
+            <div class="desglose-grid dos-columnas">
+              <div class="desglose-item">
+                <span class="desglose-icono">⏳</span>
+                <div>
+                  <strong>{{ service.canjesPendientes() }}</strong>
+                  <p>Pendientes</p>
+                </div>
+              </div>
+              <div class="desglose-item total">
+                <span class="desglose-icono">✅</span>
+                <div>
+                  <strong>{{ service.canjesReclamados() }}</strong>
+                  <p>Reclamados</p>
+                </div>
+              </div>
+            </div>
+            @if (service.canjesReclamados() + service.canjesPendientes() > 0) {
+              <p class="insight" style="margin-top: 14px">
+                💡 Tasa de conversión: {{ service.tasaConversionCanjes() }}%
+              </p>
+            }
+          </div>
+
+          <!-- Referidos -->
+          <div class="grafico-card">
+            <h4>🎯 Referidos</h4>
+            <div class="lista-top">
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>👥 Pedidos desde referidos</span>
+                  <strong>{{ service.pedidosReferidos() }}</strong>
+                </div>
+              </div>
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>💰 Ingresos por referidos</span>
+                  <strong>{{ service.formatearPrecio(service.ingresosReferidos()) }}</strong>
+                </div>
+              </div>
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>📊 % del total</span>
+                  <strong>{{ service.porcentajeReferidos() }}%</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top clientes -->
+          <div class="grafico-card">
+            <h4>👑 Mejores clientes del período</h4>
+            <div class="lista-top">
+              @for (c of service.topClientes(); track c.telefono) {
+                <div class="fila-top">
+                  <div class="top-cabecera">
+                    <span>{{ c.nombre }} <small>({{ c.pedidos }} pedidos)</small></span>
+                    <strong>{{ service.formatearPrecio(c.gastado) }}</strong>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
   }
+
 </div>

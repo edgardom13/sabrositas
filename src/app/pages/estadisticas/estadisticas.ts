@@ -1,6 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { EstadisticasService, Periodo } from '../../services/estadisticas.service';
+
+type TabId = 'ventas' | 'finanzas' | 'marketing';
 
 @Component({
   selector: 'app-estadisticas',
@@ -11,6 +13,13 @@ import { EstadisticasService, Periodo } from '../../services/estadisticas.servic
 })
 export class Estadisticas implements OnInit {
   service = inject(EstadisticasService);
+  tab = signal<TabId>('ventas');
+
+  tabs: { id: TabId; icono: string; nombre: string }[] = [
+    { id: 'ventas', icono: '📊', nombre: 'Ventas y pedidos' },
+    { id: 'finanzas', icono: '💰', nombre: 'Finanzas' },
+    { id: 'marketing', icono: '🎯', nombre: 'Marketing' },
+  ];
 
   periodos: { valor: Periodo; etiqueta: string }[] = [
     { valor: 'dia', etiqueta: '📅 Hoy' },
@@ -44,6 +53,13 @@ export class Estadisticas implements OnInit {
     const p = this.service.periodo();
     if (p === 'semana' || p === 'ano') return true;
     if (p === 'dia' || p === 'personalizado') return indice % 4 === 0;
-    return indice % 5 === 0; // mes
+    return indice % 5 === 0;
+  }
+
+  emojiCategoria(cat: string): string {
+    const map: Record<string, string> = {
+      insumos: '🥟', nomina: '👥', servicios: '💡', transporte: '🛵', marketing: '📣', otro: '📦',
+    };
+    return map[cat] ?? '📦';
   }
 }

@@ -305,3 +305,92 @@
   .donut { width: 110px; height: 110px; }
   .desglose-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== TABS DE ESTADÍSTICAS ===== */
+.stats-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px;
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.04); }
+
+.tab-btn.activo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #5c1010;
+  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.3);
+}
+
+.tab-icono { font-size: 16px; }
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NUEVOS COLORES DE STAT CARDS ===== */
+.stat-rojo { border-left: 4px solid #dc3545; }
+.stat-rojo h3 { color: #ff8080; }
+.stat-morado { border-left: 4px solid #9c27b0; }
+.stat-morado h3 { color: #ce93d8; }
+.stat-naranja { border-left: 4px solid #ff9800; }
+.stat-naranja h3 { color: #ffb74d; }
+
+/* ===== DESGLOSE DE 2 COLUMNAS ===== */
+.desglose-grid.dos-columnas {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .stats-tabs {
+  background: rgba(180, 90, 20, 0.05) !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+}
+
+body.claro .tab-btn { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .tab-btn:hover { color: #3a2410 !important; }
+
+body.claro .tab-btn.activo {
+  background: linear-gradient(180deg, #b45309, #92400e) !important;
+  color: #fff !important;
+}
+
+body.claro .stat-rojo h3 { color: #c92a2a !important; }
+body.claro .stat-morado h3 { color: #7b2cbf !important; }
+body.claro .stat-naranja h3 { color: #e65100 !important; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 800px) {
+  .stats-tabs { flex-direction: column; }
+  .tab-btn { justify-content: flex-start; }
+  .desglose-grid.dos-columnas { grid-template-columns: 1fr; }
+}

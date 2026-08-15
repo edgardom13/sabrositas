@@ -13,10 +13,14 @@ export class EstadisticasService {
   private supabase = inject(SupabaseService);
 
   pedidos = signal<Pedido[]>([]);
+  egresos = signal<any[]>([]);
+  canjes = signal<any[]>([]);
+  empleados = signal<any[]>([]);
+  pagosEmpleados = signal<any[]>([]);
+  inversor = signal<any[]>([]);
+  pagosInversor = signal<any[]>([]);
   cargando = signal(false);
   periodo = signal<Periodo>('semana');
-
-  // 🎯 Fecha elegida por el admin (formato YYYY-MM-DD)
   fechaElegida = signal<string>(this.hoyLocal());
 
   private hoyLocal(): string {
@@ -26,38 +30,44 @@ export class EstadisticasService {
     return `${d.getFullYear()}-${m}-${dia}`;
   }
 
-  // Texto bonito de la fecha elegida: "viernes, 12 de agosto de 2026"
   textoFechaElegida = computed(() => {
     const [y, m, d] = this.fechaElegida().split('-').map((n) => Number(n));
     return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     });
   });
 
   async cargar(): Promise<void> {
     this.cargando.set(true);
-    const { data, error } = await this.supabase.client
-      .from('pedidos')
-      .select('*')
-      .order('creado_en', { ascending: true });
+    
+    const [pedidosRes, egresosRes, canjesRes, empleadosRes, pagosEmpRes, invRes, pagosInvRes] = await Promise.all([
+      this.supabase.client.from('pedidos').select('*').order('creado_en', { ascending: true }),
+      this.supabase.client.from('egresos').select('*').order('fecha', { ascending: false }),
+      this.supabase.client.from('canjes').select('*').order('creado_en', { ascending: false }),
+      this.supabase.client.from('empleados').select('*'),
+      this.supabase.client.from('pagos_empleado').select('*').order('fecha', { ascending: false }),
+      this.supabase.client.from('inversor').select('*'),
+      this.supabase.client.from('pagos_inversor').select('*').order('fecha', { ascending: false }),
+    ]);
 
     this.cargando.set(false);
-    if (error) {
-      console.error('❌ Error al cargar estadísticas:', error.message);
-      return;
-    }
-    this.pedidos.set((data as Pedido[]) ?? []);
+
+    if (pedidosRes.error) console.error('❌ Error pedidos:', pedidosRes.error.message);
+    if (egresosRes.error) console.error('❌ Error egresos:', egresosRes.error.message);
+
+    this.pedidos.set((pedidosRes.data as Pedido[]) ?? []);
+    this.egresos.set(egresosRes.data ?? []);
+    this.canjes.set(canjesRes.data ?? []);
+    this.empleados.set(empleadosRes.data ?? []);
+    this.pagosEmpleados.set(pagosEmpRes.data ?? []);
+    this.inversor.set(invRes.data ?? []);
+    this.pagosInversor.set(pagosInvRes.data ?? []);
   }
 
-  // 💵 Venta de productos de un pedido (subtotal - descuento)
   private ventaProductos(p: Pedido): number {
     return Number(p.subtotal) - Number(p.descuento);
   }
 
-  // ================= RANGOS DE FECHA =================
   private rangos = computed(() => {
     const ahora = new Date();
     const desde = new Date(ahora);
@@ -91,7 +101,7 @@ export class EstadisticasService {
         const [y, m, d] = this.fechaElegida().split('-').map((n) => Number(n));
         desde.setFullYear(y, m - 1, d); desde.setHours(0, 0, 0, 0);
         hasta = new Date(y, m - 1, d, 23, 59, 59, 999);
-        const previo = new Date(y, m - 1, d - 1); // día anterior (JS ajusta el mes)
+        const previo = new Date(y, m - 1, d - 1);
         antDesde.setTime(previo.getTime()); antDesde.setHours(0, 0, 0, 0);
         antHasta.setTime(previo.getTime()); antHasta.setHours(23, 59, 59, 999);
         break;
@@ -100,37 +110,37 @@ export class EstadisticasService {
     return { desde, hasta, antDesde, antHasta };
   });
 
-  private enRango(p: Pedido, desde: Date, hasta: Date): boolean {
-    const f = new Date(p.creado_en);
+  private enRango(fecha: string | Date, desde: Date, hasta: Date): boolean {
+    const f = new Date(fecha);
     return f >= desde && f <= hasta;
   }
 
   pedidosPeriodo = computed(() => {
     const r = this.rangos();
-    return this.pedidos().filter((p) => this.enRango(p, r.desde, r.hasta));
+    return this.pedidos().filter((p) => this.enRango(p.creado_en, r.desde, r.hasta));
   });
 
   pedidosAnteriores = computed(() => {
     const r = this.rangos();
-    return this.pedidos().filter((p) => this.enRango(p, r.antDesde, r.antHasta));
+    return this.pedidos().filter((p) => this.enRango(p.creado_en, r.antDesde, r.antHasta));
   });
 
-  // ================= KPIs =================
+  // ================= KPIs EXISTENTES =================
   ventas = computed(() =>
     this.pedidosPeriodo().filter((p) => p.estado === 'entregado')
-      .reduce((t, p) => t + this.ventaProductos(p), 0),
+      .reduce((t, p) => t + this.ventaProductos(p), 0)
   );
 
   domicilios = computed(() =>
     this.pedidosPeriodo().filter((p) => p.estado === 'entregado')
-      .reduce((t, p) => t + Number(p.domicilio), 0),
+      .reduce((t, p) => t + Number(p.domicilio), 0)
   );
 
   ingresosTotales = computed(() => this.ventas() + this.domicilios());
 
   ventasAnteriores = computed(() =>
     this.pedidosAnteriores().filter((p) => p.estado === 'entregado')
-      .reduce((t, p) => t + this.ventaProductos(p), 0),
+      .reduce((t, p) => t + this.ventaProductos(p), 0)
   );
 
   crecimiento = computed(() => {
@@ -142,45 +152,87 @@ export class EstadisticasService {
   crecimientoAbs = computed(() => Math.abs(this.crecimiento()));
 
   totalPedidos = computed(() => this.pedidosPeriodo().length);
+  entregados = computed(() => this.pedidosPeriodo().filter((p) => p.estado === 'entregado').length);
+  enProceso = computed(() => this.pedidosPeriodo().filter((p) => ['pendiente', 'preparando', 'en_camino'].includes(p.estado)).length);
+  cancelados = computed(() => this.pedidosPeriodo().filter((p) => p.estado === 'cancelado').length);
+  ticketPromedio = computed(() => this.entregados() > 0 ? Math.round(this.ventas() / this.entregados()) : 0);
+  clientesUnicos = computed(() => new Set(this.pedidosPeriodo().map((p) => (p.telefono || '').replace(/\D/g, '')).filter(Boolean)).size);
+  tasaCancelacion = computed(() => this.totalPedidos() > 0 ? Math.round((this.cancelados() / this.totalPedidos()) * 100) : 0);
+  porCobrar = computed(() => this.pedidosPeriodo().filter((p) => p.estado === 'entregado' && !p.pagado).reduce((t, p) => t + Number(p.total), 0));
 
-  entregados = computed(() =>
-    this.pedidosPeriodo().filter((p) => p.estado === 'entregado').length,
+  // ================= 🆕 EGRESOS =================
+  egresosPeriodo = computed(() => {
+    const r = this.rangos();
+    return this.egresos().filter((e) => this.enRango(e.fecha, r.desde, r.hasta));
+  });
+
+  totalEgresos = computed(() => this.egresosPeriodo().reduce((t, e) => t + Number(e.monto), 0));
+
+  gananciaNeta = computed(() => this.ingresosTotales() - this.totalEgresos());
+
+  egresosPorCategoria = computed(() => {
+    const mapa = new Map<string, number>();
+    for (const e of this.egresosPeriodo()) {
+      const cat = e.categoria || 'otro';
+      mapa.set(cat, (mapa.get(cat) ?? 0) + Number(e.monto));
+    }
+    return Array.from(mapa.entries())
+      .map(([categoria, monto]) => ({ categoria, monto }))
+      .sort((a, b) => b.monto - a.monto);
+  });
+
+  // ================= 🆕 PROMOCIONES =================
+  promosUsadas = computed(() => {
+    const mapa = new Map<string, number>();
+    for (const p of this.pedidosPeriodo()) {
+      if (p.estado !== 'entregado') continue;
+      const promo = (p as any).promo_nombre;
+      if (promo) mapa.set(promo, (mapa.get(promo) ?? 0) + 1);
+    }
+    return Array.from(mapa.entries())
+      .map(([nombre, cantidad]) => ({ nombre, cantidad }))
+      .sort((a, b) => b.cantidad - a.cantidad);
+  });
+
+  totalPromos = computed(() => this.promosUsadas().reduce((t, p) => t + p.cantidad, 0));
+
+  // ================= 🆕 CANJES =================
+  canjesPeriodo = computed(() => {
+    const r = this.rangos();
+    return this.canjes().filter((c) => this.enRango(c.creado_en, r.desde, r.hasta));
+  });
+
+  canjesReclamados = computed(() => this.canjesPeriodo().filter((c) => c.estado === 'reclamado').length);
+  canjesPendientes = computed(() => this.canjesPeriodo().filter((c) => c.estado === 'pendiente').length);
+
+  // ================= 🆕 REFERIDOS =================
+  pedidosReferidos = computed(() =>
+    this.pedidosPeriodo().filter((p) => p.estado === 'entregado' && (p as any).referido_por).length
   );
 
-  enProceso = computed(() =>
-    this.pedidosPeriodo().filter((p) =>
-      ['pendiente', 'preparando', 'en_camino'].includes(p.estado)).length,
-  );
+  // ================= 🆕 EMPLEADOS =================
+  totalEmpleados = computed(() => this.empleados().length);
 
-  cancelados = computed(() =>
-    this.pedidosPeriodo().filter((p) => p.estado === 'cancelado').length,
-  );
+  nominaPeriodo = computed(() => {
+    const r = this.rangos();
+    return this.pagosEmpleados()
+      .filter((p) => this.enRango(p.fecha, r.desde, r.hasta))
+      .reduce((t, p) => t + Number(p.monto), 0);
+  });
 
-  ticketPromedio = computed(() =>
-    this.entregados() > 0 ? Math.round(this.ventas() / this.entregados()) : 0,
-  );
+  // ================= 🆕 INVERSOR =================
+  pagosInversorPeriodo = computed(() => {
+    const r = this.rangos();
+    return this.pagosInversor()
+      .filter((p) => this.enRango(p.fecha, r.desde, r.hasta))
+      .reduce((t, p) => t + Number(p.monto), 0);
+  });
 
-  clientesUnicos = computed(() =>
-    new Set(this.pedidosPeriodo().map((p) => (p.telefono || '').replace(/\D/g, '')).filter(Boolean)).size,
-  );
-
-  tasaCancelacion = computed(() =>
-    this.totalPedidos() > 0
-      ? Math.round((this.cancelados() / this.totalPedidos()) * 100)
-      : 0,
-  );
-
-  porCobrar = computed(() =>
-    this.pedidosPeriodo().filter((p) => p.estado === 'entregado' && !p.pagado)
-      .reduce((t, p) => t + Number(p.total), 0),
-  );
-
-  // ================= SERIE DE VENTAS =================
+  // ================= SERIES Y TOPS (EXISTENTES) =================
   serieVentas = computed<PuntoSerie[]>(() => {
     const entregados = this.pedidosPeriodo().filter((p) => p.estado === 'entregado');
     const puntos: PuntoSerie[] = [];
 
-    // Por hora: Hoy y Día elegido
     if (this.periodo() === 'dia' || this.periodo() === 'personalizado') {
       for (let h = 0; h < 24; h++) puntos.push({ etiqueta: `${h}h`, valor: 0 });
       for (const p of entregados) {
@@ -223,7 +275,6 @@ export class EstadisticasService {
 
   maxSerie = computed(() => Math.max(...this.serieVentas().map((p) => p.valor), 1));
 
-  // ================= ESTADOS =================
   distribucionEstados = computed<Rebanada[]>(() => {
     const config = [
       { estado: 'pendiente', etiqueta: 'Pendientes', color: '#ffc107' },
@@ -234,13 +285,10 @@ export class EstadisticasService {
     ];
     const total = this.pedidosPeriodo().length;
     if (total === 0) return [];
-
-    return config
-      .map((c) => {
-        const cantidad = this.pedidosPeriodo().filter((p) => p.estado === c.estado).length;
-        return { ...c, cantidad, porcentaje: (cantidad / total) * 100 };
-      })
-      .filter((r) => r.cantidad > 0);
+    return config.map((c) => {
+      const cantidad = this.pedidosPeriodo().filter((p) => p.estado === c.estado).length;
+      return { ...c, cantidad, porcentaje: (cantidad / total) * 100 };
+    }).filter((r) => r.cantidad > 0);
   });
 
   gradienteDonut = computed(() => {
@@ -248,14 +296,12 @@ export class EstadisticasService {
     if (partes.length === 0) return 'conic-gradient(#444 0% 100%)';
     let acc = 0;
     const stops = partes.map((p) => {
-      const ini = acc;
-      acc += p.porcentaje;
+      const ini = acc; acc += p.porcentaje;
       return `${p.color} ${ini}% ${acc}%`;
     });
     return `conic-gradient(${stops.join(', ')})`;
   });
 
-  // ================= TOP PRODUCTOS =================
   topProductos = computed<TopItem[]>(() => {
     const mapa = new Map<string, TopItem>();
     for (const p of this.pedidosPeriodo()) {
@@ -272,18 +318,12 @@ export class EstadisticasService {
 
   maxTopProducto = computed(() => Math.max(...this.topProductos().map((t) => t.cantidad), 1));
 
-  // ================= TOP CLIENTES =================
   topClientes = computed<TopCliente[]>(() => {
     const mapa = new Map<string, TopCliente>();
     for (const p of this.pedidosPeriodo()) {
       const tel = (p.telefono || '').replace(/\D/g, '');
       if (!tel) continue;
-      const act = mapa.get(tel) ?? {
-        nombre: `${p.nombre_cliente} ${p.apellido_cliente}`,
-        telefono: p.telefono,
-        pedidos: 0,
-        gastado: 0,
-      };
+      const act = mapa.get(tel) ?? { nombre: `${p.nombre_cliente} ${p.apellido_cliente}`, telefono: p.telefono, pedidos: 0, gastado: 0 };
       act.pedidos += 1;
       if (p.estado === 'entregado') act.gastado += Number(p.total);
       mapa.set(tel, act);
@@ -291,7 +331,6 @@ export class EstadisticasService {
     return Array.from(mapa.values()).sort((a, b) => b.gastado - a.gastado).slice(0, 5);
   });
 
-  // ================= MÉTODOS DE PAGO =================
   metodosPago = computed(() => {
     const mapa = new Map<string, number>();
     for (const p of this.pedidosPeriodo()) {
@@ -305,13 +344,11 @@ export class EstadisticasService {
       .sort((a, b) => b.cantidad - a.cantidad);
   });
 
-  // ================= INSIGHTS =================
   mejorMomento = computed(() => {
     const serie = this.serieVentas();
     if (serie.length === 0) return null;
     const max = serie.reduce((a, b) => (b.valor > a.valor ? b : a));
     if (max.valor === 0) return null;
-
     const textos: Record<Periodo, string> = {
       dia: `la hora de las ${max.etiqueta}`,
       personalizado: `la hora de las ${max.etiqueta}`,
@@ -327,4 +364,27 @@ export class EstadisticasService {
   formatearPrecio(valor: number): string {
     return '$' + Number(valor).toLocaleString('es-CO');
   }
+
+    // ================= 🆕 MÉTRICAS DE MARKETING (para el template) =================
+
+  // Tasa de conversión de canjes (reclamados / total)
+  tasaConversionCanjes = computed(() => {
+    const total = this.canjesReclamados() + this.canjesPendientes();
+    if (total === 0) return 0;
+    return Math.round((this.canjesReclamados() / total) * 100);
+  });
+
+  // Ingresos generados por pedidos referidos
+  ingresosReferidos = computed(() =>
+    this.pedidosPeriodo()
+      .filter((p) => p.estado === 'entregado' && (p as any).referido_por)
+      .reduce((t, p) => t + Number(p.total), 0)
+  );
+
+  // % de pedidos referidos sobre el total de entregados
+  porcentajeReferidos = computed(() => {
+    const entregados = this.entregados();
+    if (entregados === 0) return 0;
+    return Math.round((this.pedidosReferidos() / entregados) * 100);
+  });
 }
