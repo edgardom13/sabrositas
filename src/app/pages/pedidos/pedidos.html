@@ -56,6 +56,13 @@
         <p>Con canje / regalo</p>
       </div>
     </div>
+    <div class="stat-card stat-naranja">
+      <span class="stat-icono">🏷️</span>
+      <div>
+        <h3>{{ statsDia().conPromo }}</h3>
+        <p>Con promoción</p>
+      </div>
+    </div>
     <div class="stat-card stat-dorado">
       <span class="stat-icono">💰</span>
       <div>
@@ -67,7 +74,7 @@
         </span>
       </div>
     </div>
-        <div class="stat-card stat-rojo">
+    <div class="stat-card stat-rojo">
       <span class="stat-icono">💸</span>
       <div>
         <h3>{{ pedidosService.formatearPrecio(egresosService.totalDia()) }}</h3>
@@ -120,7 +127,10 @@
   } @else {
     <div class="lista-pedidos">
       @for (pedido of pedidosFiltrados(); track pedido.id) {
-        <div class="pedido-card" [class.nuevo]="esNuevo(pedido)" [class.con-canje]="tieneCanje(pedido)">
+        <div class="pedido-card"
+             [class.nuevo]="esNuevo(pedido)"
+             [class.con-canje]="tieneCanje(pedido)"
+             [class.con-promo]="tienePromo(pedido)">
 
           <div class="pedido-cabecera" (click)="alternarDetalle(pedido.id)">
             <div class="col-id">
@@ -131,6 +141,9 @@
               @if (tieneCanje(pedido)) {
                 <span class="badge-canje">🎟️ CANJE</span>
               }
+              @if (tienePromo(pedido)) {
+                <span class="badge-promo">🏷️ PROMO</span>
+              }
               <span class="fecha">{{ pedidosService.formatearFecha(pedido.creado_en) }}</span>
               <span class="tiempo-relativo">⏱️ {{ tiempoRelativo(pedido.creado_en) }}</span>
             </div>
@@ -140,6 +153,9 @@
               <span>📞 {{ pedido.telefono }}</span>
               @if (pedido.domiciliario_id) {
                 <span class="domiciliario-mini">🛵 {{ nombreDomiciliario(pedido) }}</span>
+              }
+              @if (tienePromo(pedido)) {
+                <span class="promo-mini">🏷️ {{ nombrePromo(pedido) }}</span>
               }
             </div>
 
@@ -193,6 +209,21 @@
                     </div>
                   </div>
                 }
+              }
+
+              <!-- 🏷️ BANNER DE PROMOCIÓN (si aplica) -->
+              @if (tienePromo(pedido)) {
+                <div class="promo-banner">
+                  <div class="promo-banner-icono">🏷️</div>
+                  <div class="promo-banner-info">
+                    <strong>🔥 PEDIDO CON PROMOCIÓN</strong>
+                    <p>{{ nombrePromo(pedido) }}</p>
+                    <small>El cliente aplicó esta promo al momento del pedido. Combo exclusivo.</small>
+                  </div>
+                  <div class="promo-banner-accion">
+                    <span class="promo-recordar ok">✅ Precio promocional aplicado</span>
+                  </div>
+                </div>
               }
 
               <div class="detalle-grid">

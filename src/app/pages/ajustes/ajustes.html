@@ -4,76 +4,324 @@
     <div class="toast-exito">{{ mensaje() }}</div>
   }
 
-  <div class="ajustes-grid">
+  <!-- ===== HEADER ===== -->
+  <div class="ajustes-header">
+    <div>
+      <h2>⚙️ Ajustes del sistema</h2>
+      <p class="ajustes-sub">Configura todos los parámetros de Sabrositas</p>
+    </div>
+  </div>
 
-    <!-- 🏪 NEGOCIO -->
-    <div class="ajuste-card">
-      <h4>🏪 Datos del negocio</h4>
-      <p class="nota-ajustes">Se aplican automáticamente en la tienda pública.</p>
+  <!-- ===== TABS ===== -->
+  <div class="ajustes-tabs">
+    @for (t of tabs; track t.id) {
+      <button class="tab-btn" [class.activo]="tab() === t.id" (click)="tab.set(t.id)">
+        <span class="tab-icono">{{ t.icono }}</span>
+        <span class="tab-nombre">{{ t.nombre }}</span>
+      </button>
+    }
+  </div>
 
-      <label>WhatsApp (código de país + número)</label>
-      <input [ngModel]="whatsapp()" (ngModelChange)="whatsapp.set($event)" placeholder="573012680659" />
+  <!-- ===== TAB: NEGOCIO ===== -->
+  @if (tab() === 'negocio') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>🏪 Datos del negocio</h3>
+        <p class="tab-desc">Información que se aplica en la tienda pública y los mensajes</p>
+      </div>
 
-      <label>Valor del domicilio ($)</label>
-      <input type="number" [ngModel]="domicilio()" (ngModelChange)="domicilio.set(+$event || 0)" />
+      <div class="form-grid-2">
+        <div class="form-card">
+          <div class="form-card-icono">📱</div>
+          <label>WhatsApp (código país + número)</label>
+          <input [ngModel]="whatsapp()" (ngModelChange)="whatsapp.set($event)" placeholder="573012680659" />
+          <small>Se usa para los mensajes automáticos al cliente</small>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-icono">🛵</div>
+          <label>Valor del domicilio ($)</label>
+          <input type="number" [ngModel]="domicilio()" (ngModelChange)="domicilio.set(+$event || 0)" />
+          <small>Costo base del domicilio en la tienda</small>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-icono">🎁</div>
+          <label>Puntos por referido entregado</label>
+          <input type="number" [ngModel]="puntosReferido()" (ngModelChange)="puntosReferido.set(+$event || 0)" />
+          <small>Puntos que gana quien refiere un cliente</small>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-icono">⭐</div>
+          <label>Puntos por pedido (al cliente)</label>
+          <input type="number" [ngModel]="puntosCompra()" (ngModelChange)="puntosCompra.set(+$event || 0)" />
+          <small>Puntos que gana el cliente por cada pedido entregado</small>
+        </div>
+      </div>
 
       <button class="btn-guardar" (click)="guardarNegocio()" [disabled]="guardando()">
-        {{ guardando() ? 'Guardando…' : '💾 Guardar cambios' }}
+        {{ guardando() ? 'Guardando…' : '💾 Guardar negocio' }}
       </button>
     </div>
+  }
 
-    <!-- 🎁 PROMOCIONES Y SALSAS -->
-    <div class="ajuste-card">
-      <label>Puntos por pedido referido entregado</label>
-      <input type="number" [ngModel]="puntosReferido()" (ngModelChange)="puntosReferido.set(+$event || 0)" />
-      <h4>🎁 Promociones y salsas</h4>
-      <p class="nota-ajustes">Cupón y reglas de salsas de la tienda.</p>
+  <!-- ===== TAB: PROMOS Y SALSAS ===== -->
+  @if (tab() === 'promos') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>🎁 Cupones y reglas de salsas</h3>
+        <p class="tab-desc">Configura los beneficios automáticos para tus clientes</p>
+      </div>
 
-      <label>Monto mínimo para cupón ($)</label>
-      <input type="number" [ngModel]="cuponUmbral()" (ngModelChange)="cuponUmbral.set(+$event || 0)" />
+      <div class="form-grid-2">
+        <div class="form-card">
+          <div class="form-card-icono">🎟️</div>
+          <label>Monto mínimo para cupón ($)</label>
+          <input type="number" [ngModel]="cuponUmbral()" (ngModelChange)="cuponUmbral.set(+$event || 0)" />
+          <small>A partir de este valor se aplica el descuento automático</small>
+        </div>
 
-      <label>Porcentaje del cupón (%)</label>
-      <input type="number" [ngModel]="cuponPorcentaje()" (ngModelChange)="cuponPorcentaje.set(+$event || 0)" />
+        <div class="form-card">
+          <div class="form-card-icono">%</div>
+          <label>Porcentaje del cupón (%)</label>
+          <input type="number" [ngModel]="cuponPorcentaje()" (ngModelChange)="cuponPorcentaje.set(+$event || 0)" />
+          <small>Descuento automático sobre el subtotal</small>
+        </div>
 
-      <label>Salsas gratis incluidas</label>
-      <input type="number" [ngModel]="salsasGratis()" (ngModelChange)="salsasGratis.set(+$event || 0)" />
+        <div class="form-card">
+          <div class="form-card-icono">🥫</div>
+          <label>Salsas gratis incluidas</label>
+          <input type="number" [ngModel]="salsasGratis()" (ngModelChange)="salsasGratis.set(+$event || 0)" />
+          <small>Cantidad de salsas gratis por pedido</small>
+        </div>
 
-      <label>Precio salsa extra ($)</label>
-      <input type="number" [ngModel]="salsaPrecio()" (ngModelChange)="salsaPrecio.set(+$event || 0)" />
+        <div class="form-card">
+          <div class="form-card-icono">💰</div>
+          <label>Precio salsa extra ($)</label>
+          <input type="number" [ngModel]="salsaPrecio()" (ngModelChange)="salsaPrecio.set(+$event || 0)" />
+          <small>Precio de cada salsa adicional</small>
+        </div>
+      </div>
 
       <button class="btn-guardar" (click)="guardarPromociones()" [disabled]="guardando()">
-        {{ guardando() ? 'Guardando…' : '💾 Guardar cambios' }}
+        {{ guardando() ? 'Guardando…' : '💾 Guardar promociones' }}
       </button>
     </div>
+  }
 
-    <!-- 🔐 SEGURIDAD -->
-    <div class="ajuste-card">
-      <h4>🔐 Seguridad de la cuenta</h4>
-      <p class="cuenta-info">Sesión activa: <strong>{{ emailUsuario() }}</strong></p>
+  <!-- ===== TAB: PLANTILLAS WHATSAPP ===== -->
+  @if (tab() === 'plantillas') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>💬 Plantillas de WhatsApp</h3>
+        <p class="tab-desc">Mensajes automáticos que se envían al cliente en cada estado</p>
+      </div>
 
-      <label>Nueva contraseña</label>
-      <input type="password" [ngModel]="passwordNueva()" (ngModelChange)="passwordNueva.set($event)" />
+      <div class="plantillas-variables">
+        <h4>🔤 Variables disponibles:</h4>
+        <div class="variables-grid">
+          <span class="var-chip"><strong>{{ '{' }}nombre{{ '}' }}</strong> Nombre del cliente</span>
+          <span class="var-chip"><strong>{{ '{' }}pedido{{ '}' }}</strong> Número del pedido</span>
+          <span class="var-chip"><strong>{{ '{' }}total{{ '}' }}</strong> Total a pagar</span>
+          <span class="var-chip"><strong>{{ '{' }}direccion{{ '}' }}</strong> Dirección de entrega</span>
+        </div>
+      </div>
 
-      <label>Confirmar contraseña</label>
-      <input type="password" [ngModel]="passwordConfirmar()" (ngModelChange)="passwordConfirmar.set($event)" />
+      <div class="plantillas-list">
+        <div class="plantilla-card">
+          <div class="plantilla-header">
+            <span class="plantilla-emoji">📥</span>
+            <div>
+              <strong>Pedido recibido</strong>
+              <small>Se envía cuando el cliente hace el pedido</small>
+            </div>
+          </div>
+          <textarea rows="4" [ngModel]="plantillaRecibido()" (ngModelChange)="plantillaRecibido.set($event)"
+            placeholder="Hola {{ '{' }}nombre{{ '}' }}! Recibimos tu pedido {{ '{' }}pedido{{ '}' }}..."></textarea>
+        </div>
 
-      @if (errorPassword()) {
-        <p class="error-ajustes">⚠️ {{ errorPassword() }}</p>
-      }
+        <div class="plantilla-card">
+          <div class="plantilla-header">
+            <span class="plantilla-emoji">🛵</span>
+            <div>
+              <strong>En camino</strong>
+              <small>Se envía cuando el pedido sale a domicilio</small>
+            </div>
+          </div>
+          <textarea rows="4" [ngModel]="plantillaCamino()" (ngModelChange)="plantillaCamino.set($event)"
+            placeholder="Hola {{ '{' }}nombre{{ '}' }}! Tu pedido {{ '{' }}pedido{{ '}' }} va en camino..."></textarea>
+        </div>
 
-      <button class="btn-guardar" (click)="cambiarPassword()" [disabled]="guardando()">
-        🔒 Cambiar contraseña
+        <div class="plantilla-card">
+          <div class="plantilla-header">
+            <span class="plantilla-emoji">✅</span>
+            <div>
+              <strong>Entregado</strong>
+              <small>Se envía al confirmar la entrega</small>
+            </div>
+          </div>
+          <textarea rows="4" [ngModel]="plantillaEntregado()" (ngModelChange)="plantillaEntregado.set($event)"
+            placeholder="Hola {{ '{' }}nombre{{ '}' }}! Tu pedido {{ '{' }}pedido{{ '}' }} fue entregado..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn-guardar" (click)="guardarPlantillas()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : '💾 Guardar plantillas' }}
       </button>
     </div>
+  }
 
-    <!-- 📦 DATOS -->
-    <div class="ajuste-card">
-      <h4>📦 Datos del negocio</h4>
-      <p class="nota-ajustes">
-        Descarga todos los pedidos en CSV (compatible con Excel) para tu contabilidad.
-      </p>
-      <button class="btn-exportar" (click)="exportarCSV()">⬇️ Exportar pedidos (CSV)</button>
+  <!-- ===== TAB: SEGURIDAD ===== -->
+  @if (tab() === 'seguridad') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>🔐 Seguridad de la cuenta</h3>
+        <p class="tab-desc">Gestiona el acceso del administrador</p>
+      </div>
+
+      <div class="seguridad-card">
+        <div class="cuenta-actual">
+          <span class="cuenta-emoji">👤</span>
+          <div>
+            <small>Sesión activa</small>
+            <strong>{{ emailUsuario() }}</strong>
+          </div>
+        </div>
+
+        <label>Nueva contraseña</label>
+        <input type="password" [ngModel]="passwordNueva()" (ngModelChange)="passwordNueva.set($event)" placeholder="Mínimo 6 caracteres" />
+
+        <label>Confirmar contraseña</label>
+        <input type="password" [ngModel]="passwordConfirmar()" (ngModelChange)="passwordConfirmar.set($event)" placeholder="Repite la contraseña" />
+
+        @if (errorPassword()) {
+          <p class="error-ajustes">⚠️ {{ errorPassword() }}</p>
+        }
+
+        <button class="btn-guardar" (click)="cambiarPassword()" [disabled]="guardando()">
+          🔒 Cambiar contraseña
+        </button>
+      </div>
     </div>
+  }
 
-  </div>
+  <!-- ===== TAB: EXPORTAR DATOS ===== -->
+  @if (tab() === 'exportar') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>📊 Exportar datos del negocio</h3>
+        <p class="tab-desc">Descarga CSV detallados para contabilidad, análisis o respaldo</p>
+      </div>
+
+      <div class="exportar-grid">
+        <div class="export-card">
+          <div class="export-icono">📦</div>
+          <div class="export-info">
+            <strong>Pedidos detallado</strong>
+            <p>Todos los pedidos con productos, canjes, promos, ubicación, estado, pago y más.</p>
+            <small>22 columnas · Ideal para contabilidad</small>
+          </div>
+          <button class="btn-exportar" (click)="exportarCSV('pedidos')">⬇️ Descargar</button>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icono">💸</div>
+          <div class="export-info">
+            <strong>Egresos</strong>
+            <p>Gastos registrados por categoría con fecha y descripción.</p>
+            <small>6 columnas · Para control de costos</small>
+          </div>
+          <button class="btn-exportar" (click)="exportarCSV('egresos')">⬇️ Descargar</button>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icono">👥</div>
+          <div class="export-info">
+            <strong>Clientes</strong>
+            <p>Base completa de clientes con puntos, referidos y si tienen la app.</p>
+            <small>7 columnas · Para marketing</small>
+          </div>
+          <button class="btn-exportar" (click)="exportarCSV('clientes')">⬇️ Descargar</button>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icono">🍽️</div>
+          <div class="export-info">
+            <strong>Productos</strong>
+            <p>Catálogo con precios, categorías, orden y estado.</p>
+            <small>8 columnas · Para inventario</small>
+          </div>
+          <button class="btn-exportar" (click)="exportarCSV('productos')">⬇️ Descargar</button>
+        </div>
+      </div>
+
+      <div class="export-nota">
+        <strong>💡 Tip:</strong>
+        <p>Los CSV se abren directamente en Excel, Google Sheets o Numbers. Los números usan formato estándar compatible.</p>
+      </div>
+    </div>
+  }
+    <!-- ===== TAB: MENSAJES MARKETING ===== -->
+  @if (tab() === 'mensajes') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h3>📣 Mensajes para tus clientes embajadores</h3>
+        <p class="tab-desc">Los clientes los verán en su panel con su código de referido ya insertado</p>
+      </div>
+
+      <div class="msg-variables">
+        <h4>🔤 Variables disponibles:</h4>
+        <div class="variables-grid">
+          <span class="var-chip"><strong>{{ '{' }}codigo_referido{{ '}' }}</strong> Código del cliente</span>
+          <span class="var-chip"><strong>{{ '{' }}nombre{{ '}' }}</strong> Nombre del cliente</span>
+          <span class="var-chip"><strong>{{ '{' }}link_tienda{{ '}' }}</strong> Link con su referido</span>
+          <span class="var-chip"><strong>{{ '{' }}puntos{{ '}' }}</strong> Puntos por referir</span>
+        </div>
+      </div>
+
+      <div class="msg-form">
+        <h4>➕ Nuevo mensaje</h4>
+        <div class="form-grid-2">
+          <div class="form-card">
+            <label>Título</label>
+            <input [ngModel]="msgTitulo()" (ngModelChange)="msgTitulo.set($event)" placeholder="Ej: Invita a un amigo" />
+          </div>
+          <div class="form-card">
+            <label>Emoji</label>
+            <input [ngModel]="msgEmoji()" (ngModelChange)="msgEmoji.set($event)" placeholder="📣" />
+          </div>
+        </div>
+        <label>Mensaje</label>
+        <textarea rows="4" [ngModel]="msgMensaje()" (ngModelChange)="msgMensaje.set($event)"
+          placeholder="¡Hola! Te invito a probar Sabrositas 🥟 Usa mi código {codigo_referido} y gana {puntos} puntos..."></textarea>
+
+        <label class="subir-img">
+          @if (msgSubiendo()) { ⏳ Subiendo… } @else { 🖼️ Imagen (opcional) }
+          <input type="file" accept="image/*" hidden (change)="subirImagenMensaje($event)" />
+        </label>
+        @if (msgImagen()) { <img [src]="msgImagen()" class="msg-preview-img" /> }
+
+        <button class="btn-guardar" (click)="crearMensaje()">💾 Crear mensaje</button>
+      </div>
+
+      <div class="msg-lista">
+        @for (m of mensajesService.todos(); track m.id) {
+          <div class="msg-item" [class.inactivo]="!m.activa">
+            <div class="msg-item-emoji">{{ m.emoji }}</div>
+            <div class="msg-item-info">
+              <strong>{{ m.titulo }}</strong>
+              <p>{{ m.mensaje }}</p>
+              @if (m.imagen) { <img [src]="m.imagen" class="msg-item-img" /> }
+            </div>
+            <div class="msg-item-acciones">
+              <button (click)="toggleMensaje(m.id, m.activa)">{{ m.activa ? '🟢 Activo' : '⚪ Inactivo' }}</button>
+              <button class="borrar" (click)="eliminarMensaje(m.id)">🗑️</button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
 </div>

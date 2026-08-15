@@ -1,0 +1,121 @@
+<div class="reporte-page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="rp-header">
+    <div>
+      <h2>📦 Productos entregados</h2>
+      <p class="rp-sub">Ranking de lo que más vendes y entregas</p>
+    </div>
+  </div>
+
+  <!-- ===== SELECTOR DE RANGO ===== -->
+  <div class="rp-rango">
+    @for (f of filtros; track f.valor) {
+      <button class="chip" [class.activo]="rango() === f.valor" (click)="cambiarRango(f.valor)">
+        {{ f.etiqueta }}
+      </button>
+    }
+    @if (rango() === 'hoy') {
+      <input
+        type="date"
+        class="input-fecha"
+        [value]="fechaSeleccionada()"
+        (change)="cambiarFecha($event)"
+      />
+      <button class="chip" (click)="irAHoy()">📅 Hoy</button>
+    }
+  </div>
+
+  @if (rango() === 'hoy') {
+    <p class="rp-fecha">📅 {{ textoFecha() }}</p>
+  }
+
+  <!-- ===== STATS ===== -->
+  <div class="rp-stats">
+    <div class="stat-card stat-azul">
+      <span class="stat-icono">📦</span>
+      <div>
+        <h3>{{ totalUnidades() }}</h3>
+        <p>Unidades entregadas</p>
+      </div>
+    </div>
+    <div class="stat-card stat-verde">
+      <span class="stat-icono">💰</span>
+      <div>
+        <h3>{{ formatearPrecio(totalIngresos()) }}</h3>
+        <p>Ingresos del período</p>
+      </div>
+    </div>
+    <div class="stat-card stat-amarillo">
+      <span class="stat-icono">🛒</span>
+      <div>
+        <h3>{{ totalPedidos() }}</h3>
+        <p>Pedidos entregados</p>
+      </div>
+    </div>
+    <div class="stat-card stat-dorado">
+      <span class="stat-icono">🏆</span>
+      <div>
+        <h3 class="titulo-top">{{ productoTop() }}</h3>
+        <p>Producto estrella</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FILTROS POR CATEGORÍA ===== -->
+  <div class="rp-categorias">
+    @for (cat of categorias; track cat.valor) {
+      <button
+        class="chip"
+        [class.activo]="filtroCategoria() === cat.valor"
+        (click)="filtroCategoria.set(cat.valor)"
+      >
+        {{ cat.etiqueta }} ({{ conteoCategoria(cat.valor) }})
+      </button>
+    }
+  </div>
+
+  <!-- ===== RANKING ===== -->
+  @if (rankingFiltrado().length === 0) {
+    <div class="rp-vacio">
+      <span class="vacio-icono">📭</span>
+      <p>No hay productos entregados en este período</p>
+    </div>
+  } @else {
+    <div class="rp-ranking">
+      @for (p of rankingFiltrado(); track p.nombre; let i = $index) {
+        <div class="rp-item" [class.top]="i < 3">
+          <div class="rp-posicion">
+            <span class="medalla">{{ medalla(i) }}</span>
+          </div>
+
+          <div class="rp-info">
+            <div class="rp-nombre-row">
+              <span class="rp-emoji">{{ emojiCategoria(p.categoria) }}</span>
+              <strong>{{ p.nombre }}</strong>
+            </div>
+            <div class="rp-barra">
+              <div
+                class="rp-barra-progreso"
+                [style.width.%]="porcentajeBarra(p.cantidad)"
+                [class.top]="i < 3"
+              ></div>
+            </div>
+          </div>
+
+          <div class="rp-metricas">
+            <div class="rp-cantidad">
+              <strong>{{ p.cantidad }}</strong>
+              <span>unid.</span>
+            </div>
+            <div class="rp-ingreso">
+              <strong>{{ formatearPrecio(p.ingreso) }}</strong>
+              <span>ingreso</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</div>

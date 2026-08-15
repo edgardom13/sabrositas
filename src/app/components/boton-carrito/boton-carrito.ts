@@ -460,6 +460,7 @@ export class BotonCarrito {
       lng: this.lng,
       referido_por: localStorage.getItem('ref-sabrositas'),
       codigo_canje: canje ? this.codigoCanje.trim().toUpperCase() : null,
+      promo_nombre: this.carrito.promoAplicada()?.nombre ?? null,  // ← NUEVO
     });
 
     if (ok) {

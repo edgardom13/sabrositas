@@ -1,0 +1,172 @@
+<div class="inv-page">
+
+  <div class="inv-header">
+    <div>
+      <h2>👥 Panel de Empleados</h2>
+      <p class="inv-sub">Nómina y pagos de tu equipo · Nómina del mes: {{ formatearPrecio(nominaMes()) }} · Pagado: {{ formatearPrecio(pagadoMesTotal()) }}</p>
+    </div>
+  </div>
+
+  <!-- ===== SELECTOR ===== -->
+  <div class="inv-selector">
+    @for (e of emp.empleados(); track e.id) {
+      <button class="inv-chip" [class.activo]="seleccionadoId() === e.id" (click)="seleccionar(e.id)">
+        👤 {{ e.nombre }} · {{ e.tipo_pago === 'diario' ? formatearPrecio(e.salario) + '/día' : formatearPrecio(e.salario) + '/mes' }}
+      </button>
+    }
+    <button class="inv-chip nuevo" (click)="mostrarFormNuevo.set(!mostrarFormNuevo())">➕ Nuevo empleado</button>
+  </div>
+
+  <!-- ===== FORM NUEVO ===== -->
+  @if (mostrarFormNuevo()) {
+    <div class="inv-form-nuevo">
+      <h3>➕ Registrar nuevo empleado</h3>
+      <div class="form-grid">
+        <div class="form-field"><label>Nombre</label><input [(ngModel)]="nuevo.nombre" placeholder="Ej: María López" /></div>
+        <div class="form-field"><label>Cargo</label><input [(ngModel)]="nuevo.cargo" placeholder="Ej: Cocinera" /></div>
+        <div class="form-field">
+          <label>Tipo de pago</label>
+          <select [(ngModel)]="nuevo.tipo_pago">
+            <option value="mensual">📅 Mensual (fijo)</option>
+            <option value="diario">📆 Por día trabajado</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Salario ($)</label><input type="number" [(ngModel)]="nuevo.salario" placeholder="0" /></div>
+        <div class="form-field"><label>Fecha de inicio</label><input type="date" [(ngModel)]="nuevo.fecha_inicio" /></div>
+      </div>
+      <label>Notas</label>
+      <textarea [(ngModel)]="nuevo.notas" rows="2" placeholder="Ej: Horario 8am-4pm..."></textarea>
+      <div class="form-acciones">
+        <button class="btn-guardar" (click)="crearEmpleado()">💾 Guardar empleado</button>
+        <button class="btn-cancelar" (click)="mostrarFormNuevo.set(false)">✕ Cancelar</button>
+      </div>
+    </div>
+  }
+
+  @if (!seleccionado()) {
+    <div class="vacio"><span class="vacio-icono">👥</span><p>Aún no tienes empleados. Crea el primero con "➕ Nuevo empleado".</p></div>
+  } @else {
+
+    <div class="inv-tabs">
+      <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📊 Dashboard</button>
+      <button [class.activo]="tab() === 'pagos'" (click)="tab.set('pagos')">💸 Pagos</button>
+      <button [class.activo]="tab() === 'editar'" (click)="abrirEdicion()">⚙️ Editar</button>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    @if (tab() === 'dashboard') {
+      <div class="inv-dashboard">
+        <div class="inv-stats">
+          <div class="inv-stat-card capital">
+            <span class="stat-emoji">💵</span>
+            <div>
+              <h3>{{ formatearPrecio(seleccionado()?.salario || 0) }}</h3>
+              <p>{{ seleccionado()?.tipo_pago === 'diario' ? 'Por día' : 'Salario mensual' }} · {{ seleccionado()?.cargo }}</p>
+            </div>
+          </div>
+          @if (seleccionado()?.tipo_pago === 'diario') {
+            <div class="inv-stat-card porcentaje">
+              <span class="stat-emoji">📆</span>
+              <div><h3>{{ diasTrabajadosMes() }}</h3><p>Días trabajados (mes)</p></div>
+            </div>
+          }
+          <div class="inv-stat-card roi">
+            <span class="stat-emoji">📈</span>
+            <div><h3>{{ formatearPrecio(devengadoMesSel()) }}</h3><p>Devengado este mes</p></div>
+          </div>
+          <div class="inv-stat-card pendiente">
+            <span class="stat-emoji">⏳</span>
+            <div><h3>{{ formatearPrecio(saldoMesSel()) }}</h3><p>Saldo por pagar</p></div>
+          </div>
+        </div>
+
+        <h3 class="subtitulo">💎 Resumen de {{ seleccionado()?.nombre }}</h3>
+        <div class="inv-ganancias">
+          <div class="ganancia-card mes"><span class="g-icono">🗓️</span><div class="g-info"><small>PAGADO ESTE MES</small><strong>{{ formatearPrecio(pagadoMesSel()) }}</strong></div></div>
+          <div class="ganancia-card total"><span class="g-icono">💵</span><div class="g-info"><small>TOTAL PAGADO</small><strong>{{ formatearPrecio(totalPagadoSel()) }}</strong></div></div>
+          <div class="ganancia-card dia"><span class="g-icono">⏳</span><div class="g-info"><small>SALDO MES</small><strong>{{ formatearPrecio(saldoMesSel()) }}</strong></div></div>
+        </div>
+
+        <h3 class="subtitulo">📋 Desglose de pagos</h3>
+        <div class="inv-desglose">
+          <div class="desglose-item"><span>📅 Mensuales</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['mensual'] || 0) }}</strong></div>
+          <div class="desglose-item"><span>⏩ Adelantos</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['adelanto'] || 0) }}</strong></div>
+          <div class="desglose-item"><span>🎁 Bonos</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['bono'] || 0) }}</strong></div>
+          <div class="desglose-item"><span>📦 Otros</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['otro'] || 0) }}</strong></div>
+        </div>
+      </div>
+    }
+
+    <!-- ===== PAGOS ===== -->
+    @if (tab() === 'pagos') {
+      <div class="inv-pagos">
+        <div class="pago-form">
+          <h3>➕ Pago a {{ seleccionado()?.nombre }}</h3>
+          <div class="form-grid">
+            <div class="form-field"><label>Monto</label><input type="number" [(ngModel)]="pagoForm.monto" placeholder="$ 0" /></div>
+            <div class="form-field"><label>Fecha</label><input type="date" [(ngModel)]="pagoForm.fecha" /></div>
+            <div class="form-field">
+              <label>Tipo</label>
+              <select [(ngModel)]="pagoForm.tipo">
+                <option value="mensual">📅 Mensual</option>
+                <option value="adelanto">⏩ Adelanto</option>
+                <option value="bono">🎁 Bono</option>
+                <option value="otro">📦 Otro</option>
+              </select>
+            </div>
+          </div>
+          <label>Concepto</label>
+          <input [(ngModel)]="pagoForm.concepto" placeholder="Ej: Quincena agosto" />
+          <button class="btn-guardar" (click)="registrarPago()">💾 Registrar pago</button>
+        </div>
+
+        <div class="pago-historial">
+          <h3>📜 Historial ({{ pagosSel().length }})</h3>
+          @for (p of pagosSel(); track p.id) {
+            <div class="pago-item">
+              <div class="pago-emoji">{{ emojiTipo(p.tipo) }}</div>
+              <div class="pago-info"><strong>{{ p.concepto }}</strong><small>{{ emp.formatearFecha(p.fecha) }} · {{ p.tipo }}</small></div>
+              <div class="pago-monto"><strong>{{ formatearPrecio(p.monto) }}</strong><button (click)="eliminarPago(p.id)">🗑️</button></div>
+            </div>
+          }
+          @if (pagosSel().length === 0) {
+            <div class="vacio"><span class="vacio-icono">📭</span><p>Sin pagos para este empleado</p></div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ===== EDITAR ===== -->
+    @if (tab() === 'editar') {
+      <div class="inv-config">
+        <div class="config-panel">
+          <h3>⚙️ Editar a {{ seleccionado()?.nombre }}</h3>
+          <label>Nombre</label><input [(ngModel)]="editForm().nombre" />
+          <label>Cargo</label><input [(ngModel)]="editForm().cargo" />
+          <label>Tipo de pago</label>
+          <select [(ngModel)]="editForm().tipo_pago">
+            <option value="mensual">📅 Mensual (fijo)</option>
+            <option value="diario">📆 Por día trabajado</option>
+          </select>
+          <label>Salario ($)</label><input type="number" [(ngModel)]="editForm().salario" />
+          <label>Fecha de inicio</label><input type="date" [(ngModel)]="editForm().fecha_inicio" />
+          <label>Notas</label><textarea [(ngModel)]="editForm().notas" rows="3"></textarea>
+          <div class="form-acciones">
+            <button class="btn-guardar" (click)="guardarEdicion()">💾 Guardar cambios</button>
+            <button class="btn-eliminar" (click)="eliminarEmpleado(seleccionado()!.id)">🗑️ Eliminar</button>
+          </div>
+        </div>
+        <div class="config-preview">
+          <h3>👁️ Vista previa</h3>
+          <div class="preview-card">
+            <div class="preview-fila"><span>Empleado</span><strong>{{ editForm().nombre || '—' }}</strong></div>
+            <div class="preview-fila"><span>Cargo</span><strong>{{ editForm().cargo || '—' }}</strong></div>
+            <div class="preview-fila"><span>Tipo</span><strong>{{ tipoPagoTexto(editForm().tipo_pago) }}</strong></div>
+            <div class="preview-fila"><span>Salario</span><strong>{{ formatearPrecio(editForm().salario) }}</strong></div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+</div>

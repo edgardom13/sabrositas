@@ -1,0 +1,79 @@
+.mc-wrap { width: 100%; }
+
+.mc-vacio {
+  text-align: center; padding: 40px 20px; color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.03); border: 1.5px dashed rgba(255,255,255,.15);
+  border-radius: 14px;
+}
+.mc-vacio span { font-size: 48px; display: block; margin-bottom: 10px; }
+
+.mc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;
+}
+
+.mc-card {
+  background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1.5px solid rgba(255,193,7,.25); border-radius: 16px;
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: all .2s;
+}
+.mc-card:hover { border-color: rgba(255,193,7,.5); transform: translateY(-3px); }
+
+.mc-img { width: 100%; height: 150px; object-fit: cover; }
+
+.mc-cuerpo { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.mc-emoji { font-size: 28px; }
+.mc-cuerpo h4 {
+  margin: 0; color: #ffd54f; font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px; font-size: 17px;
+}
+.mc-texto {
+  color: rgba(255,255,255,.8); font-size: 13px; line-height: 1.5; margin: 0;
+  background: rgba(0,0,0,.2); border-radius: 10px; padding: 10px; flex: 1;
+  white-space: pre-line;
+}
+
+.mc-botones { display: flex; gap: 6px; flex-wrap: wrap; }
+.mc-botones button {
+  flex: 1; min-width: 80px; border: none; border-radius: 999px;
+  padding: 9px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all .2s;
+}
+.btn-copiar { background: rgba(255,255,255,.1); color: #fff; border: 1.5px solid rgba(255,255,255,.2) !important; }
+.btn-wa { background: linear-gradient(180deg, #25d366, #128c4b); color: #fff; }
+.btn-img { background: linear-gradient(180deg, #ffd54f, #ffb300); color: #5c1010; }
+.mc-botones button:hover { transform: translateY(-2px); }
+
+body.claro .mc-card { background: #fff !important; border-color: rgba(180,90,20,.2) !important; }
+body.claro .mc-cuerpo h4 { color: #b45309 !important; }
+body.claro .mc-texto { color: rgba(58,36,16,.8) !important; background: #fffdf8 !important; }
+body.claro .btn-copiar { background: #fffdf8 !important; color: #3a2410 !important; }
+body.claro .mc-vacio { color: rgba(58,36,16,.5) !important; }
+
+/* ===== TOAST DE INSTRUCCIONES ===== */
+.mc-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: linear-gradient(180deg, #25d366, #128c4b);
+  color: #fff;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+  animation: toastSlide 0.3s ease, toastFade 0.3s ease 3.7s forwards;
+  max-width: 90vw;
+  text-align: center;
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes toastFade {
+  to { opacity: 0; transform: translate(-50%, -20px); }
+}

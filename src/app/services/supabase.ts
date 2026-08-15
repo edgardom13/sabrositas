@@ -28,6 +28,7 @@ export interface Pedido {
   domiciliario_id: string | null;
   puntos_otorgado: boolean;
   codigo_canje: string | null;   // ← AGREGADO
+   promo_nombre?: string | null; 
 }
 
 export interface RegistroPedido {
@@ -44,6 +45,7 @@ export interface RegistroPedido {
   lng: number | null;
   referido_por?: string | null;
   codigo_canje?: string | null;  // ← AGREGADO
+  promo_nombre?: string | null;  // ← AGREGADO
 }
 
 @Injectable({ providedIn: 'root' })

@@ -757,3 +757,141 @@ body.claro .stat-morado h3 { color: #c2185b !important; }
   .canje-banner-accion { grid-area: accion; }
   .canje-recordar { width: 100%; text-align: center; }
 }
+
+/* ===== 🏷️ PROMO — BADGE Y CARD ===== */
+.badge-promo {
+  background: linear-gradient(180deg, #ff9800, #f57c00);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  animation: pulso 1.5s ease-in-out infinite;
+}
+
+.pedido-card.con-promo {
+  border-left: 4px solid #ff9800;
+}
+
+.pedido-card.con-promo .numero {
+  color: #ff9800;
+}
+
+.promo-mini {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: #ff9800;
+  font-weight: 600;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+/* ===== 🏷️ BANNER DE PROMO EN DETALLE ===== */
+.promo-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.18), rgba(245, 124, 0, 0.1));
+  border: 1.5px solid rgba(255, 152, 0, 0.5);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.15);
+}
+
+.promo-banner-icono {
+  font-size: 38px;
+  filter: drop-shadow(0 2px 8px rgba(255, 152, 0, 0.5));
+}
+
+.promo-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.promo-banner-info strong {
+  color: #ff9800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.promo-banner-info p {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.promo-banner-info small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11.5px;
+}
+
+.promo-recordar {
+  background: rgba(81, 207, 102, 0.12);
+  border: 1px solid rgba(81, 207, 102, 0.5);
+  color: #51cf66;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.promo-recordar.ok {
+  background: rgba(81, 207, 102, 0.12);
+  border-color: rgba(81, 207, 102, 0.5);
+  color: #51cf66;
+}
+
+/* ===== 🟠 STAT CARD NARANJA (promos) ===== */
+.stat-naranja { border-left: 4px solid #ff9800; }
+.stat-naranja h3 { color: #ff9800; }
+
+/* ===== Modo claro ===== */
+body.claro .pedido-card.con-promo {
+  border-left-color: #f57c00 !important;
+}
+
+body.claro .pedido-card.con-promo .numero { color: #e65100 !important; }
+
+body.claro .promo-banner {
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.08), rgba(255, 152, 0, 0.04)) !important;
+  border-color: rgba(245, 124, 0, 0.4) !important;
+}
+
+body.claro .promo-banner-info strong { color: #e65100 !important; }
+body.claro .promo-banner-info p { color: #3a2410 !important; }
+body.claro .promo-banner-info small { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .promo-mini {
+  color: #e65100 !important;
+  background: rgba(245, 124, 0, 0.08) !important;
+  border-color: rgba(245, 124, 0, 0.3) !important;
+}
+
+body.claro .stat-naranja h3 { color: #e65100 !important; }
+
+body.claro .promo-recordar {
+  color: #2f9e44 !important;
+}
+
+@media (max-width: 700px) {
+  .promo-banner {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icono info"
+      "accion accion";
+  }
+  .promo-banner-icono { grid-area: icono; }
+  .promo-banner-info { grid-area: info; }
+  .promo-banner-accion { grid-area: accion; }
+  .promo-recordar { width: 100%; text-align: center; }
+}

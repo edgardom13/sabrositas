@@ -1,0 +1,36 @@
+<div class="mc-wrap">
+  @if (toast()) {
+    <div class="mc-toast">📲 {{ toast() }}</div>
+  }
+
+  @if (mensajes.activos().length === 0) {
+    <div class="mc-vacio">
+      <span>📭</span>
+      <p>Por ahora no hay mensajes para compartir. ¡Vuelve pronto!</p>
+    </div>
+  } @else {
+    <div class="mc-grid">
+      @for (m of mensajes.activos(); track m.id) {
+        <div class="mc-card">
+          @if (m.imagen) {
+            <img [src]="m.imagen" class="mc-img" />
+          }
+          <div class="mc-cuerpo">
+            <span class="mc-emoji">{{ m.emoji }}</span>
+            <h4>{{ m.titulo }}</h4>
+            <p class="mc-texto">{{ textoDe(m) }}</p>
+            <div class="mc-botones">
+              <button class="btn-copiar" (click)="copiar(m)">
+                {{ copiado() === m.id ? '✅ ¡Copiado!' : '📋 Copiar' }}
+              </button>
+              <button class="btn-wa" (click)="enviarWhatsApp(m)">💬 WhatsApp</button>
+              @if (m.imagen) {
+                <button class="btn-img" (click)="compartirImagen(m)">🖼️ Con imagen</button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

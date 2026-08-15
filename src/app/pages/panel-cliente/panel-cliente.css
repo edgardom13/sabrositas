@@ -1628,3 +1628,39 @@ body.claro .die-linea strong { color: #3a2410 !important; }
 
 body.claro .btn-mapa { color: #1971c2 !important; border-color: rgba(25, 113, 194, 0.4) !important; }
 body.claro .btn-reordenar { color: #2f9e44 !important; border-color: rgba(47, 158, 68, 0.4) !important; }
+
+/* ===== MENSAJES DE CLIENTE ===== */
+.mensajes-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mensajes-header {
+  background: linear-gradient(160deg, rgba(255, 193, 7, 0.08), rgba(255, 193, 7, 0.02));
+  border-left: 4px solid #ffd54f;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.mensajes-header h3 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: #ffd54f;
+}
+
+.mensajes-header p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13.5px;
+}
+
+body.claro .mensajes-header {
+  background: linear-gradient(160deg, rgba(180, 90, 20, 0.08), rgba(180, 90, 20, 0.02)) !important;
+  border-left-color: #b45309 !important;
+}
+
+body.claro .mensajes-header h3 { color: #b45309 !important; }
+body.claro .mensajes-header p { color: rgba(58, 36, 16, 0.7) !important; }

@@ -17,6 +17,9 @@
       <button class="nav-item" [class.activo]="tab() === 'premios'" (click)="cambiarTab('premios')">
         <span class="nav-icono">🏆</span><span class="nav-texto">Premios</span>
       </button>
+      <button class="nav-item" [class.activo]="tab() === 'mensajes'" (click)="cambiarTab('mensajes')">
+        <span class="nav-icono">📣</span><span class="nav-texto">Invita amigos</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -49,6 +52,15 @@
         @if (tab() === 'puntos') { <app-cliente-puntos /> }
         @if (tab() === 'pedidos') { <app-cliente-pedidos /> }
         @if (tab() === 'premios') { <app-cliente-premios /> }
+        @if (tab() === 'mensajes') {
+          <div class="mensajes-wrap">
+            <div class="mensajes-header">
+              <h3>📣 Invita amigos y gana puntos</h3>
+              <p>Comparte estos mensajes listos con tu código personal. Cada amigo que compre usando tu código te da puntos extra.</p>
+            </div>
+            <app-mensajes-cliente />
+          </div>
+        }
       </div>
     </main>
   </div>

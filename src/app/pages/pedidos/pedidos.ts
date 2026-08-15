@@ -76,11 +76,13 @@ export class Pedidos implements OnInit, OnDestroy {
     const lista = this.pedidosFecha();
     const entregados = lista.filter((p) => p.estado === 'entregado');
     const conCanje = lista.filter((p) => (p as any).codigo_canje).length;
+    const conPromo = lista.filter((p) => this.tienePromo(p)).length;
     return {
       pendientes: lista.filter((p) => p.estado === 'pendiente').length,
       enCamino: lista.filter((p) => p.estado === 'en_camino').length,
       entregados: entregados.length,
       conCanje,
+      conPromo,
       recogido: entregados.reduce((t, p) => t + Number(p.total), 0),
       productos: entregados.reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0),
       domicilios: entregados.reduce((t, p) => t + Number(p.domicilio), 0),
@@ -139,6 +141,15 @@ export class Pedidos implements OnInit, OnDestroy {
 
   tieneCanje(pedido: Pedido): boolean {
     return !!(pedido as any).codigo_canje;
+  }
+
+  // 🏷️ NUEVO: detecta si el pedido viene de una promoción
+  tienePromo(pedido: Pedido): boolean {
+    return !!(pedido as any).promo_nombre;
+  }
+
+  nombrePromo(pedido: Pedido): string {
+    return (pedido as any).promo_nombre ?? '';
   }
 
   async cargarInfoCanje(pedido: Pedido): Promise<InfoCanje | null> {
@@ -303,3 +314,4 @@ export class Pedidos implements OnInit, OnDestroy {
       .split('{negocio}').join('Sabrositas');
   }
 }
+

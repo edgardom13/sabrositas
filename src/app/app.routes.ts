@@ -56,6 +56,7 @@ export const routes: Routes = [
       { path: 'pedidos', loadComponent: () => import('./pages/pedidos/pedidos').then((m) => m.Pedidos) },
       { path: 'clientes', loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes) },
       { path: 'estadisticas', loadComponent: () => import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas) },
+            { path: 'reporte-productos', loadComponent: () => import('./pages/reporte-productos/reporte-productos').then((m) => m.ReporteProductos) },
       { path: 'productos', loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos) },
       { path: 'egresos', loadComponent: () => import('./pages/admin-egresos/admin-egresos').then((m) => m.AdminEgresos) },
       { path: 'promociones', loadComponent: () => import('./pages/admin-promociones/admin-promociones').then((m) => m.AdminPromociones) },
@@ -63,6 +64,8 @@ export const routes: Routes = [
       { path: 'referidos', loadComponent: () => import('./pages/referidos/referidos').then((m) => m.ReferidosAdmin) },
       { path: 'usuarios', loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosAdmin) },
       { path: 'ajustes', loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes) },
+            { path: 'inversor', loadComponent: () => import('./pages/admin-inversor/admin-inversor').then((m) => m.AdminInversor) },
+                  { path: 'empleados', loadComponent: () => import('./pages/admin-empleados/admin-empleados').then((m) => m.AdminEmpleados) },
     ],
   },
 

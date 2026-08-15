@@ -2,29 +2,33 @@ import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from './supabase';
 
 export interface ConfigNegocio {
+  id: number;
   whatsapp: string;
   domicilio: number;
   cupon_umbral: number;
   cupon_porcentaje: number;
   salsas_gratis: number;
   salsa_precio: number;
-  plantilla_recibido: string;   // ← nuevos
+  puntos_referido: number;
+  puntos_compra: number;
+  plantilla_recibido: string;
   plantilla_camino: string;
   plantilla_entregado: string;
-  puntos_referido: number; // ← nuevo
 }
 
 const DEFAULT: ConfigNegocio = {
+  id: 1,
   whatsapp: '573012680659',
   domicilio: 3000,
   cupon_umbral: 30000,
   cupon_porcentaje: 10,
   salsas_gratis: 3,
   salsa_precio: 500,
+  puntos_referido: 50,
+  puntos_compra: 10,
   plantilla_recibido: 'Hola {nombre}! 🥟 Recibimos tu pedido {pedido} en Sabrositas. Ya lo estamos preparando con mucho amor. Total a pagar: {total}. Te avisamos cuando salga a domicilio. ❤️',
   plantilla_camino: 'Hola {nombre}! 🛵 Tu pedido {pedido} ya va en camino a: {direccion}. Total a pagar: {total}. ¡Estar pendiente porfa! 🥟',
   plantilla_entregado: 'Hola {nombre}! ✅ Tu pedido {pedido} fue entregado. ¡Gracias por elegir Sabrositas! ❤️ Vuelve pronto por más empanaditas. 🥟',
-  puntos_referido: 50 // ← nuevo
 };
 
 @Injectable({ providedIn: 'root' })
@@ -51,7 +55,7 @@ export class ConfigService {
     const nuevo = { ...this.config(), ...parcial };
     const { error } = await this.supabase.client
       .from('configuracion')
-      .upsert({ id: 1, ...nuevo });
+      .upsert(nuevo);
 
     if (error) {
       console.error('❌ Error al guardar configuración:', error.message);
