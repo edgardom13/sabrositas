@@ -2,7 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Horario {
-  readonly HORA_APERTURA = 1; // 4:00 p. m.
+  readonly HORA_APERTURA = 16; // 4:00 p. m.
   readonly HORA_CIERRE = 22;   // 10:00 p. m.
 
   private ahora = signal(new Date());
