@@ -66,6 +66,7 @@ export const routes: Routes = [
       { path: 'ajustes', loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes) },
             { path: 'inversor', loadComponent: () => import('./pages/admin-inversor/admin-inversor').then((m) => m.AdminInversor) },
                   { path: 'empleados', loadComponent: () => import('./pages/admin-empleados/admin-empleados').then((m) => m.AdminEmpleados) },
+                  { path: 'pos', loadComponent: () => import('./pages/admin-pos/admin-pos').then((m) => m.AdminPos) },
     ],
   },
 

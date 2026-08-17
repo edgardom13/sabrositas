@@ -1,0 +1,154 @@
+<div class="pos-page">
+
+  @if (toast()) { <div class="pos-toast">{{ toast() }}</div> }
+
+  <!-- ===== COLUMNA IZQUIERDA: PRODUCTOS ===== -->
+  <div class="pos-productos">
+    <div class="pos-buscar">
+      <span>🔍</span>
+      <input [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" placeholder="Buscar producto..." />
+    </div>
+
+    <div class="pos-cats">
+      @for (c of categorias; track c.valor) {
+        <button class="chip" [class.activo]="filtroCat() === c.valor" (click)="filtroCat.set(c.valor)">
+          {{ c.etiqueta }}
+        </button>
+      }
+    </div>
+
+    <div class="pos-grid">
+      @for (p of lista(); track p.id) {
+        <button class="pos-item" (click)="pos.agregar(p)">
+          <img [src]="p.imagen" [alt]="p.nombre" />
+          <div class="pos-item-info">
+            <strong>{{ p.nombre }}</strong>
+            <span>{{ pos.formatearPrecio(p.precio) }}</span>
+          </div>
+          @if (pos.cantidadDe(p.id) > 0) {
+            <span class="pos-qty">{{ pos.cantidadDe(p.id) }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY (móvil) ===== -->
+  @if (panelAbierto()) {
+    <div class="pos-overlay" (click)="cerrarPanel()"></div>
+  }
+
+  <!-- ===== COLUMNA DERECHA: PEDIDO (drawer en móvil) ===== -->
+  <div class="pos-pedido" [class.abierto]="panelAbierto()">
+    <div class="pos-pedido-header">
+      <h3>🧾 Pedido actual</h3>
+      <button class="pos-cerrar" (click)="cerrarPanel()">✕</button>
+    </div>
+
+    @if (pos.items().length === 0) {
+      <div class="pos-vacio">🛒 Toca un producto para agregarlo</div>
+    } @else {
+      <div class="pos-items">
+        @for (i of pos.items(); track i.producto.id) {
+          <div class="pos-fila">
+            <div class="pos-fila-info">
+              <strong>{{ i.producto.nombre }}</strong>
+              <small>{{ pos.formatearPrecio(i.producto.precio) }} c/u</small>
+            </div>
+            <div class="pos-stepper">
+              <button (click)="pos.restar(i.producto.id)">−</button>
+              <span>{{ i.cantidad }}</span>
+              <button (click)="pos.agregar(i.producto)">+</button>
+            </div>
+            <strong class="pos-fila-total">{{ pos.formatearPrecio(i.cantidad * i.producto.precio) }}</strong>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="pos-cliente">
+      <label>Cliente (opcional)</label>
+      <input [ngModel]="pos.clienteNombre()" (ngModelChange)="pos.clienteNombre.set($event)" placeholder="Nombre" />
+      <input [ngModel]="pos.clienteTelefono()" (ngModelChange)="pos.clienteTelefono.set($event)" placeholder="Teléfono" />
+
+      <label>Entrega</label>
+      <div class="pos-toggle">
+        <button [class.activo]="pos.tipoEntrega() === 'local'" (click)="pos.tipoEntrega.set('local')">🏪 Local</button>
+        <button [class.activo]="pos.tipoEntrega() === 'domicilio'" (click)="pos.tipoEntrega.set('domicilio')">🛵 Domicilio</button>
+      </div>
+    </div>
+
+    <!-- 🎟️ Canje / premio -->
+    <div class="pos-canje">
+      <label>🎟️ Código de canje</label>
+      <div class="pos-canje-row">
+        <input
+          [ngModel]="pos.codigoCanje()"
+          (ngModelChange)="pos.codigoCanje.set($event)"
+          placeholder="CANJE-XXXX"
+        />
+        <button (click)="pos.validarCanje()">✔</button>
+      </div>
+      @if (pos.validandoCanje()) { <small class="pos-canje-info">⏳ Validando…</small> }
+      @if (pos.errorCanje()) { <small class="pos-canje-error">{{ pos.errorCanje() }}</small> }
+      @if (pos.canjeValido(); as c) {
+        <div class="pos-canje-chip">
+          🎁 {{ c.premio }}
+          <button (click)="pos.limpiarCanje()">✕</button>
+        </div>
+      }
+    </div>
+
+    <div class="pos-totales">
+      <div class="pos-linea"><span>Subtotal</span><strong>{{ pos.formatearPrecio(pos.subtotal()) }}</strong></div>
+      <div class="pos-linea">
+        <span>Descuento</span>
+        <input type="number" class="pos-desc" [ngModel]="pos.descuentoManual()" (ngModelChange)="pos.descuentoManual.set(+$event || 0)" placeholder="0" />
+      </div>
+      @if (pos.descuentoCanje() > 0) {
+        <div class="pos-linea">
+          <span>🎟️ Canje</span>
+          <strong class="pos-neg">-{{ pos.formatearPrecio(pos.descuentoCanje()) }}</strong>
+        </div>
+      }
+      @if (pos.domicilio() > 0) {
+        <div class="pos-linea"><span>Domicilio</span><strong>{{ pos.formatearPrecio(pos.domicilio()) }}</strong></div>
+      }
+      <div class="pos-linea total"><span>TOTAL</span><strong>{{ pos.formatearPrecio(pos.total()) }}</strong></div>
+    </div>
+
+    <div class="pos-pago">
+      <label>Método de pago</label>
+      <div class="pos-metodos">
+        <button [class.activo]="pos.metodoPago() === 'Efectivo'" (click)="pos.metodoPago.set('Efectivo')">💵 Efectivo</button>
+        <button [class.activo]="pos.metodoPago() === 'Tarjeta'" (click)="pos.metodoPago.set('Tarjeta')">💳 Tarjeta</button>
+        <button [class.activo]="pos.metodoPago() === 'Nequi/Daviplata'" (click)="pos.metodoPago.set('Nequi/Daviplata')">📱 Nequi</button>
+      </div>
+
+      @if (pos.metodoPago() === 'Efectivo') {
+        <div class="pos-linea">
+          <span>Recibido</span>
+          <input type="number" class="pos-desc" [ngModel]="pos.recibido()" (ngModelChange)="pos.recibido.set(+$event || 0)" placeholder="0" />
+        </div>
+        @if (pos.cambio() > 0) {
+          <div class="pos-cambio">💰 Cambio: {{ pos.formatearPrecio(pos.cambio()) }}</div>
+        }
+      }
+    </div>
+
+    <div class="pos-acciones">
+      <button class="btn-limpiar" (click)="pos.vaciar()">🗑️ Limpiar</button>
+      <button class="btn-cobrar" [disabled]="pos.items().length === 0 || registrando()" (click)="registrarVenta()">
+        {{ registrando() ? 'Registrando…' : '✅ Cobrar ' + pos.formatearPrecio(pos.total()) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== 🛒 BOTÓN FLOTANTE (solo móvil) ===== -->
+  <button class="pos-fab" (click)="abrirPanel()">
+    🛒
+    <span class="fab-qty">{{ pos.totalProductos() }}</span>
+    <span class="fab-total">{{ pos.formatearPrecio(pos.total()) }}</span>
+  </button>
+
+</div>
