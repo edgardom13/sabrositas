@@ -110,9 +110,22 @@ export class EstadisticasService {
     return { desde, hasta, antDesde, antHasta };
   });
 
-  private enRango(fecha: string | Date, desde: Date, hasta: Date): boolean {
-    const f = new Date(fecha);
+    private enRango(fecha: string | Date, desde: Date, hasta: Date): boolean {
+    const f = this.parseFecha(fecha);
     return f >= desde && f <= hasta;
+  }
+
+  // 🕐 Convierte fechas sin alterar la zona horaria:
+  // - "YYYY-MM-DD" (columnas date) → fecha LOCAL (evita el desfase UTC)
+  // - ISO con hora (creado_en) → new Date() normal
+  private parseFecha(fecha: string | Date): Date {
+    if (fecha instanceof Date) return fecha;
+    const s = String(fecha).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const [y, m, d] = s.split('-').map((n) => Number(n));
+      return new Date(y, m - 1, d); // medianoche LOCAL
+    }
+    return new Date(s);
   }
 
   pedidosPeriodo = computed(() => {
