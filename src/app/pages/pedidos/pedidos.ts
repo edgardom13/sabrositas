@@ -313,5 +313,15 @@ export class Pedidos implements OnInit, OnDestroy {
       .split('{direccion}').join(pedido.direccion)
       .split('{negocio}').join('Sabrositas');
   }
+  esProgramado(pedido: Pedido): boolean {
+  return !!(pedido as any).programado_para;
+}
+
+textoProgramado(pedido: Pedido): string {
+  const fecha = new Date((pedido as any).programado_para);
+  return fecha.toLocaleString('es-CO', {
+    day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+  });
+}
 }
 

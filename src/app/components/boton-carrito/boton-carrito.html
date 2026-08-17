@@ -253,3 +253,38 @@
     </div>
   </div>
 }
+
+<!-- 🕓 MODAL DE AVISO DE HORARIO -->
+@if (mostrarAvisoHorario) {
+  <div class="modal-overlay" (click)="cancelarAvisoHorario()">
+    <div class="modal modal-horario" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>⏰ PEDIDO FUERA DE HORARIO</h3>
+        <p class="sub-modal">Aún puedes pedir, solo ten en cuenta lo siguiente</p>
+      </div>
+
+      <div class="modal-body">
+        <div class="aviso-horario-card">
+          <span class="aviso-icono">🕓</span>
+          <div>
+            <strong>Nuestro horario es de 4:00 p.m. a 10:00 p.m.</strong>
+            <p>Tu pedido quedará registrado y será enviado a los domiciliarios <strong>{{ horario.proximaAperturaTexto() }}</strong>.</p>
+          </div>
+        </div>
+
+        <div class="aviso-horario-info">
+          <p>✅ Puedes completar tu pedido ahora con total tranquilidad.</p>
+          <p>🛵 El domicilio lo entregaremos apenas abramos.</p>
+          <p>📲 Te avisaremos por WhatsApp cuando salga a camino.</p>
+        </div>
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn-cancelar" (click)="cancelarAvisoHorario()">✏️ Seguir comprando</button>
+        <button class="btn-confirmar-modal" (click)="confirmarEnvioProgramado()">
+          ✅ Continuar con mi pedido
+        </button>
+      </div>
+    </div>
+  </div>
+}

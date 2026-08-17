@@ -5,6 +5,7 @@ import { Carrito } from '../../services/carrito';
 import { SupabaseService } from '../../services/supabase';
 import { ConfigService } from '../../services/config.service';
 import { ProductosService } from '../../services/productos.service';
+import { Horario } from '../../services/horario';
 
 @Component({
   selector: 'app-boton-carrito',
@@ -20,6 +21,12 @@ export class BotonCarrito {
   private cdr = inject(ChangeDetectorRef);
   private configService = inject(ConfigService);
   private productosService = inject(ProductosService);
+  horario = inject(Horario);
+
+
+  // Señales nuevas:
+  mostrarAvisoHorario = false;
+  pedidoProgramado = signal(false);
 
   panelAbierto = false;
   mostrarModal = false;
@@ -318,7 +325,7 @@ export class BotonCarrito {
     }
   }
 
-  enviarPedido(): void {
+    enviarPedido(): void {
     this.formularioValido =
       this.nombre.trim() !== '' &&
       this.apellido.trim() !== '' &&
@@ -328,7 +335,23 @@ export class BotonCarrito {
     if (!this.formularioValido) return;
     if (!this.carrito.tieneProductosPrincipales()) return;
 
+    // 🕓 Si la tienda está cerrada por horario, avisar al cliente
+    if (!this.horario.abiertoPorHora()) {
+      this.mostrarAvisoHorario = true;
+      return;
+    }
+
     this.mostrarModal = true;
+  }
+
+    confirmarEnvioProgramado(): void {
+    this.mostrarAvisoHorario = false;
+    this.pedidoProgramado.set(true);
+    this.mostrarModal = true;
+  }
+
+  cancelarAvisoHorario(): void {
+    this.mostrarAvisoHorario = false;
   }
 
   async confirmarEnvio(): Promise<void> {
@@ -350,7 +373,9 @@ export class BotonCarrito {
     });
     const hora = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
     const numeroPedido = `${ahora.getHours().toString().padStart(2, '0')}${ahora.getMinutes().toString().padStart(2, '0')}`;
-
+        const avisoProgramado = this.pedidoProgramado()
+      ? `⏰ *PEDIDO PROGRAMADO*\n   Tu pedido se enviará ${this.horario.proximaAperturaTexto()}\n\n`
+      : '';
     const lineasProductos = items
       .map(
         (i, index) =>
@@ -392,7 +417,9 @@ export class BotonCarrito {
       ? `   🎟️ *CANJE ACTIVO:* ${this.codigoCanje.trim().toUpperCase()}\n      Premio: *${canje.premio}*\n      ⚠️ _Entregar premio al cliente_\n`
       : '';
 
-    const mensaje =
+
+        const mensaje =
+      avisoProgramado +
       `┏━━━━━━━━━━━━━━━━━━━━━━┓\n` +
       `   🥟 *SABROSITAS* 🥟\n` +
       `   _Empanadas Fritas_\n` +
@@ -442,7 +469,7 @@ export class BotonCarrito {
       }
     }
 
-    const ok = await this.supabase.registrarPedido({
+        const ok = await this.supabase.registrarPedido({
       nombre_cliente: this.nombre.trim(),
       apellido_cliente: this.apellido.trim(),
       telefono: this.telefono.trim(),
@@ -460,7 +487,8 @@ export class BotonCarrito {
       lng: this.lng,
       referido_por: localStorage.getItem('ref-sabrositas'),
       codigo_canje: canje ? this.codigoCanje.trim().toUpperCase() : null,
-      promo_nombre: this.carrito.promoAplicada()?.nombre ?? null,  // ← NUEVO
+      promo_nombre: this.carrito.promoAplicada()?.nombre ?? null,
+      programado_para: this.pedidoProgramado() ? this.horario.proximaApertura().toISOString() : null,
     });
 
     if (ok) {
@@ -483,6 +511,7 @@ export class BotonCarrito {
       this.canjeAutoAplicado.set(false);
       this.panelAbierto = false;
       this.mostrarModal = false;
+      this.pedidoProgramado.set(false);
     } else {
       if (canje) {
         await this.supabase.client.rpc('liberar_canje', {

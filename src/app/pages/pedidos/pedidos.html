@@ -144,6 +144,9 @@
               @if (tienePromo(pedido)) {
                 <span class="badge-promo">🏷️ PROMO</span>
               }
+              @if (esProgramado(pedido)) {
+                <span class="badge-programado">⏰ {{ textoProgramado(pedido) }}</span>
+              }
               <span class="fecha">{{ pedidosService.formatearFecha(pedido.creado_en) }}</span>
               <span class="tiempo-relativo">⏱️ {{ tiempoRelativo(pedido.creado_en) }}</span>
             </div>

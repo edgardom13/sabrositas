@@ -900,3 +900,14 @@ body.claro .promo-recordar {
   color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px;
   padding: 3px 8px; border-radius: 999px;
 }
+
+.badge-programado {
+  background: linear-gradient(180deg, #17a2b8, #117885);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
+}

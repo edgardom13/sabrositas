@@ -743,3 +743,66 @@ body.claro .bloque-canje {
 body.claro .bloque-canje h4 { color: #2f9e44 !important; }
 body.claro .aviso-canje { color: rgba(58, 36, 16, 0.7) !important; }
 body.claro .salsas-gratis { color: #2f9e44 !important; }
+
+/* ===== MODAL DE HORARIO ===== */
+.modal-horario .modal-header {
+  background: linear-gradient(135deg, #17a2b8, #117885);
+  color: #fff;
+  text-align: center;
+}
+
+.modal-horario .modal-header h3 { color: #fff; }
+.modal-horario .modal-header .sub-modal { color: rgba(255,255,255,.85); }
+
+.aviso-horario-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: linear-gradient(135deg, rgba(23,162,184,.15), rgba(23,162,184,.05));
+  border: 1.5px solid rgba(23,162,184,.4);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.aviso-icono { font-size: 40px; }
+
+.aviso-horario-card strong {
+  color: #17a2b8;
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.aviso-horario-card p {
+  color: rgba(255,255,255,.8);
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.aviso-horario-card p strong {
+  color: #ffd54f;
+  display: inline;
+  font-size: 14px;
+}
+
+.aviso-horario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aviso-horario-info p {
+  margin: 0;
+  font-size: 13.5px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.5;
+}
+
+body.claro .aviso-horario-card {
+  background: linear-gradient(135deg, rgba(23,162,184,.1), rgba(23,162,184,.03)) !important;
+}
+body.claro .aviso-horario-card strong { color: #117885 !important; }
+body.claro .aviso-horario-card p,
+body.claro .aviso-horario-info p { color: rgba(58,36,16,.8) !important; }

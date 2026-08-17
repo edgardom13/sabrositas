@@ -1,6 +1,4 @@
-@if (cargando()) {
-  <app-loading />
-} @else if (!horario.abierto()) {
+@if (horario.cerradoManual()) {
   <app-cerrado />
 } @else {
   <app-header />

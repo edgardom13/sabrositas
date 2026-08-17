@@ -29,6 +29,7 @@ export interface Pedido {
   puntos_otorgado: boolean;
   codigo_canje: string | null;   // ← AGREGADO
    promo_nombre?: string | null; 
+   programado_para?: string | null;
 }
 
 export interface RegistroPedido {
@@ -46,6 +47,7 @@ export interface RegistroPedido {
   referido_por?: string | null;
   codigo_canje?: string | null;  // ← AGREGADO
   promo_nombre?: string | null;  // ← AGREGADO
+  programado_para?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
