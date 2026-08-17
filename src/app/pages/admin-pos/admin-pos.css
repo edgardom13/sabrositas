@@ -137,10 +137,6 @@ body.claro .pos-cliente input, body.claro .pos-desc { background: #fffdf8 !impor
 body.claro .chip { background: #fff !important; color: rgba(58,36,16,.7) !important; }
 body.claro .chip.activo { background: linear-gradient(180deg,#b45309,#92400e) !important; color: #fff !important; }
 
-@media (max-width: 900px) {
-  .pos-page { grid-template-columns: 1fr; height: auto; }
-}
-
 /* ===== Header del panel + botón cerrar ===== */
 .pos-pedido-header {
   display: flex;
@@ -218,7 +214,7 @@ body.claro .chip.activo { background: linear-gradient(180deg,#b45309,#92400e) !i
   }
   @keyframes fadeInOv { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Panel como drawer inferior */
+  /* Panel como drawer inferior — FONDO SÓLIDO (fix transparencia) */
   .pos-pedido {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -227,9 +223,11 @@ body.claro .chip.activo { background: linear-gradient(180deg,#b45309,#92400e) !i
     border-radius: 22px 22px 0 0;
     border: none;
     border-top: 3px solid #ffd54f;
+    background: linear-gradient(180deg, #2b1608 0%, #1d0e06 100%); /* ✅ sólido */
     transform: translateY(100%);
     transition: transform .3s ease;
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   }
   .pos-pedido.abierto { transform: translateY(0); }
 
@@ -271,3 +269,10 @@ body.claro .chip.activo { background: linear-gradient(180deg,#b45309,#92400e) !i
 body.claro .pos-canje-row input { background: #fffdf8 !important; color: #3a2410 !important; border-color: rgba(156,39,176,.3) !important; }
 body.claro .pos-canje label { color: rgba(58,36,16,.75) !important; }
 body.claro .pos-canje-chip { color: #7b2cbf !important; }
+
+/* Drawer sólido en modo claro */
+@media (max-width: 900px) {
+  body.claro .pos-pedido {
+    background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%) !important;
+  }
+}
