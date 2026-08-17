@@ -1,0 +1,64 @@
+<div class="cierre-page">
+
+  @if (mensaje()) { <div class="cierre-toast">{{ mensaje() }}</div> }
+
+  <div class="cierre-header">
+    <h2>🔒 Control de tienda</h2>
+    <p class="cierre-sub">Abre o cierra tu tienda manualmente, sin depender del horario</p>
+  </div>
+
+  <!-- ===== ESTADO ACTUAL ===== -->
+  <div class="cierre-estado" [class.abierta]="horario.abierto()" [class.cerrada]="!horario.abierto()">
+    <div class="estado-icono">{{ horario.abierto() ? '🟢' : '🔴' }}</div>
+    <div class="estado-info">
+      <h3>{{ horario.abierto() ? 'TIENDA ABIERTA' : 'TIENDA CERRADA' }}</h3>
+      <p>
+        @if (horario.cerradoManual()) {
+          Cerrada manualmente por el administrador
+        } @else if (!horario.abiertoPorHora()) {
+          Cerrada por horario (fuera de 4:00 p.m. – 10:00 p.m.)
+        } @else {
+          Abierta por horario (4:00 p.m. – 10:00 p.m.)
+        }
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== INTERRUPTOR ===== -->
+  <button
+    class="btn-alternar"
+    [class.cerrar]="horario.abierto()"
+    [class.abrir]="!horario.abierto()"
+    [disabled]="guardando()"
+    (click)="alternar()"
+  >
+    @if (guardando()) {
+      ⏳ Guardando…
+    } @else if (horario.cerradoManual()) {
+      🔓 Abrir tienda ahora
+    } @else {
+      🔒 Cerrar tienda ahora
+    }
+  </button>
+
+  <!-- ===== INFO DE HORARIO ===== -->
+  <div class="cierre-grid">
+    <div class="cierre-card">
+      <h4>🕓 Horario automático</h4>
+      <p class="dato">Todos los días</p>
+      <p class="horas">4:00 p. m. → 10:00 p. m.</p>
+      <small>Fuera de este rango la tienda se cierra sola.</small>
+    </div>
+
+    <div class="cierre-card">
+      <h4>👁️ Lo que ve el cliente ahora</h4>
+      @if (horario.abierto()) {
+        <p class="dato ok">✅ La tienda está visible y puede pedir</p>
+      } @else {
+        <img src="img/horarios.png" alt="Horario de atención" class="preview-horario" />
+        <small>Esta pantalla se muestra cuando está cerrada.</small>
+      }
+    </div>
+  </div>
+
+</div>

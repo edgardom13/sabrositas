@@ -14,6 +14,8 @@ export interface ConfigNegocio {
   plantilla_recibido: string;
   plantilla_camino: string;
   plantilla_entregado: string;
+  tienda_cerrada: boolean;   // ← NUEVO
+  mensaje_cierre: string;    // ← NUEVO
 }
 
 const DEFAULT: ConfigNegocio = {
@@ -26,9 +28,11 @@ const DEFAULT: ConfigNegocio = {
   salsa_precio: 500,
   puntos_referido: 50,
   puntos_compra: 10,
-  plantilla_recibido: 'Hola {nombre}! 🥟 Recibimos tu pedido {pedido} en Sabrositas. Ya lo estamos preparando con mucho amor. Total a pagar: {total}. Te avisamos cuando salga a domicilio. ❤️',
-  plantilla_camino: 'Hola {nombre}! 🛵 Tu pedido {pedido} ya va en camino a: {direccion}. Total a pagar: {total}. ¡Estar pendiente porfa! 🥟',
-  plantilla_entregado: 'Hola {nombre}! ✅ Tu pedido {pedido} fue entregado. ¡Gracias por elegir Sabrositas! ❤️ Vuelve pronto por más empanaditas. 🥟',
+  plantilla_recibido: '...',
+  plantilla_camino: '...',
+  plantilla_entregado: '...',
+  tienda_cerrada: false,   // ← NUEVO
+  mensaje_cierre: '',      // ← NUEVO
 };
 
 @Injectable({ providedIn: 'root' })

@@ -1,13 +1,41 @@
 <div class="cerrado">
-  <h1>😴 ¡Estamos descansando!</h1>
-  <p class="sub">Por ahora estamos cerrados, pero te esperamos en nuestro horario de atención:</p>
+  <div class="cerrado-contenedor">
 
-  <img
-    src="img/horarios.png"
-    alt="Horario de atención: todos los días de 4:00 p. m. a 10:00 p. m."
-    class="imagen-horario"
-  />
+    <!-- ===== ICONO GRANDE ===== -->
+    <div class="cerrado-icono">😴</div>
 
-  <p class="nota">🕓 Abrimos todos los días de <strong>4:00 p. m.</strong> a <strong>10:00 p. m.</strong></p>
-  <p class="vuelve">¡Vuelve pronto, que las empanaditas te esperan! 🥟❤️</p>
+    <h1>¡Estamos descansando!</h1>
+    <p class="sub">
+      Por ahora estamos cerrados, pero te esperamos en nuestro horario de atención.
+    </p>
+
+    <!-- ===== RELOJ EN VIVO ===== -->
+    <div class="reloj">
+      <span class="reloj-hora">{{ horaTexto() }}</span>
+      <span class="reloj-zona">Hora Colombia</span>
+    </div>
+
+    <!-- ===== MOTIVO DEL CIERRE ===== -->
+    <div class="motivo">
+      @if (horario.cerradoManual()) {
+        <span class="motivo-chip manual">🔒 Cerrado por el administrador</span>
+      } @else {
+        <span class="motivo-chip horario">🕓 Fuera del horario de atención</span>
+      }
+    </div>
+
+    <!-- ===== IMAGEN DE HORARIOS ===== -->
+    <img
+      src="img/horarios.png"
+      alt="Horario de atención: todos los días de 4:00 p. m. a 10:00 p. m."
+      class="imagen-horario"
+    />
+
+    <p class="nota">
+      🕓 Abrimos todos los días de <strong>4:00 p. m.</strong> a <strong>10:00 p. m.</strong>
+    </p>
+
+    <p class="vuelve">¡Vuelve pronto, que las empanaditas te esperan! 🥟❤️</p>
+
+  </div>
 </div>

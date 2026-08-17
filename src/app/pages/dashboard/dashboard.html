@@ -8,7 +8,9 @@
       <p class="sidebar-sub">Panel Administrativo</p>
     </div>
 
-    <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
+
+      <!-- ===== ACCESOS RÁPIDOS (fijos arriba) ===== -->
       <a routerLink="/dashboard/pedidos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
         <span class="nav-icono">📦</span>
         <span class="nav-texto">Pedidos</span>
@@ -22,65 +24,36 @@
         <span class="nav-texto">Punto de venta</span>
       </a>
 
-      <a routerLink="/dashboard/clientes" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">👥</span>
-        <span class="nav-texto">Clientes</span>
-      </a>
+      <div class="nav-separador"><span>Secciones</span></div>
 
-      <a routerLink="/dashboard/estadisticas" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">📊</span>
-        <span class="nav-texto">Estadísticas</span>
-      </a>
+            <!-- ===== DROPDOWNS ===== -->
+      @for (g of gruposSidebar; track g.id) {
+        <div class="nav-grupo" [class.abierto]="estaAbierto(g.id)" [class.grupo-activo]="grupoActivo(g)">
+          <button class="nav-grupo-header" (click)="toggleGrupo(g.id)">
+            <span class="nav-icono">{{ g.icono }}</span>
+            <span class="nav-texto">{{ g.nombre }}</span>
+            <span class="nav-flecha">▾</span>
+          </button>
 
-        <a routerLink="/dashboard/reporte-productos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">📦</span>
-        <span class="nav-texto">Productos entregados</span>
-      </a>
+          <!-- ⚠️ Clave: UN solo hijo interno para que colapse bien -->
+          <div class="nav-grupo-items">
+            <div class="nav-grupo-inner">
+              @for (item of g.items; track item.ruta) {
+                <a
+                  [routerLink]="'/dashboard/' + item.ruta"
+                  routerLinkActive="activo"
+                  class="nav-subitem"
+                  (click)="cerrarMenu()"
+                >
+                  <span class="sub-icono">{{ item.icono }}</span>
+                  <span class="sub-texto">{{ item.nombre }}</span>
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      }
 
-      <a routerLink="/dashboard/productos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">🍽️</span>
-        <span class="nav-texto">Productos</span>
-      </a>
-
-      <a routerLink="/dashboard/egresos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">💸</span>
-        <span class="nav-texto">Egresos</span>
-      </a>
-
-      <a routerLink="/dashboard/promociones" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">🏷️</span>
-        <span class="nav-texto">Promociones</span>
-      </a>
-
-      <a routerLink="/dashboard/marketing" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">📣</span>
-        <span class="nav-texto">Marketing</span>
-      </a>
-
-      <a routerLink="/dashboard/referidos" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">🎁</span>
-        <span class="nav-texto">Referidos</span>
-      </a>
-
-      <a routerLink="/dashboard/inversor" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">💼</span>
-        <span class="nav-texto">Inversor</span>
-      </a>
-
-      <a routerLink="/dashboard/empleados" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">👥</span>
-        <span class="nav-texto">Empleados</span>
-      </a>
-
-      <a routerLink="/dashboard/usuarios" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">👥</span>
-        <span class="nav-texto">Usuarios</span>
-      </a>
-
-      <a routerLink="/dashboard/ajustes" routerLinkActive="activo" class="nav-item" (click)="cerrarMenu()">
-        <span class="nav-icono">⚙️</span>
-        <span class="nav-texto">Ajustes</span>
-      </a>
     </nav>
 
     <div class="sidebar-footer">

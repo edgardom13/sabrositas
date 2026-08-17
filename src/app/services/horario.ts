@@ -1,15 +1,18 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, inject, signal } from '@angular/core';
+import { ConfigService } from './config.service';
 
 @Injectable({ providedIn: 'root' })
 export class Horario {
-  readonly HORA_APERTURA = 1; // 4:00 p. m.
+  private configService = inject(ConfigService);
+
+  readonly HORA_APERTURA = 16;  // 4:00 p. m.
   readonly HORA_CIERRE = 22;   // 10:00 p. m.
 
   private ahora = signal(new Date());
 
   constructor() {
-    // Revisa el reloj cada 30 segundos
     setInterval(() => this.ahora.set(new Date()), 30_000);
+    this.configService.cargar(); // asegura que la config esté disponible
   }
 
   horaEnColombia = computed(() => {
@@ -22,8 +25,24 @@ export class Horario {
     return parseInt(valor, 10) % 24;
   });
 
-  abierto = computed(() => {
+  // 🕓 ¿Está dentro del horario automático?
+  abiertoPorHora = computed(() => {
     const h = this.horaEnColombia();
     return h >= this.HORA_APERTURA && h < this.HORA_CIERRE;
   });
+
+  // 🔒 ¿El admin lo cerró manualmente?
+  cerradoManual = computed(() => !!this.configService.config().tienda_cerrada);
+
+  // ✅ Estado FINAL: abierto solo si el horario lo permite Y el admin no lo cerró
+  abierto = computed(() => this.abiertoPorHora() && !this.cerradoManual());
+
+  // ===== Acciones del admin =====
+  async cerrarAhora(): Promise<boolean> {
+    return this.configService.guardar({ tienda_cerrada: true });
+  }
+
+  async abrirAhora(): Promise<boolean> {
+    return this.configService.guardar({ tienda_cerrada: false });
+  }
 }

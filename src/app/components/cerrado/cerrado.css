@@ -1,38 +1,158 @@
 .cerrado {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at top, rgba(255, 193, 7, 0.15), transparent 60%),
+    radial-gradient(ellipse at bottom, rgba(255, 179, 0, 0.1), transparent 60%),
+    linear-gradient(180deg, #1d0e06, #0d0603);
   text-align: center;
-  padding: 30px 20px;
-  background: radial-gradient(circle at 50% 30%, #2b1608, #0d0603 75%);
-  animation: entrada 0.8s ease;
 }
 
-.cerrado h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 52px;
-  letter-spacing: 2px;
-  color: var(--amarillo);
-  animation: latidoSuave 2s ease-in-out infinite;
+.cerrado-contenedor {
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  animation: aparecer 0.6s ease;
 }
 
-.sub { max-width: 420px; opacity: 0.85; }
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-.imagen-horario {
-  max-width: min(420px, 90vw);
-  border-radius: 18px;
-  border: 2px solid var(--amarillo);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6);
+/* ===== ICONO GRANDE ===== */
+.cerrado-icono {
+  font-size: 80px;
+  filter: drop-shadow(0 4px 20px rgba(255, 193, 7, 0.4));
   animation: flotar 3s ease-in-out infinite;
 }
 
-.nota { font-size: 17px; }
-.nota strong { color: var(--amarillo); }
-.vuelve { color: var(--amarillo); font-weight: 700; }
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
 
-@keyframes entrada { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; } }
-@keyframes latidoSuave { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-@keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+/* ===== TÍTULOS ===== */
+.cerrado h1 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 6vw, 48px);
+  letter-spacing: 2px;
+  color: #ffd54f;
+  text-shadow: 0 0 30px rgba(255, 193, 7, 0.4);
+}
+
+.cerrado .sub {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(14px, 2.5vw, 16px);
+  line-height: 1.5;
+}
+
+/* ===== RELOJ EN VIVO ===== */
+.reloj {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 193, 7, 0.3);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.reloj-hora {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 36px;
+  font-weight: 800;
+  color: #ffd54f;
+  letter-spacing: 2px;
+}
+
+.reloj-zona {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* ===== MOTIVO ===== */
+.motivo { margin: 4px 0; }
+
+.motivo-chip {
+  display: inline-block;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.motivo-chip.manual {
+  background: rgba(220, 53, 69, 0.15);
+  border: 1.5px solid rgba(220, 53, 69, 0.5);
+  color: #ff8080;
+}
+
+.motivo-chip.horario {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1.5px solid rgba(255, 193, 7, 0.5);
+  color: #ffd54f;
+}
+
+/* ===== IMAGEN ===== */
+.imagen-horario {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== NOTAS ===== */
+.nota {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+}
+
+.nota strong { color: #ffd54f; }
+
+.vuelve {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .cerrado {
+  background:
+    radial-gradient(ellipse at top, rgba(180, 90, 20, 0.12), transparent 60%),
+    radial-gradient(ellipse at bottom, rgba(255, 193, 7, 0.08), transparent 60%),
+    linear-gradient(180deg, #fffdf8, #fff5e1) !important;
+}
+
+body.claro .cerrado h1 { color: #b45309 !important; text-shadow: none !important; }
+body.claro .cerrado .sub { color: rgba(58, 36, 16, 0.75) !important; }
+
+body.claro .reloj {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(120, 70, 20, 0.1) !important;
+}
+body.claro .reloj-hora { color: #b45309 !important; }
+body.claro .reloj-zona { color: rgba(58, 36, 16, 0.6) !important; }
+
+body.claro .motivo-chip.horario { color: #b45309 !important; background: rgba(180, 90, 20, 0.1) !important; border-color: rgba(180, 90, 20, 0.4) !important; }
+
+body.claro .imagen-horario { border-color: rgba(180, 90, 20, 0.3) !important; }
+
+body.claro .nota { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .nota strong { color: #b45309 !important; }
+body.claro .vuelve { color: #3a2410 !important; }
