@@ -13,9 +13,10 @@
       <button
         class="inv-chip"
         [class.activo]="seleccionadoId() === inv.id"
+        [class.dueno]="inv.es_dueno"
         (click)="seleccionar(inv.id)"
       >
-        💼 {{ inv.nombre }} · {{ inv.porcentaje_ganancias }}%
+        {{ inv.es_dueno ? '👑' : '💼' }} {{ inv.nombre }} · {{ inv.porcentaje_ganancias }}%
       </button>
     }
     <button class="inv-chip nuevo" (click)="mostrarFormNuevo.set(!mostrarFormNuevo())">
@@ -63,14 +64,116 @@
 
     <!-- TABS -->
     <div class="inv-tabs">
-      <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📊 Dashboard</button>
-      <button [class.activo]="tab() === 'proyeccion'" (click)="tab.set('proyeccion')">📈 Proyección</button>
-      <button [class.activo]="tab() === 'pagos'" (click)="tab.set('pagos')">💸 Pagos</button>
-      <button [class.activo]="tab() === 'editar'" (click)="abrirEdicion()">⚙️ Editar</button>
+      <button [class.activo]="tab() === 'reparto'" (click)="tab.set('reparto')">📊 Reparto</button>
+      @if (!seleccionado()?.es_dueno) {
+        <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📊 Dashboard</button>
+        <button [class.activo]="tab() === 'proyeccion'" (click)="tab.set('proyeccion')">📈 Proyección</button>
+        <button [class.activo]="tab() === 'pagos'" (click)="tab.set('pagos')">💸 Pagos</button>
+        <button [class.activo]="tab() === 'editar'" (click)="abrirEdicion()">⚙️ Editar</button>
+      }
     </div>
 
+    <!-- ===== TAB: REPARTO DE GANANCIAS ===== -->
+    @if (tab() === 'reparto') {
+      <div class="inv-reparto">
+        <div class="reparto-header">
+          <h3>📊 Reparto de ganancias netas</h3>
+          <p>Desglose de cómo se distribuye la ganancia entre todos los socios</p>
+        </div>
+
+        <!-- Selector de período -->
+        <div class="reparto-periodo">
+          <button [class.activo]="periodoReparto() === 'hoy'" (click)="periodoReparto.set('hoy')">📅 Hoy</button>
+          <button [class.activo]="periodoReparto() === 'semana'" (click)="periodoReparto.set('semana')">🗓️ Semana</button>
+          <button [class.activo]="periodoReparto() === 'mes'" (click)="periodoReparto.set('mes')">📆 Últ. 30 días</button>
+          <button [class.activo]="periodoReparto() === 'ano'" (click)="periodoReparto.set('ano')">🌟 Año</button>
+        </div>
+
+        <!-- Resumen financiero -->
+        <div class="reparto-resumen">
+          <div class="resumen-card">
+            <span class="resumen-icono">💵</span>
+            <div>
+              <small>VENTAS DEL PERÍODO</small>
+              <strong>{{ formatearPrecio(ventasPeriodo()) }}</strong>
+            </div>
+          </div>
+          <div class="resumen-card">
+            <span class="resumen-icono">💸</span>
+            <div>
+              <small>EGRESOS DEL PERÍODO</small>
+              <strong>{{ formatearPrecio(egresosPeriodo()) }}</strong>
+            </div>
+          </div>
+          <div class="resumen-card destacado">
+            <span class="resumen-icono">💎</span>
+            <div>
+              <small>GANANCIA NETA</small>
+              <strong>{{ formatearPrecio(gananciaNetaPeriodo()) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de reparto -->
+        <div class="reparto-tabla">
+          <h4>👥 Desglose por socio</h4>
+          <div class="tabla-header">
+            <span>Socio</span>
+            <span>% Participación</span>
+            <span>Le corresponde</span>
+            <span>Ya pagado</span>
+            <span>Pendiente</span>
+          </div>
+          @for (r of repartoSocios(); track r.socio.id) {
+            <div class="tabla-fila" [class.dueno]="r.socio.es_dueno">
+              <div class="fila-socio">
+                <span class="socio-emoji">{{ r.socio.es_dueno ? '👑' : '💼' }}</span>
+                <div>
+                  <strong>{{ r.socio.nombre }}</strong>
+                  @if (!r.socio.es_dueno) {
+                    <small>Capital: {{ formatearPrecio(r.socio.capital_invertido) }}</small>
+                  }
+                </div>
+              </div>
+              <div class="fila-pct">
+                <strong>{{ r.pct }}%</strong>
+              </div>
+              <div class="fila-corresponde">
+                <strong>{{ formatearPrecio(r.corresponde) }}</strong>
+              </div>
+              <div class="fila-pagado">
+                @if (r.socio.es_dueno) {
+                  <span class="na">N/A</span>
+                } @else {
+                  <strong>{{ formatearPrecio(r.pagado) }}</strong>
+                }
+              </div>
+              <div class="fila-pendiente">
+                @if (r.socio.es_dueno) {
+                  <strong class="dueno-ganancia">{{ formatearPrecio(r.corresponde) }}</strong>
+                } @else {
+                  <strong [class.negativo]="r.pendiente > 0">{{ formatearPrecio(r.pendiente) }}</strong>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="reparto-nota">
+          <strong>💡 Cómo funciona:</strong>
+          <p>
+            La ganancia neta (ventas − egresos) se reparte según el % acordado con cada socio.
+            Tú como dueño recibes el {{ repartoSocios()[0].pct }}% restante después de pagar a los inversores.
+          </p>
+          <p style="margin-top: 6px">
+            📌 Los domicilios NO se incluyen porque son un ingreso externo que se paga al domiciliario.
+          </p>
+        </div>
+      </div>
+    }
+
     <!-- ===== TAB: DASHBOARD ===== -->
-    @if (tab() === 'dashboard') {
+    @if (tab() === 'dashboard' && !seleccionado()?.es_dueno) {
       <div class="inv-dashboard">
         <div class="inv-stats">
           <div class="inv-stat-card capital">
@@ -134,7 +237,7 @@
     }
 
     <!-- ===== TAB: PROYECCIÓN ===== -->
-    @if (tab() === 'proyeccion') {
+    @if (tab() === 'proyeccion' && !seleccionado()?.es_dueno) {
       <div class="inv-proyeccion">
         <div class="proy-card destacada">
           <span class="proy-emoji">🚀</span>
@@ -179,7 +282,7 @@
     }
 
     <!-- ===== TAB: PAGOS ===== -->
-    @if (tab() === 'pagos') {
+    @if (tab() === 'pagos' && !seleccionado()?.es_dueno) {
       <div class="inv-pagos">
         <div class="pago-form">
           <h3>➕ Pago a {{ seleccionado()?.nombre }}</h3>
@@ -235,7 +338,7 @@
     }
 
     <!-- ===== TAB: EDITAR ===== -->
-    @if (tab() === 'editar') {
+    @if (tab() === 'editar' && !seleccionado()?.es_dueno) {
       <div class="inv-config">
         <div class="config-panel">
           <h3>⚙️ Editar a {{ seleccionado()?.nombre }}</h3>

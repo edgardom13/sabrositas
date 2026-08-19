@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { SupabaseService } from './supabase';
 
 export interface Inversor {
@@ -10,6 +10,7 @@ export interface Inversor {
   notas: string | null;
   activo: boolean;
   creado_en: string;
+  es_dueno?: boolean;
 }
 
 export interface PagoInversor {
@@ -22,17 +23,40 @@ export interface PagoInversor {
   creado_en: string;
 }
 
+export const ID_DUENO = -1;
+
 @Injectable({ providedIn: 'root' })
 export class InversorService {
   private supabase = inject(SupabaseService);
 
-  inversores = signal<Inversor[]>([]);
+  inversoresBD = signal<Inversor[]>([]);
   pagos = signal<PagoInversor[]>([]);
+
+  // 🧑‍💼 Todos los socios = inversores de BD + dueño virtual
+  inversores = computed<Inversor[]>(() => {
+    const invBD = this.inversoresBD();
+    const sumaPctInversores = invBD.reduce((t, i) => t + Number(i.porcentaje_ganancias), 0);
+    const pctDueno = Math.max(0, 100 - sumaPctInversores);
+
+    const dueno: Inversor = {
+      id: ID_DUENO,
+      nombre: 'Administrador (Dueño)',
+      capital_invertido: 0,
+      porcentaje_ganancias: pctDueno,
+      fecha_inicio: null,
+      notas: 'Trabajo, idea, gestión y operación del negocio',
+      activo: true,
+      creado_en: new Date().toISOString(),
+      es_dueno: true,
+    };
+
+    return [dueno, ...invBD];
+  });
 
   async cargarInversores(): Promise<void> {
     const { data } = await this.supabase.client
       .from('inversor').select('*').order('nombre');
-    this.inversores.set((data as Inversor[]) ?? []);
+    this.inversoresBD.set((data as Inversor[]) ?? []);
   }
 
   async cargarPagos(): Promise<void> {
@@ -41,7 +65,7 @@ export class InversorService {
     this.pagos.set((data as PagoInversor[]) ?? []);
   }
 
-  async crear(p: Omit<Inversor, 'id' | 'creado_en' | 'activo'>): Promise<number | null> {
+  async crear(p: Omit<Inversor, 'id' | 'creado_en' | 'activo' | 'es_dueno'>): Promise<number | null> {
     const { data, error } = await this.supabase.client
       .from('inversor').insert([p]).select().single();
     if (error) return null;
@@ -57,7 +81,6 @@ export class InversorService {
   }
 
   async eliminar(id: number): Promise<void> {
-    // Los pagos quedan sin asignar antes de borrar
     await this.supabase.client.from('pagos_inversor').update({ inversor_id: null }).eq('inversor_id', id);
     await this.supabase.client.from('inversor').delete().eq('id', id);
     await this.cargarInversores();

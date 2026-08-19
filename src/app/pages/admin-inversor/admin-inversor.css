@@ -764,3 +764,324 @@ body.claro .inv-form-nuevo select option {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== REPARTO DE GANANCIAS ===== */
+.inv-reparto {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.reparto-header {
+  background: linear-gradient(160deg, rgba(255, 193, 7, 0.08), rgba(255, 193, 7, 0.02));
+  border-left: 4px solid #ffd54f;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.reparto-header h3 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: #ffd54f;
+}
+
+.reparto-header p {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+}
+
+.reparto-periodo {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reparto-periodo button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reparto-periodo button:hover {
+  border-color: rgba(255, 193, 7, 0.5);
+}
+
+.reparto-periodo button.activo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  border-color: transparent;
+  color: #5c1010;
+  box-shadow: 0 4px 14px rgba(255, 179, 0, 0.35);
+}
+
+.reparto-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.resumen-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.resumen-card.destacado {
+  border-color: rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.06);
+}
+
+.resumen-icono {
+  font-size: 32px;
+}
+
+.resumen-card small {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.resumen-card strong {
+  display: block;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.resumen-card.destacado strong {
+  color: #ffd54f;
+}
+
+.reparto-tabla {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.reparto-tabla h4 {
+  margin: 0 0 14px;
+  color: #ffd54f;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.tabla-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 193, 7, 0.08);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.tabla-fila {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.tabla-fila:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tabla-fila.dueno {
+  background: rgba(255, 193, 7, 0.06);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.fila-socio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.socio-emoji {
+  font-size: 28px;
+}
+
+.fila-socio strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fila-socio small {
+  display: block;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.fila-pct strong {
+  color: #ffd54f;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.fila-corresponde strong {
+  color: #fff;
+  font-size: 15px;
+}
+
+.fila-pagado strong {
+  color: #51cf66;
+  font-size: 14px;
+}
+
+.fila-pagado .na {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.fila-pendiente strong {
+  color: #ff8080;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fila-pendiente .dueno-ganancia {
+  color: #ffd54f;
+}
+
+.reparto-nota {
+  background: rgba(255, 193, 7, 0.06);
+  border: 1px dashed rgba(255, 193, 7, 0.4);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.reparto-nota strong {
+  color: #ffd54f;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.reparto-nota p {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Chip de dueño */
+.inv-chip.dueno {
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.15), rgba(255, 193, 7, 0.05));
+  border-color: rgba(255, 193, 7, 0.5);
+  color: #ffd54f;
+}
+
+.inv-chip.dueno.activo {
+  background: linear-gradient(180deg, #ffd54f, #ffb300);
+  color: #5c1010;
+}
+
+/* Modo claro */
+body.claro .reparto-header {
+  background: linear-gradient(160deg, rgba(180, 90, 20, 0.08), rgba(180, 90, 20, 0.02)) !important;
+  border-left-color: #b45309 !important;
+}
+
+body.claro .reparto-header h3 { color: #b45309 !important; }
+body.claro .reparto-header p { color: rgba(58, 36, 16, 0.7) !important; }
+
+body.claro .reparto-periodo button {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.2) !important;
+  color: rgba(58, 36, 16, 0.7) !important;
+}
+
+body.claro .reparto-periodo button.activo {
+  background: linear-gradient(180deg, #b45309, #92400e) !important;
+  color: #fff !important;
+}
+
+body.claro .resumen-card {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+}
+
+body.claro .resumen-card small { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .resumen-card strong { color: #3a2410 !important; }
+body.claro .resumen-card.destacado { border-color: rgba(180, 90, 20, 0.4) !important; }
+body.claro .resumen-card.destacado strong { color: #b45309 !important; }
+
+body.claro .reparto-tabla {
+  background: #fff !important;
+  border-color: rgba(180, 90, 20, 0.15) !important;
+}
+
+body.claro .reparto-tabla h4 { color: #b45309 !important; }
+
+body.claro .tabla-header {
+  background: rgba(180, 90, 20, 0.08) !important;
+  color: rgba(58, 36, 16, 0.7) !important;
+}
+
+body.claro .tabla-fila:hover { background: rgba(180, 90, 20, 0.03) !important; }
+body.claro .tabla-fila.dueno { background: rgba(180, 90, 20, 0.06) !important; border-color: rgba(180, 90, 20, 0.2) !important; }
+
+body.claro .fila-socio strong { color: #3a2410 !important; }
+body.claro .fila-socio small { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .fila-pct strong { color: #b45309 !important; }
+body.claro .fila-corresponde strong { color: #3a2410 !important; }
+body.claro .fila-pagado strong { color: #2f9e44 !important; }
+body.claro .fila-pagado .na { color: rgba(58, 36, 16, 0.4) !important; }
+body.claro .fila-pendiente strong { color: #c92a2a !important; }
+body.claro .fila-pendiente .dueno-ganancia { color: #b45309 !important; }
+
+body.claro .reparto-nota strong { color: #b45309 !important; }
+body.claro .reparto-nota p { color: rgba(58, 36, 16, 0.75) !important; }
+
+body.claro .inv-chip.dueno {
+  background: rgba(180, 90, 20, 0.08) !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  color: #b45309 !important;
+}
+
+body.claro .inv-chip.dueno.activo {
+  background: linear-gradient(180deg, #b45309, #92400e) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 900px) {
+  .reparto-resumen { grid-template-columns: 1fr; }
+  .tabla-header, .tabla-fila { grid-template-columns: 1fr; gap: 6px; }
+  .tabla-header { display: none; }
+  .tabla-fila {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .fila-socio { width: 100%; }
+}

@@ -1,8 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { InversorService, Inversor } from '../../services/inversor.service';
-import { PedidosService } from '../../services/pedidos.service';
-import { EgresosService } from '../../services/egresos.service';
+import { InversorService, Inversor, ID_DUENO } from '../../services/inversor.service';
+import { EstadisticasService } from '../../services/estadisticas.service';
 
 @Component({
   selector: 'app-admin-inversor',
@@ -13,20 +12,19 @@ import { EgresosService } from '../../services/egresos.service';
 })
 export class AdminInversor implements OnInit {
   inv = inject(InversorService);
-  pedidos = inject(PedidosService);
-  egresos = inject(EgresosService);
+  private stats = inject(EstadisticasService); // 🎯 fuente única de pedidos + egresos completos
 
-  tab = signal<'dashboard' | 'proyeccion' | 'pagos' | 'editar'>('dashboard');
+  tab = signal<'reparto' | 'dashboard' | 'proyeccion' | 'pagos' | 'editar'>('reparto');
   seleccionadoId = signal<number | null>(null);
   mostrarFormNuevo = signal(false);
+  periodoReparto = signal<'hoy' | 'semana' | 'mes' | 'ano'>('semana');
 
   nuevo = { nombre: '', capital_invertido: 0, porcentaje_ganancias: 0, fecha_inicio: '', notas: '' };
   pagoForm = { monto: 0, concepto: '', fecha: this.hoy(), tipo: 'mensual' };
   editForm = signal({ nombre: '', capital_invertido: 0, porcentaje_ganancias: 0, fecha_inicio: '', notas: '' });
 
   async ngOnInit() {
-    await this.pedidos.cargarPedidos();
-    await this.egresos.cargar(this.hoy());
+    await this.stats.cargar();          // 🎯 carga TODOS los pedidos y TODOS los egresos
     await this.inv.cargarInversores();
     await this.inv.cargarPagos();
     if (this.inv.inversores().length > 0) {
@@ -34,14 +32,14 @@ export class AdminInversor implements OnInit {
     }
   }
 
-  // ===== SELECCIÓN =====
   seleccionado = computed<Inversor | null>(() =>
     this.inv.inversores().find((i) => i.id === this.seleccionadoId()) ?? null
   );
 
   seleccionar(id: number): void {
     this.seleccionadoId.set(id);
-    this.tab.set('dashboard');
+    if (id === ID_DUENO) this.tab.set('reparto');
+    else this.tab.set('dashboard');
   }
 
   // ===== DATOS DEL SELECCIONADO =====
@@ -59,35 +57,113 @@ export class AdminInversor implements OnInit {
     return r;
   });
 
-  // ===== GANANCIAS =====
-  recogidoHoy = computed(() => {
-    const hoy = this.hoy();
-    return this.pedidos.pedidos()
-      .filter((p) => p.estado === 'entregado' && this.esMismoDia(p.creado_en, hoy))
-      .reduce((t, p) => t + Number(p.total), 0);
+  pedidosDelInversor = computed(() => {
+    const inicio = this.seleccionado()?.fecha_inicio;
+    const desde = inicio ? new Date(inicio + 'T00:00:00').getTime() : 0;
+    return this.stats.pedidos().filter(
+      (p) => p.estado === 'entregado' && new Date(p.creado_en).getTime() >= desde
+    );
   });
 
-  gananciaHoySel = computed(() =>
-    Math.max(0, (this.recogidoHoy() - this.egresos.totalDia()) * this.pct())
+  // ===== 🎯 RANGO DE FECHAS (idéntico a Estadísticas) =====
+  private parseFecha(fecha: string | Date): Date {
+    if (fecha instanceof Date) return fecha;
+    const s = String(fecha).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const [y, m, d] = s.split('-').map((n) => Number(n));
+      return new Date(y, m - 1, d);
+    }
+    return new Date(s);
+  }
+
+  private rangoReparto = computed(() => {
+    const ahora = new Date();
+    const desde = new Date(ahora);
+    switch (this.periodoReparto()) {
+      case 'hoy':    desde.setHours(0, 0, 0, 0); break;
+      case 'semana': desde.setDate(desde.getDate() - 6);  desde.setHours(0, 0, 0, 0); break;
+      case 'mes':    desde.setDate(desde.getDate() - 29); desde.setHours(0, 0, 0, 0); break;
+      case 'ano':    desde.setMonth(0, 1); desde.setHours(0, 0, 0, 0); break;
+    }
+    return { desde, hasta: ahora };
+  });
+
+  // ===== 🎯 REPARTO (misma fórmula y datos que Estadísticas) =====
+  pedidosPeriodoReparto = computed(() => {
+    const r = this.rangoReparto();
+    return this.stats.pedidos().filter((p) => {
+      if (p.estado !== 'entregado') return false;
+      const f = new Date(p.creado_en);
+      return f >= r.desde && f <= r.hasta;
+    });
+  });
+
+  ventasPeriodo = computed(() =>
+    this.pedidosPeriodoReparto().reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0)
   );
 
-    gananciaMesSel = computed(() => {
+  egresosPeriodo = computed(() => {
+    const r = this.rangoReparto();
+    return this.stats.egresos()
+      .filter((e) => {
+        const f = this.parseFecha(e.fecha);
+        return f >= r.desde && f <= r.hasta;
+      })
+      .reduce((t, e) => t + Number(e.monto), 0);
+  });
+
+  gananciaNetaPeriodo = computed(() => Math.max(0, this.ventasPeriodo() - this.egresosPeriodo()));
+
+  repartoSocios = computed(() => {
+    const ganancia = this.gananciaNetaPeriodo();
+    return this.inv.inversores().map((socio) => {
+      const pct = Number(socio.porcentaje_ganancias);
+      const corresponde = ganancia * (pct / 100);
+      const pagado = socio.id === ID_DUENO ? 0 :
+        this.inv.pagos().filter((p) => p.inversor_id === socio.id).reduce((t, p) => t + Number(p.monto), 0);
+      const pendiente = Math.max(0, corresponde - pagado);
+      return { socio, pct, corresponde, pagado, pendiente };
+    });
+  });
+
+  // ===== 🎯 GANANCIAS DEL SELECCIONADO (datos completos de stats) =====
+  gananciaHoySel = computed(() => {
+    const hoy = this.hoy();
+    const ventas = this.pedidosDelInversor()
+      .filter((p) => this.esMismoDia(p.creado_en, hoy))
+      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+    const egresos = this.stats.egresos()
+      .filter((e) => e.fecha === hoy)
+      .reduce((t, e) => t + Number(e.monto), 0);
+    return Math.max(0, ventas - egresos) * this.pct();
+  });
+
+  gananciaMesSel = computed(() => {
     const ahora = new Date();
-    const recogido = this.pedidosDelInversor()
+    const ventas = this.pedidosDelInversor()
       .filter((p) => {
         const f = new Date(p.creado_en);
         return f.getMonth() === ahora.getMonth() && f.getFullYear() === ahora.getFullYear();
       })
-      .reduce((t, p) => t + Number(p.total), 0);
-    return recogido * 0.7 * this.pct();
+      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+    const egresos = this.stats.egresos()
+      .filter((e) => {
+        const f = this.parseFecha(e.fecha);
+        return f.getMonth() === ahora.getMonth() && f.getFullYear() === ahora.getFullYear();
+      })
+      .reduce((t, e) => t + Number(e.monto), 0);
+    return Math.max(0, ventas - egresos) * this.pct();
   });
 
   gananciaAnioSel = computed(() => {
     const anio = new Date().getFullYear();
-    const recogido = this.pedidosDelInversor()
+    const ventas = this.pedidosDelInversor()
       .filter((p) => new Date(p.creado_en).getFullYear() === anio)
-      .reduce((t, p) => t + Number(p.total), 0);
-    return recogido * 0.7 * this.pct();
+      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+    const egresos = this.stats.egresos()
+      .filter((e) => this.parseFecha(e.fecha).getFullYear() === anio)
+      .reduce((t, e) => t + Number(e.monto), 0);
+    return Math.max(0, ventas - egresos) * this.pct();
   });
 
   roiSel = computed(() => {
@@ -100,16 +176,13 @@ export class AdminInversor implements OnInit {
     Math.max(0, this.gananciaAnioSel() - this.totalPagadoSel())
   );
 
-  // ===== 📅 DÍAS REALMENTE TRABAJADOS =====
-
-    // Días trabajados DESDE que entró el inversor
+  // ===== PROYECCIÓN (días trabajados) =====
   diasTrabajadosTotal = computed(() => {
     const set = new Set<string>();
     for (const p of this.pedidosDelInversor()) set.add(p.creado_en.split('T')[0]);
     return set.size;
   });
 
-  // Días trabajados en los últimos 30 días (pero nunca antes de fecha_inicio)
   diasTrabajadosMes = computed(() => {
     const set = new Set<string>();
     const limite = 30 * 24 * 60 * 60 * 1000;
@@ -120,26 +193,20 @@ export class AdminInversor implements OnInit {
     return set.size;
   });
 
-  // Total recogido DESDE que entró el inversor
   recogidoTotal = computed(() =>
-    this.pedidosDelInversor().reduce((t, p) => t + Number(p.total), 0)
+    this.pedidosDelInversor().reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0)
   );
 
-  // 💵 Promedio de ventas por DÍA TRABAJADO
   promedioDiaTrabajado = computed(() => {
     const dias = this.diasTrabajadosTotal();
     if (dias === 0) return 0;
     return this.recogidoTotal() / dias;
   });
 
-  // ===== PROYECCIÓN =====
-
-  // 🚀 Proyección mensual = promedio por día trabajado × días trabajados (últ. 30) × margen × %
   proyeccionMensualSel = computed(() =>
     this.promedioDiaTrabajado() * this.diasTrabajadosMes() * 0.7 * this.pct()
   );
 
-  // Ganancia del inversor por cada día que trabajas
   gananciaPorDiaTrabajado = computed(() =>
     this.promedioDiaTrabajado() * 0.7 * this.pct()
   );
@@ -151,7 +218,7 @@ export class AdminInversor implements OnInit {
     return Math.ceil(capital / mensual).toString();
   });
 
-  // ===== ACCIONES =====
+  // ===== ACCIONES CRUD =====
   async crearInversor() {
     if (!this.nuevo.nombre.trim()) return;
     const id = await this.inv.crear({
@@ -229,13 +296,4 @@ export class AdminInversor implements OnInit {
     const [y, m, d] = fecha.split('-').map((n) => Number(n));
     return f.getFullYear() === y && f.getMonth() + 1 === m && f.getDate() === d;
   }
-
-    // ===== 📅 Pedidos que cuentan para el inversor (desde su fecha_inicio) =====
-  pedidosDelInversor = computed(() => {
-    const inicio = this.seleccionado()?.fecha_inicio;
-    const desde = inicio ? new Date(inicio + 'T00:00:00').getTime() : 0;
-    return this.pedidos.pedidos().filter(
-      (p) => p.estado === 'entregado' && new Date(p.creado_en).getTime() >= desde
-    );
-  });
 }
