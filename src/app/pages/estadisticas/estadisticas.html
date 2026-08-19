@@ -34,7 +34,6 @@
     @if (tab() === 'ventas') {
       <div class="tab-content">
 
-        <!-- KPIs principales -->
         <div class="stats-grid">
           <div class="stat-card stat-dorado">
             <span class="stat-icono">💰</span>
@@ -69,7 +68,6 @@
           </div>
         </div>
 
-        <!-- Indicadores -->
         <div class="indicadores">
           <div class="indicador"><span>❌ Cancelación:</span><strong>{{ service.tasaCancelacion() }}%</strong></div>
           <div class="indicador"><span>⏳ En proceso:</span><strong>{{ service.enProceso() }}</strong></div>
@@ -78,7 +76,6 @@
 
         <div class="grid-graficos">
 
-          <!-- Desglose de ingresos -->
           <div class="grafico-card ancho-completo">
             <h4>💰 Desglose de ingresos (entregados)</h4>
             <div class="desglose-grid">
@@ -88,16 +85,15 @@
               </div>
               <div class="desglose-item">
                 <span class="desglose-icono">🛵</span>
-                <div><strong>{{ service.formatearPrecio(service.domicilios()) }}</strong><p>Domicilios</p></div>
+                <div><strong>{{ service.formatearPrecio(service.domicilios()) }}</strong><p>Domicilios (externo)</p></div>
               </div>
               <div class="desglose-item total">
                 <span class="desglose-icono">💰</span>
-                <div><strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong><p>Total ingresos</p></div>
+                <div><strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong><p>Total recaudado</p></div>
               </div>
             </div>
           </div>
 
-          <!-- Serie de ventas -->
           <div class="grafico-card ancho-completo">
             <h4>📈 Ventas del período</h4>
             @if (service.mejorMomento(); as mejor) {
@@ -116,7 +112,6 @@
             </div>
           </div>
 
-          <!-- Estados -->
           <div class="grafico-card">
             <h4>Estados de pedidos</h4>
             <div class="donut-contenedor">
@@ -134,7 +129,6 @@
             </div>
           </div>
 
-          <!-- Métodos de pago -->
           <div class="grafico-card">
             <h4>💳 Métodos de pago</h4>
             @if (service.metodosPago().length === 0) {
@@ -154,7 +148,6 @@
             }
           </div>
 
-          <!-- Top productos -->
           <div class="grafico-card">
             <h4>🥇 Productos más vendidos</h4>
             @if (service.productoEstrella(); as estrella) {
@@ -175,7 +168,6 @@
             </div>
           </div>
 
-          <!-- Top clientes -->
           <div class="grafico-card">
             <h4>👑 Mejores clientes</h4>
             <div class="lista-top">
@@ -198,13 +190,19 @@
     @if (tab() === 'finanzas') {
       <div class="tab-content">
 
-        <!-- KPIs financieros -->
         <div class="stats-grid">
           <div class="stat-card stat-verde">
-            <span class="stat-icono">💰</span>
+            <span class="stat-icono">💵</span>
             <div>
-              <h3>{{ service.formatearPrecio(service.ingresosTotales()) }}</h3>
-              <p>Ingresos totales</p>
+              <h3>{{ service.formatearPrecio(service.ventas()) }}</h3>
+              <p>Ingresos propios (productos)</p>
+            </div>
+          </div>
+          <div class="stat-card stat-azul">
+            <span class="stat-icono">🛵</span>
+            <div>
+              <h3>{{ service.formatearPrecio(service.domicilios()) }}</h3>
+              <p>Domicilios (externo)</p>
             </div>
           </div>
           <div class="stat-card stat-rojo">
@@ -215,32 +213,24 @@
             </div>
           </div>
           <div class="stat-card" [class.stat-verde]="service.gananciaNeta() >= 0" [class.stat-rojo]="service.gananciaNeta() < 0">
-            <span class="stat-icono">📈</span>
+            <span class="stat-icono">💎</span>
             <div>
               <h3>{{ service.formatearPrecio(service.gananciaNeta()) }}</h3>
-              <p>Ganancia neta</p>
-            </div>
-          </div>
-          <div class="stat-card stat-morado">
-            <span class="stat-icono">💼</span>
-            <div>
-              <h3>{{ service.totalEmpleados() }}</h3>
-              <p>Empleados activos</p>
+              <p>Ganancia neta (sin domicilios)</p>
             </div>
           </div>
         </div>
 
         <div class="grid-graficos">
 
-          <!-- Balance financiero -->
           <div class="grafico-card ancho-completo">
             <h4>📊 Balance financiero del período</h4>
             <div class="desglose-grid">
               <div class="desglose-item">
                 <span class="desglose-icono">💵</span>
                 <div>
-                  <strong>{{ service.formatearPrecio(service.ingresosTotales()) }}</strong>
-                  <p>Ingresos (ventas + domicilios)</p>
+                  <strong>{{ service.formatearPrecio(service.ventas()) }}</strong>
+                  <p>Ventas de productos</p>
                 </div>
               </div>
               <div class="desglose-item">
@@ -258,9 +248,12 @@
                 </div>
               </div>
             </div>
+            <p class="insight" style="margin-top: 14px">
+              🛵 Los domicilios ({{ service.formatearPrecio(service.domicilios()) }}) se manejan aparte: son un ingreso
+              externo que se paga al domiciliario, por eso <strong>NO</strong> se suman a la ganancia neta.
+            </p>
           </div>
 
-          <!-- Egresos por categoría -->
           <div class="grafico-card">
             <h4>💸 Egresos por categoría</h4>
             @if (service.egresosPorCategoria().length === 0) {
@@ -279,7 +272,6 @@
             }
           </div>
 
-          <!-- Costos operativos -->
           <div class="grafico-card">
             <h4>💼 Costos operativos</h4>
             <div class="lista-top">
@@ -301,6 +293,12 @@
                   <strong>{{ service.formatearPrecio(service.totalEgresos()) }}</strong>
                 </div>
               </div>
+              <div class="fila-top">
+                <div class="top-cabecera">
+                  <span>👥 Empleados activos</span>
+                  <strong>{{ service.totalEmpleados() }}</strong>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -308,11 +306,10 @@
       </div>
     }
 
-        <!-- ============ TAB: MARKETING ============ -->
+    <!-- ============ TAB: MARKETING ============ -->
     @if (tab() === 'marketing') {
       <div class="tab-content">
 
-        <!-- KPIs marketing -->
         <div class="stats-grid">
           <div class="stat-card stat-naranja">
             <span class="stat-icono">🏷️</span>
@@ -346,7 +343,6 @@
 
         <div class="grid-graficos">
 
-          <!-- Promos más usadas -->
           <div class="grafico-card">
             <h4>🏷️ Promociones más usadas</h4>
             @if (service.promosUsadas().length === 0) {
@@ -365,7 +361,6 @@
             }
           </div>
 
-          <!-- Estado de canjes -->
           <div class="grafico-card">
             <h4>🎟️ Estado de canjes</h4>
             <div class="desglose-grid dos-columnas">
@@ -391,7 +386,6 @@
             }
           </div>
 
-          <!-- Referidos -->
           <div class="grafico-card">
             <h4>🎯 Referidos</h4>
             <div class="lista-top">
@@ -416,7 +410,6 @@
             </div>
           </div>
 
-          <!-- Top clientes -->
           <div class="grafico-card">
             <h4>👑 Mejores clientes del período</h4>
             <div class="lista-top">

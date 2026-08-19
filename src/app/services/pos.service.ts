@@ -6,6 +6,13 @@ import { Producto } from './productos.service';
 export interface PosItem { producto: Producto; cantidad: number; }
 export interface PosCanje { codigo: string; premio: string; tipo: string; valor: number; cantidad: number; }
 
+// 🛵 ID especial (negativo) para identificar el producto virtual "Domicilio"
+export const ID_PRODUCTO_DOMICILIO = -999;
+
+// 🖼️ Imagen SVG integrada (no requiere subir archivo)
+const DOMICILIO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17a2b8"/><stop offset="1" stop-color="#0d5c66"/></linearGradient></defs><rect width="300" height="200" fill="url(#g)"/><text x="150" y="118" font-size="88" text-anchor="middle">🛵</text><text x="150" y="172" font-size="26" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold">DOMICILIO</text></svg>`;
+export const DOMICILIO_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(DOMICILIO_SVG);
+
 @Injectable({ providedIn: 'root' })
 export class PosService {
   private supabase = inject(SupabaseService);
@@ -25,12 +32,37 @@ export class PosService {
   errorCanje = signal<string | null>(null);
   validandoCanje = signal(false);
 
-  domicilio = computed(() =>
-    this.tipoEntrega() === 'domicilio' ? Number(this.config.config().domicilio) : 0
-  );
+  // ===== 🛵 Producto virtual "Domicilio" (precio = valor configurado en Ajustes) =====
+  productoDomicilio(): Producto {
+    return {
+      id: ID_PRODUCTO_DOMICILIO,
+      nombre: 'Domicilio',
+      precio: Number(this.config.config().domicilio),
+      imagen: DOMICILIO_IMG,
+      categoria: 'domicilio',
+      activo: true,
+      orden: 999,
+    } as unknown as Producto;
+  }
 
+  // 🛵 Si el admin agregó el producto "Domicilio", ese es el cobro manual
+  domicilioManual = computed(() => {
+    const it = this.items().find((i) => i.producto.id === ID_PRODUCTO_DOMICILIO);
+    return it ? it.cantidad * Number(it.producto.precio) : 0;
+  });
+
+  // 🛵 Domicilio final = manual (producto) O automático (toggle), nunca ambos
+  domicilio = computed(() => {
+    const manual = this.domicilioManual();
+    if (manual > 0) return manual;
+    return this.tipoEntrega() === 'domicilio' ? Number(this.config.config().domicilio) : 0;
+  });
+
+  // 💵 Subtotal SIN contar el producto Domicilio (ese va en la línea "Domicilio")
   subtotal = computed(() =>
-    this.items().reduce((t, i) => t + i.cantidad * Number(i.producto.precio), 0)
+    this.items()
+      .filter((i) => i.producto.id !== ID_PRODUCTO_DOMICILIO)
+      .reduce((t, i) => t + i.cantidad * Number(i.producto.precio), 0)
   );
 
   // ===== 🎟️ Descuento según el tipo de premio =====
@@ -57,7 +89,7 @@ export class PosService {
       case 'monto':
         return Number(c.valor);
       default:
-        return 0; // 'otro' se entrega físico
+        return 0;
     }
   });
 
@@ -140,12 +172,11 @@ export class PosService {
     this.limpiarCanje();
   }
 
-  // ===== ✅ Registrar venta (con canje) =====
+  // ===== ✅ Registrar venta =====
   async registrar(): Promise<number | null> {
     if (this.items().length === 0) return null;
     const canje = this.canjeValido();
 
-    // 🔒 Reclamar el canje ANTES de registrar
     if (canje) {
       const { data: reclamado } = await this.supabase.client.rpc('reclamar_canje', { p_codigo: canje.codigo });
       if (!reclamado) {
@@ -155,11 +186,14 @@ export class PosService {
       }
     }
 
-    const items = this.items().map((i) => ({
-      nombre: i.producto.nombre,
-      cantidad: i.cantidad,
-      precio: Number(i.producto.precio),
-    }));
+    // 🛵 El producto "Domicilio" NO va en items: se guarda en el campo `domicilio`
+    const items = this.items()
+      .filter((i) => i.producto.id !== ID_PRODUCTO_DOMICILIO)
+      .map((i) => ({
+        nombre: i.producto.nombre,
+        cantidad: i.cantidad,
+        precio: Number(i.producto.precio),
+      }));
 
     const { data, error } = await this.supabase.client
       .from('pedidos')
@@ -167,7 +201,7 @@ export class PosService {
         nombre_cliente: this.clienteNombre().trim() || 'Cliente',
         apellido_cliente: 'Mostrador',
         telefono: this.clienteTelefono().trim() || '0000000000',
-        direccion: this.tipoEntrega() === 'domicilio' ? ' Domicilio POS' : '🏪 En el local',
+        direccion: this.domicilio() > 0 ? ' Domicilio POS' : '🏪 En el local',
         items,
         subtotal: this.subtotal(),
         descuento: this.descuentoTotal(),
@@ -183,7 +217,6 @@ export class PosService {
       .single();
 
     if (error) {
-      // ↩️ Si falló, liberar el canje para no perderlo
       if (canje) await this.supabase.client.rpc('liberar_canje', { p_codigo: canje.codigo });
       console.error('❌ Error POS:', error.message);
       return null;

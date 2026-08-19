@@ -39,7 +39,7 @@ export class EstadisticasService {
 
   async cargar(): Promise<void> {
     this.cargando.set(true);
-    
+
     const [pedidosRes, egresosRes, canjesRes, empleadosRes, pagosEmpRes, invRes, pagosInvRes] = await Promise.all([
       this.supabase.client.from('pedidos').select('*').order('creado_en', { ascending: true }),
       this.supabase.client.from('egresos').select('*').order('fecha', { ascending: false }),
@@ -110,20 +110,17 @@ export class EstadisticasService {
     return { desde, hasta, antDesde, antHasta };
   });
 
-    private enRango(fecha: string | Date, desde: Date, hasta: Date): boolean {
+  private enRango(fecha: string | Date, desde: Date, hasta: Date): boolean {
     const f = this.parseFecha(fecha);
     return f >= desde && f <= hasta;
   }
 
-  // 🕐 Convierte fechas sin alterar la zona horaria:
-  // - "YYYY-MM-DD" (columnas date) → fecha LOCAL (evita el desfase UTC)
-  // - ISO con hora (creado_en) → new Date() normal
   private parseFecha(fecha: string | Date): Date {
     if (fecha instanceof Date) return fecha;
     const s = String(fecha).trim();
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
       const [y, m, d] = s.split('-').map((n) => Number(n));
-      return new Date(y, m - 1, d); // medianoche LOCAL
+      return new Date(y, m - 1, d);
     }
     return new Date(s);
   }
@@ -138,17 +135,19 @@ export class EstadisticasService {
     return this.pedidos().filter((p) => this.enRango(p.creado_en, r.antDesde, r.antHasta));
   });
 
-  // ================= KPIs EXISTENTES =================
+  // ================= KPIs =================
   ventas = computed(() =>
     this.pedidosPeriodo().filter((p) => p.estado === 'entregado')
       .reduce((t, p) => t + this.ventaProductos(p), 0)
   );
 
+  // 🛵 Domicilios = ingreso EXTERNO (se paga al domiciliario), no es ganancia propia
   domicilios = computed(() =>
     this.pedidosPeriodo().filter((p) => p.estado === 'entregado')
       .reduce((t, p) => t + Number(p.domicilio), 0)
   );
 
+  // Total recaudado (productos + domicilios) — solo informativo
   ingresosTotales = computed(() => this.ventas() + this.domicilios());
 
   ventasAnteriores = computed(() =>
@@ -181,7 +180,12 @@ export class EstadisticasService {
 
   totalEgresos = computed(() => this.egresosPeriodo().reduce((t, e) => t + Number(e.monto), 0));
 
-  gananciaNeta = computed(() => this.ingresosTotales() - this.totalEgresos());
+  // 💎 GANANCIA NETA REAL = ventas de productos − egresos
+  // (NO incluye domicilios porque son un ingreso externo)
+  gananciaNeta = computed(() => this.ventas() - this.totalEgresos());
+
+  // Referencia: ganancia si contáramos los domicilios (no usar como real)
+  gananciaConDomicilios = computed(() => this.ingresosTotales() - this.totalEgresos());
 
   egresosPorCategoria = computed(() => {
     const mapa = new Map<string, number>();
@@ -241,7 +245,7 @@ export class EstadisticasService {
       .reduce((t, p) => t + Number(p.monto), 0);
   });
 
-  // ================= SERIES Y TOPS (EXISTENTES) =================
+  // ================= SERIES Y TOPS =================
   serieVentas = computed<PuntoSerie[]>(() => {
     const entregados = this.pedidosPeriodo().filter((p) => p.estado === 'entregado');
     const puntos: PuntoSerie[] = [];
@@ -378,23 +382,19 @@ export class EstadisticasService {
     return '$' + Number(valor).toLocaleString('es-CO');
   }
 
-    // ================= 🆕 MÉTRICAS DE MARKETING (para el template) =================
-
-  // Tasa de conversión de canjes (reclamados / total)
+  // ================= 🆕 MÉTRICAS DE MARKETING =================
   tasaConversionCanjes = computed(() => {
     const total = this.canjesReclamados() + this.canjesPendientes();
     if (total === 0) return 0;
     return Math.round((this.canjesReclamados() / total) * 100);
   });
 
-  // Ingresos generados por pedidos referidos
   ingresosReferidos = computed(() =>
     this.pedidosPeriodo()
       .filter((p) => p.estado === 'entregado' && (p as any).referido_por)
       .reduce((t, p) => t + Number(p.total), 0)
   );
 
-  // % de pedidos referidos sobre el total de entregados
   porcentajeReferidos = computed(() => {
     const entregados = this.entregados();
     if (entregados === 0) return 0;

@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { PosService } from '../../services/pos.service';
 import { ProductosService, Producto } from '../../services/productos.service';
 
-type Cat = 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa';
+type Cat = 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'domicilio';
 
 @Component({
   selector: 'app-admin-pos',
@@ -32,14 +32,15 @@ export class AdminPos implements OnInit {
     { valor: 'jugo', etiqueta: '🍹 Jugos' },
     { valor: 'frio', etiqueta: '🧊 Fríos' },
     { valor: 'salsa', etiqueta: '🥫 Salsas' },
+    { valor: 'domicilio', etiqueta: '🛵 Domicilio' },
   ];
 
-  // 🥟🍹🥫 Orden fijo de categorías
   private ordenCat: Record<string, number> = {
     empanada: 0,
     jugo: 1,
     frio: 2,
     salsa: 3,
+    domicilio: 4,
   };
 
   private ordenDe(p: Producto): number {
@@ -50,9 +51,14 @@ export class AdminPos implements OnInit {
     await this.productos.cargar();
   }
 
-  // ===== Lista filtrada, buscada y ORDENADA por categoría =====
+  // ===== Lista con el producto virtual "Domicilio" incluido =====
   lista = computed(() => {
-    let l = this.productos.catalogo().filter((p) => p.activo);
+    const todos = [
+      ...this.productos.catalogo().filter((p) => p.activo),
+      this.pos.productoDomicilio(),
+    ];
+
+    let l = todos;
     if (this.filtroCat() !== 'todos') l = l.filter((p) => p.categoria === this.filtroCat());
     const q = this.busqueda().trim().toLowerCase();
     if (q) l = l.filter((p) => p.nombre.toLowerCase().includes(q));
@@ -60,11 +66,9 @@ export class AdminPos implements OnInit {
     return [...l].sort((a, b) => {
       const ca = this.ordenCat[a.categoria] ?? 99;
       const cb = this.ordenCat[b.categoria] ?? 99;
-      if (ca !== cb) return ca - cb;                       // 1️⃣ categoría
-      if (this.ordenDe(a) !== this.ordenDe(b)) {
-        return this.ordenDe(a) - this.ordenDe(b);          // 2️⃣ orden interno
-      }
-      return a.nombre.localeCompare(b.nombre);             // 3️⃣ nombre
+      if (ca !== cb) return ca - cb;
+      if (this.ordenDe(a) !== this.ordenDe(b)) return this.ordenDe(a) - this.ordenDe(b);
+      return a.nombre.localeCompare(b.nombre);
     });
   });
 
