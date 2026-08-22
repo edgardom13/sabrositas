@@ -2,11 +2,10 @@
 
   @if (toast()) { <div class="pos-toast">{{ toast() }}</div> }
 
-  <!-- ===== COLUMNA IZQUIERDA: PRODUCTOS ===== -->
   <div class="pos-productos">
     <div class="pos-buscar">
       <span>🔍</span>
-      <input [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" placeholder="Buscar producto..." />
+      <input [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" placeholder="Buscar producto o combo..." />
     </div>
 
     <div class="pos-cats">
@@ -17,28 +16,42 @@
       }
     </div>
 
-    <div class="pos-grid">
-      @for (p of lista(); track p.id) {
-        <button class="pos-item" (click)="pos.agregar(p)">
-          <img [src]="p.imagen" [alt]="p.nombre" />
-          <div class="pos-item-info">
-            <strong>{{ p.nombre }}</strong>
-            <span>{{ pos.formatearPrecio(p.precio) }}</span>
-          </div>
-          @if (pos.cantidadDe(p.id) > 0) {
-            <span class="pos-qty">{{ pos.cantidadDe(p.id) }}</span>
-          }
-        </button>
-      }
-    </div>
+    <!-- 🎁 GRID DE COMBOS -->
+    @if (filtroCat() === 'todos' || filtroCat() === 'combos') {
+      <div class="pos-grid">
+        @for (c of combosLista(); track c.id) {
+          <button class="pos-item pos-item-combo" (click)="abrirComboModal(c)">
+            <img [src]="c.imagen" [alt]="c.nombre" />
+            <div class="pos-item-info">
+              <strong>{{ c.nombre }}</strong>
+              <span>{{ pos.formatearPrecio(c.precio) }}</span>
+              <small class="pos-combo-mini">{{ resumenCombo(c) }}</small>
+            </div>
+            @if (pos.comboCantidadDe(c.id) > 0) { <span class="pos-qty">{{ pos.comboCantidadDe(c.id) }}</span> }
+          </button>
+        }
+      </div>
+    }
+
+    <!-- 🥟 GRID DE PRODUCTOS -->
+    @if (filtroCat() !== 'combos') {
+      <div class="pos-grid">
+        @for (p of lista(); track p.id) {
+          <button class="pos-item" (click)="pos.agregar(p)">
+            <img [src]="p.imagen" [alt]="p.nombre" />
+            <div class="pos-item-info">
+              <strong>{{ p.nombre }}</strong>
+              <span>{{ pos.formatearPrecio(p.precio) }}</span>
+            </div>
+            @if (pos.cantidadDe(p.id) > 0) { <span class="pos-qty">{{ pos.cantidadDe(p.id) }}</span> }
+          </button>
+        }
+      </div>
+    }
   </div>
 
-  <!-- ===== OVERLAY (móvil) ===== -->
-  @if (panelAbierto()) {
-    <div class="pos-overlay" (click)="cerrarPanel()"></div>
-  }
+  @if (panelAbierto()) { <div class="pos-overlay" (click)="cerrarPanel()"></div> }
 
-  <!-- ===== COLUMNA DERECHA: PEDIDO (drawer en móvil) ===== -->
   <div class="pos-pedido" [class.abierto]="panelAbierto()">
     <div class="pos-pedido-header">
       <h3>🧾 Pedido actual</h3>
@@ -46,19 +59,25 @@
     </div>
 
     @if (pos.items().length === 0) {
-      <div class="pos-vacio">🛒 Toca un producto para agregarlo</div>
+      <div class="pos-vacio">🛒 Toca un producto o combo para agregarlo</div>
     } @else {
       <div class="pos-items">
-        @for (i of pos.items(); track i.producto.id) {
-          <div class="pos-fila">
+        @for (i of pos.items(); track i.uid) {
+          <div class="pos-fila" [class.pos-fila-combo]="!!i.combo">
             <div class="pos-fila-info">
               <strong>{{ i.producto.nombre }}</strong>
               <small>{{ pos.formatearPrecio(i.producto.precio) }} c/u</small>
+              @if (i.combo) {
+                <div class="pos-combo-detalle">
+                  @for (e of i.combo.empanadas; track e.nombre) { <span>{{ e.cantidad }}× 🥟 {{ e.nombre }}</span> }
+                  @for (j of i.combo.jugosElegidos; track $index) { <span>1× 🍹 {{ j }}</span> }
+                </div>
+              }
             </div>
             <div class="pos-stepper">
-              <button (click)="pos.restar(i.producto.id)">−</button>
+              <button (click)="pos.restarUid(i.uid)">−</button>
               <span>{{ i.cantidad }}</span>
-              <button (click)="pos.agregar(i.producto)">+</button>
+              <button (click)="pos.sumarUid(i.uid)">+</button>
             </div>
             <strong class="pos-fila-total">{{ pos.formatearPrecio(i.cantidad * i.producto.precio) }}</strong>
           </div>
@@ -70,7 +89,6 @@
       <label>Cliente (opcional)</label>
       <input [ngModel]="pos.clienteNombre()" (ngModelChange)="pos.clienteNombre.set($event)" placeholder="Nombre" />
       <input [ngModel]="pos.clienteTelefono()" (ngModelChange)="pos.clienteTelefono.set($event)" placeholder="Teléfono" />
-
       <label>Entrega</label>
       <div class="pos-toggle">
         <button [class.activo]="pos.tipoEntrega() === 'local'" (click)="pos.tipoEntrega.set('local')">🏪 Local</button>
@@ -78,24 +96,16 @@
       </div>
     </div>
 
-    <!-- 🎟️ Canje / premio -->
     <div class="pos-canje">
       <label>🎟️ Código de canje</label>
       <div class="pos-canje-row">
-        <input
-          [ngModel]="pos.codigoCanje()"
-          (ngModelChange)="pos.codigoCanje.set($event)"
-          placeholder="CANJE-XXXX"
-        />
+        <input [ngModel]="pos.codigoCanje()" (ngModelChange)="pos.codigoCanje.set($event)" placeholder="CANJE-XXXX" />
         <button (click)="pos.validarCanje()">✔</button>
       </div>
       @if (pos.validandoCanje()) { <small class="pos-canje-info">⏳ Validando…</small> }
       @if (pos.errorCanje()) { <small class="pos-canje-error">{{ pos.errorCanje() }}</small> }
       @if (pos.canjeValido(); as c) {
-        <div class="pos-canje-chip">
-          🎁 {{ c.premio }}
-          <button (click)="pos.limpiarCanje()">✕</button>
-        </div>
+        <div class="pos-canje-chip">🎁 {{ c.premio }} <button (click)="pos.limpiarCanje()">✕</button></div>
       }
     </div>
 
@@ -106,10 +116,7 @@
         <input type="number" class="pos-desc" [ngModel]="pos.descuentoManual()" (ngModelChange)="pos.descuentoManual.set(+$event || 0)" placeholder="0" />
       </div>
       @if (pos.descuentoCanje() > 0) {
-        <div class="pos-linea">
-          <span>🎟️ Canje</span>
-          <strong class="pos-neg">-{{ pos.formatearPrecio(pos.descuentoCanje()) }}</strong>
-        </div>
+        <div class="pos-linea"><span>🎟️ Canje</span><strong class="pos-neg">-{{ pos.formatearPrecio(pos.descuentoCanje()) }}</strong></div>
       }
       @if (pos.domicilio() > 0) {
         <div class="pos-linea"><span>Domicilio</span><strong>{{ pos.formatearPrecio(pos.domicilio()) }}</strong></div>
@@ -124,15 +131,12 @@
         <button [class.activo]="pos.metodoPago() === 'Tarjeta'" (click)="pos.metodoPago.set('Tarjeta')">💳 Tarjeta</button>
         <button [class.activo]="pos.metodoPago() === 'Nequi/Daviplata'" (click)="pos.metodoPago.set('Nequi/Daviplata')">📱 Nequi</button>
       </div>
-
       @if (pos.metodoPago() === 'Efectivo') {
         <div class="pos-linea">
           <span>Recibido</span>
           <input type="number" class="pos-desc" [ngModel]="pos.recibido()" (ngModelChange)="pos.recibido.set(+$event || 0)" placeholder="0" />
         </div>
-        @if (pos.cambio() > 0) {
-          <div class="pos-cambio">💰 Cambio: {{ pos.formatearPrecio(pos.cambio()) }}</div>
-        }
+        @if (pos.cambio() > 0) { <div class="pos-cambio">💰 Cambio: {{ pos.formatearPrecio(pos.cambio()) }}</div> }
       }
     </div>
 
@@ -144,11 +148,54 @@
     </div>
   </div>
 
-  <!-- ===== 🛒 BOTÓN FLOTANTE (solo móvil) ===== -->
   <button class="pos-fab" (click)="abrirPanel()">
-    🛒
-    <span class="fab-qty">{{ pos.totalProductos() }}</span>
-    <span class="fab-total">{{ pos.formatearPrecio(pos.total()) }}</span>
+    🛒 <span class="fab-qty">{{ pos.totalProductos() }}</span> <span class="fab-total">{{ pos.formatearPrecio(pos.total()) }}</span>
   </button>
+
+    <!-- 🎁 MODAL ELEGIR JUGO -->
+  @if (comboModal(); as combo) {
+    <div class="pos-modal-overlay" (click)="cancelarCombo()">
+      <div class="pos-modal" (click)="$event.stopPropagation()">
+        <h3>🍹 Elige el jugo · {{ combo.nombre }}</h3>
+        <p class="pos-modal-sub">Selecciona {{ combo.jugos }} jugo(s) · {{ pos.formatearPrecio(combo.precio) }}</p>
+
+        <!-- 🍹 JUGOS COMO CARDS (igual que los productos) -->
+        <div class="pos-grid pos-modal-grid">
+          @for (j of productos.jugos(); track j.id) {
+            <button
+              class="pos-item"
+              [class.pos-item-elegido]="jugoElegidoCantidad(j.nombre) > 0"
+              [disabled]="jugoElegidoCantidad(j.nombre) === 0 && jugosElegidos().length >= combo.jugos"
+              (click)="elegirJugo(j.nombre)"
+            >
+              <img [src]="j.imagen" [alt]="j.nombre" />
+              <div class="pos-item-info">
+                <strong>{{ j.nombre }}</strong>
+                <span>{{ pos.formatearPrecio(j.precio) }}</span>
+              </div>
+              @if (jugoElegidoCantidad(j.nombre) > 0) {
+                <span class="pos-qty">{{ jugoElegidoCantidad(j.nombre) }}</span>
+              }
+            </button>
+          }
+        </div>
+
+        <!-- chips de selección -->
+        <div class="pos-modal-sel">
+          @if (jugosElegidos().length === 0) {
+            <span class="pos-sel-vacio">Toca los jugos que quieres…</span>
+          }
+          @for (s of jugosElegidos(); track $index) {
+            <span class="pos-sel-chip">🍹 {{ s }} <button (click)="quitarJugo($index)">✕</button></span>
+          }
+        </div>
+
+        <div class="pos-modal-acciones">
+          <button class="btn-limpiar" (click)="cancelarCombo()">Cancelar</button>
+          <button class="btn-cobrar" [disabled]="jugosElegidos().length !== combo.jugos" (click)="confirmarCombo()">✅ Agregar combo</button>
+        </div>
+      </div>
+    </div>
+  }
 
 </div>

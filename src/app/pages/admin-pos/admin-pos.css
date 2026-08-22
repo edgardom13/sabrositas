@@ -276,3 +276,52 @@ body.claro .pos-canje-chip { color: #7b2cbf !important; }
     background: linear-gradient(180deg, #ffffff 0%, #fffdf8 100%) !important;
   }
 }
+
+/* ===== 🎁 COMBOS ===== */
+.pos-item-combo { border-color: rgba(255, 193, 7, 0.4); }
+.pos-combo-mini { color: rgba(255,255,255,.6); font-size: 11px; }
+
+.pos-fila-combo { border: 1.5px solid rgba(255, 193, 7, 0.35); background: rgba(255, 193, 7, 0.06); }
+.pos-combo-detalle { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.pos-combo-detalle span { color: rgba(255,255,255,.7); font-size: 11px; }
+
+/* ===== 🎁 MODAL ===== */
+.pos-modal-overlay {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.pos-modal {
+  width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto;
+  background: linear-gradient(180deg, #2b1608, #1d0e06);
+  border: 2px solid #ffc107; border-radius: 18px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  animation: deslizar .25s ease;
+}
+.pos-modal h3 { color: #ffd54f; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; margin: 0; font-size: 20px; }
+.pos-modal-sub { color: rgba(255,255,255,.65); font-size: 13px; margin: -6px 0 0; }
+
+.pos-modal-jugos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pos-jugo-btn {
+  padding: 11px; border-radius: 10px; border: 1.5px solid rgba(255,193,7,.35);
+  background: rgba(255,193,7,.06); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .2s;
+}
+.pos-jugo-btn:hover { background: rgba(255,193,7,.15); border-color: #ffc107; }
+
+.pos-modal-sel { display: flex; flex-wrap: wrap; gap: 6px; min-height: 34px; }
+.pos-sel-vacio { color: rgba(255,255,255,.4); font-size: 12px; font-style: italic; }
+.pos-sel-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(81,207,102,.12); border: 1px solid rgba(81,207,102,.4);
+  color: #51cf66; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+}
+.pos-sel-chip button { background: none; border: none; color: #51cf66; cursor: pointer; font-size: 12px; }
+
+.pos-modal-acciones { display: flex; gap: 8px; }
+
+body.claro .pos-modal { background: #fff !important; }
+body.claro .pos-modal h3 { color: #b45309 !important; }
+body.claro .pos-modal-sub { color: rgba(58,36,16,.7) !important; }
+body.claro .pos-jugo-btn { background: #fffdf8 !important; color: #3a2410 !important; border-color: rgba(180,90,20,.3) !important; }
+body.claro .pos-combo-mini, body.claro .pos-combo-detalle span { color: rgba(58,36,16,.6) !important; }
