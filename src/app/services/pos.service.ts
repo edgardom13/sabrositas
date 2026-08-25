@@ -48,7 +48,7 @@ export const COMBOS_POS: ComboPos[] = [
   { id: -1003, nombre: 'Combo 3 · Carne Lovers',   precio: 5000,  empanadas: [{ nombre: CARNE, cantidad: 2 }],                                  jugos: 1, imagen: comboImg(3) },
   { id: -1004, nombre: 'Combo 4 · Pareja',         precio: 9000,  empanadas: [{ nombre: POLLO, cantidad: 2 }, { nombre: CARNE, cantidad: 2 }],  jugos: 1, imagen: comboImg(4) },
   { id: -1005, nombre: 'Combo 5 · Trío Mixto',     precio: 7000,  empanadas: [{ nombre: POLLO, cantidad: 2 }, { nombre: CARNE, cantidad: 1 }],  jugos: 1, imagen: comboImg(5) },
-  { id: -1006, nombre: 'Combo 6 · Familiar',       precio: 14000, empanadas: [{ nombre: POLLO, cantidad: 3 }, { nombre: CARNE, cantidad: 3 }],  jugos: 2, imagen: comboImg(6) },
+  { id: -1006, nombre: 'Combo 6 · Familiar',       precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 3 }, { nombre: CARNE, cantidad: 3 }],  jugos: 2, imagen: comboImg(6) },
   { id: -1007, nombre: 'Combo 7 · Familia Pollo',  precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 5 }, { nombre: CARNE, cantidad: 1 }],  jugos: 2, imagen: comboImg(7) },
   { id: -1008, nombre: 'Combo 8 · Familia Carne',  precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 1 }, { nombre: CARNE, cantidad: 5 }],  jugos: 2, imagen: comboImg(8) },
   { id: -1009, nombre: 'Combo 9 · Grande',         precio: 17000, empanadas: [{ nombre: POLLO, cantidad: 4 }, { nombre: CARNE, cantidad: 4 }],  jugos: 2, imagen: comboImg(9) },

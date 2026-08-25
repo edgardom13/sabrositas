@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import type { User } from '@supabase/supabase-js';
 
-export type Rol = 'admin' | 'domiciliario' | 'cliente';
+export type Rol = 'admin' | 'inversor' | 'domiciliario' | 'cliente';
 
 export interface Perfil {
   id: string;
@@ -12,6 +12,7 @@ export interface Perfil {
   telefono: string | null;
   codigo_referido: string | null;
   puntos: number;
+  permisos?: Record<string, { ver: boolean; editar: boolean }>;  // ← NUEVO
 }
 
 @Injectable({ providedIn: 'root' })
@@ -107,13 +108,18 @@ export class AuthService {
 
   // Cada rol tiene su ruta
   rutaPorRol(): string {
-    switch (this.rol()) {
-      case 'admin': return '/dashboard/pedidos';
-      case 'domiciliario': return '/panel-domiciliario';
-      case 'cliente': return '/panel-cliente';
-      default: return '/admin';
-    }
+  switch (this.rol()) {
+    case 'admin':
+    case 'inversor':
+      return '/dashboard/pedidos';
+    case 'domiciliario':
+      return '/panel-domiciliario';
+    case 'cliente':
+      return '/panel-cliente';
+    default:
+      return '/admin';
   }
+}
 
   private traducirError(mensaje: string): string {
     const traducciones: Record<string, string> = {

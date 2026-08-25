@@ -5,6 +5,7 @@ import { PedidosService } from '../../services/pedidos.service';
 import { NotificacionesService } from '../../services/notificaciones.service';
 import { Tema } from '../../services/tema';
 import { EgresosService } from '../../services/egresos.service';
+import { PermisosService, Modulo } from '../../services/permisos.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ export class Dashboard implements OnInit, OnDestroy {
   notificaciones = inject(NotificacionesService);
   tema = inject(Tema);
   egresosService = inject(EgresosService);
+  permisos = inject(PermisosService);  // ← NUEVO
 
   menuAbierto = signal(false);
   tituloRuta = signal('Panel de Control');
@@ -27,7 +29,17 @@ export class Dashboard implements OnInit, OnDestroy {
   emailUsuario = computed(() => this.auth.usuario()?.email ?? 'admin@sabrositas.com');
   inicialUsuario = computed(() => this.emailUsuario().charAt(0).toUpperCase() || 'A');
 
-  // ===== DROPDOWNS DEL SIDEBAR =====
+  nombreRol = computed(() => {
+    const map: Record<string, string> = {
+      admin: 'Administrador',
+      inversor: 'Inversionista',
+      domiciliario: 'Domiciliario',
+      cliente: 'Cliente',
+    };
+    return map[this.auth.rol() ?? ''] ?? 'Usuario';
+  });
+
+  // ===== DROPDOWNS (ahora con módulo para filtrar) =====
   gruposAbiertos = signal<Set<string>>(new Set(['catalogo']));
 
   gruposSidebar = [
@@ -36,8 +48,8 @@ export class Dashboard implements OnInit, OnDestroy {
       icono: '🍽️',
       nombre: 'Catálogo',
       items: [
-        { ruta: 'productos', icono: '🍽️', nombre: 'Productos' },
-        { ruta: 'promociones', icono: '🏷️', nombre: 'Promociones' },
+        { ruta: 'productos', icono: '🍽️', nombre: 'Productos', modulo: 'catalogo' as Modulo },
+        { ruta: 'promociones', icono: '🏷️', nombre: 'Promociones', modulo: 'promociones' as Modulo },
       ],
     },
     {
@@ -45,9 +57,9 @@ export class Dashboard implements OnInit, OnDestroy {
       icono: '📣',
       nombre: 'Marketing',
       items: [
-        { ruta: 'marketing', icono: '📣', nombre: 'Mensajes' },
-        { ruta: 'referidos', icono: '🎁', nombre: 'Referidos' },
-        { ruta: 'clientes', icono: '👥', nombre: 'Clientes' },
+        { ruta: 'marketing', icono: '📣', nombre: 'Mensajes', modulo: 'marketing' as Modulo },
+        { ruta: 'referidos', icono: '🎁', nombre: 'Referidos', modulo: 'referidos' as Modulo },
+        { ruta: 'clientes', icono: '👥', nombre: 'Clientes', modulo: 'clientes' as Modulo },
       ],
     },
     {
@@ -55,9 +67,9 @@ export class Dashboard implements OnInit, OnDestroy {
       icono: '📊',
       nombre: 'Reportes',
       items: [
-        { ruta: 'estadisticas', icono: '📊', nombre: 'Estadísticas' },
-        { ruta: 'reporte-productos', icono: '📦', nombre: 'Productos entregados' },
-        { ruta: 'egresos', icono: '💸', nombre: 'Egresos' },
+        { ruta: 'estadisticas', icono: '📊', nombre: 'Estadísticas', modulo: 'reportes' as Modulo },
+        { ruta: 'reporte-productos', icono: '📦', nombre: 'Productos entregados', modulo: 'reportes' as Modulo },
+        { ruta: 'egresos', icono: '💸', nombre: 'Egresos', modulo: 'egresos' as Modulo },
       ],
     },
     {
@@ -65,9 +77,9 @@ export class Dashboard implements OnInit, OnDestroy {
       icono: '💼',
       nombre: 'Administración',
       items: [
-        { ruta: 'inversor', icono: '💼', nombre: 'Inversor' },
-        { ruta: 'empleados', icono: '👥', nombre: 'Empleados' },
-        { ruta: 'usuarios', icono: '👥', nombre: 'Usuarios' },
+        { ruta: 'inversor', icono: '💼', nombre: 'Inversor', modulo: 'inversor' as Modulo },
+        { ruta: 'empleados', icono: '👥', nombre: 'Empleados', modulo: 'empleados' as Modulo },
+        { ruta: 'usuarios', icono: '👥', nombre: 'Usuarios', modulo: 'usuarios' as Modulo },
       ],
     },
     {
@@ -75,11 +87,26 @@ export class Dashboard implements OnInit, OnDestroy {
       icono: '⚙️',
       nombre: 'Sistema',
       items: [
-        { ruta: 'cierre', icono: '🔒', nombre: 'Cerrar tienda' },
-        { ruta: 'ajustes', icono: '⚙️', nombre: 'Ajustes' },
+        { ruta: 'cierre', icono: '🔒', nombre: 'Cerrar tienda', modulo: 'cierre' as Modulo },
+        { ruta: 'ajustes', icono: '⚙️', nombre: 'Ajustes', modulo: 'ajustes' as Modulo },
       ],
     },
   ];
+
+  // 🔐 Filtrar items según permisos
+  puedeVerItem(modulo: Modulo): boolean {
+    return this.permisos.puedeVer(modulo);
+  }
+
+  // Grupo visible si AL MENOS UN item se puede ver
+  grupoVisible(g: typeof this.gruposSidebar[number]): boolean {
+    return g.items.some((i) => this.puedeVerItem(i.modulo));
+  }
+
+  // Items filtrados del grupo
+  itemsVisibles(g: typeof this.gruposSidebar[number]) {
+    return g.items.filter((i) => this.puedeVerItem(i.modulo));
+  }
 
   private subRouter: any;
 
@@ -87,8 +114,6 @@ export class Dashboard implements OnInit, OnDestroy {
     this.pedidosService.cargarPedidos();
     this.notificaciones.iniciar();
     this.egresosService.cargar(this.hoyLocal());
-
-    // Detectar ruta actual y suscribir a cambios
     this.actualizarTitulo(this.router.url);
     this.subRouter = this.router.events.subscribe((evento) => {
       if (evento instanceof NavigationEnd) {
@@ -103,7 +128,6 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.subRouter) this.subRouter.unsubscribe();
   }
 
-  // ===== Mapeo centralizado de títulos =====
   private actualizarTitulo(url: string): void {
     const mapa: { match: string; titulo: string }[] = [
       { match: 'pedidos',           titulo: 'Gestión de Pedidos' },
@@ -126,7 +150,6 @@ export class Dashboard implements OnInit, OnDestroy {
     this.tituloRuta.set(match ? match.titulo : 'Panel de Control');
   }
 
-  // ===== DROPDOWN LOGIC =====
   grupoActivo(g: typeof this.gruposSidebar[number]): boolean {
     const ruta = this.router.url.split('/').pop() ?? '';
     return g.items.some((i) => i.ruta === ruta);
@@ -135,8 +158,7 @@ export class Dashboard implements OnInit, OnDestroy {
   toggleGrupo(id: string): void {
     this.gruposAbiertos.update((set) => {
       const nuevo = new Set(set);
-      if (nuevo.has(id)) nuevo.delete(id);
-      else nuevo.add(id);
+      if (nuevo.has(id)) nuevo.delete(id); else nuevo.add(id);
       return nuevo;
     });
   }
@@ -146,22 +168,10 @@ export class Dashboard implements OnInit, OnDestroy {
     return this.gruposAbiertos().has(id) || (grupo ? this.grupoActivo(grupo) : false);
   }
 
-  // ===== UTILIDADES =====
-  alternarMenu(): void {
-    this.menuAbierto.update((v) => !v);
-  }
-
-  cerrarMenu(): void {
-    this.menuAbierto.set(false);
-  }
-
-  alternarTema(): void {
-    this.tema.alternar();
-  }
-
-  cerrarSesion(): void {
-    this.auth.cerrarSesion();
-  }
+  alternarMenu(): void { this.menuAbierto.update((v) => !v); }
+  cerrarMenu(): void { this.menuAbierto.set(false); }
+  alternarTema(): void { this.tema.alternar(); }
+  cerrarSesion(): void { this.auth.cerrarSesion(); }
 
   private hoyLocal(): string {
     const d = new Date();

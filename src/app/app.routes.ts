@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { GuestGuard, roleGuard } from './guards/auth.guard';
+import { permisoGuard } from './guards/permiso.guard';
 
 export const routes: Routes = [
   // 🌐 Tienda pública
@@ -46,28 +47,118 @@ export const routes: Routes = [
     data: { rolPagina: 'cliente' },
   },
 
-  // 🛡️ Panel ADMIN
+  // 🛡️ Panel ADMIN / INVERSOR (ambos pueden entrar al dashboard)
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
-    canActivate: [roleGuard('admin')],
+    canActivate: [roleGuard('admin', 'inversor')],  // ← permite ambos roles
     children: [
       { path: '', redirectTo: 'pedidos', pathMatch: 'full' },
-      { path: 'pedidos', loadComponent: () => import('./pages/pedidos/pedidos').then((m) => m.Pedidos) },
-      { path: 'clientes', loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes) },
-      { path: 'estadisticas', loadComponent: () => import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas) },
-            { path: 'reporte-productos', loadComponent: () => import('./pages/reporte-productos/reporte-productos').then((m) => m.ReporteProductos) },
-      { path: 'productos', loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos) },
-      { path: 'egresos', loadComponent: () => import('./pages/admin-egresos/admin-egresos').then((m) => m.AdminEgresos) },
-      { path: 'promociones', loadComponent: () => import('./pages/admin-promociones/admin-promociones').then((m) => m.AdminPromociones) },
-      { path: 'marketing', loadComponent: () => import('./pages/admin-marketing/admin-marketing').then((m) => m.AdminMarketing) },
-      { path: 'referidos', loadComponent: () => import('./pages/referidos/referidos').then((m) => m.ReferidosAdmin) },
-      { path: 'usuarios', loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosAdmin) },
-      { path: 'ajustes', loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes) },
-            { path: 'inversor', loadComponent: () => import('./pages/admin-inversor/admin-inversor').then((m) => m.AdminInversor) },
-                  { path: 'empleados', loadComponent: () => import('./pages/admin-empleados/admin-empleados').then((m) => m.AdminEmpleados) },
-                  { path: 'pos', loadComponent: () => import('./pages/admin-pos/admin-pos').then((m) => m.AdminPos) },
-                  { path: 'cierre', loadComponent: () => import('./pages/admin-cierre/admin-cierre').then((m) => m.AdminCierre) },
+
+      // 📦 Pedidos
+      {
+        path: 'pedidos',
+        loadComponent: () => import('./pages/pedidos/pedidos').then((m) => m.Pedidos),
+        canActivate: [permisoGuard('pedidos')],
+      },
+
+      // 🏪 POS
+      {
+        path: 'pos',
+        loadComponent: () => import('./pages/admin-pos/admin-pos').then((m) => m.AdminPos),
+        canActivate: [permisoGuard('pos')],
+      },
+
+      // 👥 Clientes
+      {
+        path: 'clientes',
+        loadComponent: () => import('./pages/clientes/clientes').then((m) => m.Clientes),
+        canActivate: [permisoGuard('clientes')],
+      },
+
+      // 🍽️ Productos (catálogo)
+      {
+        path: 'productos',
+        loadComponent: () => import('./pages/productos/productos').then((m) => m.Productos),
+        canActivate: [permisoGuard('catalogo')],
+      },
+
+      // 🏷️ Promociones
+      {
+        path: 'promociones',
+        loadComponent: () => import('./pages/admin-promociones/admin-promociones').then((m) => m.AdminPromociones),
+        canActivate: [permisoGuard('promociones')],
+      },
+
+      // 📣 Marketing
+      {
+        path: 'marketing',
+        loadComponent: () => import('./pages/admin-marketing/admin-marketing').then((m) => m.AdminMarketing),
+        canActivate: [permisoGuard('marketing')],
+      },
+
+      // 🎁 Referidos
+      {
+        path: 'referidos',
+        loadComponent: () => import('./pages/referidos/referidos').then((m) => m.ReferidosAdmin),
+        canActivate: [permisoGuard('referidos')],
+      },
+
+      // 📊 Estadísticas
+      {
+        path: 'estadisticas',
+        loadComponent: () => import('./pages/estadisticas/estadisticas').then((m) => m.Estadisticas),
+        canActivate: [permisoGuard('reportes')],
+      },
+
+      // 📦 Productos entregados
+      {
+        path: 'reporte-productos',
+        loadComponent: () => import('./pages/reporte-productos/reporte-productos').then((m) => m.ReporteProductos),
+        canActivate: [permisoGuard('reportes')],
+      },
+
+      // 💸 Egresos
+      {
+        path: 'egresos',
+        loadComponent: () => import('./pages/admin-egresos/admin-egresos').then((m) => m.AdminEgresos),
+        canActivate: [permisoGuard('egresos')],
+      },
+
+      // 💼 Inversor
+      {
+        path: 'inversor',
+        loadComponent: () => import('./pages/admin-inversor/admin-inversor').then((m) => m.AdminInversor),
+        canActivate: [permisoGuard('inversor')],
+      },
+
+      // 👥 Empleados
+      {
+        path: 'empleados',
+        loadComponent: () => import('./pages/admin-empleados/admin-empleados').then((m) => m.AdminEmpleados),
+        canActivate: [permisoGuard('empleados')],
+      },
+
+      // 👥 Usuarios
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./pages/usuarios/usuarios').then((m) => m.UsuariosAdmin),
+        canActivate: [permisoGuard('usuarios')],
+      },
+
+      // 🔒 Cerrar tienda
+      {
+        path: 'cierre',
+        loadComponent: () => import('./pages/admin-cierre/admin-cierre').then((m) => m.AdminCierre),
+        canActivate: [permisoGuard('cierre')],
+      },
+
+      // ⚙️ Ajustes
+      {
+        path: 'ajustes',
+        loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes),
+        canActivate: [permisoGuard('ajustes')],
+      },
     ],
   },
 

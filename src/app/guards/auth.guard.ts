@@ -1,40 +1,36 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService, Rol } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 
-// Si ya hay sesión → manda a SU panel (no deja ver el login)
-export const GuestGuard: CanActivateFn = async () => {
+// 🔓 Usuario invitado (no logueado)
+export const GuestGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  const autenticado = await auth.verificarSesion();
-  if (!autenticado) return true;
-
-  return router.createUrlTree([auth.rutaPorRol()]);
+  if (!auth.estaAutenticado()) return true;
+  router.navigate([auth.rutaPorRol()]);
+  return false;
 };
 
-// Fábrica de guards: protege un panel y verifica el ROL correcto
-export const roleGuard = (rolEsperado: Rol): CanActivateFn => {
-  return async () => {
+// 🛡️ Protección por rol — acepta un string o un array
+export const roleGuard = (...rolesPermitidos: string[]): CanActivateFn => {
+  // Si el primer argumento es un array, lo aplana
+  const roles = rolesPermitidos.flat();
+
+  return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
 
-    let autenticado = auth.estaAutenticado();
-    if (!autenticado) autenticado = await auth.verificarSesion();
-
-    if (!autenticado) {
-      // Sin sesión → al login de ese rol
-      const loginPorRol: Record<Rol, string> = {
-        admin: '/admin',
-        domiciliario: '/domiciliario',
-        cliente: '/cliente',
-      };
-      return router.createUrlTree([loginPorRol[rolEsperado]]);
+    if (!auth.estaAutenticado()) {
+      router.navigate(['/admin']);
+      return false;
     }
 
-    if (auth.rol() === rolEsperado) return true;
+    const rol = auth.rol();
+    if (rol && roles.includes(rol)) return true;
 
-    // Autenticado pero con otro rol → a SU panel
-    return router.createUrlTree([auth.rutaPorRol()]);
+    // Rol no permitido → al login de admin
+    router.navigate(['/admin']);
+    return false;
   };
 };
