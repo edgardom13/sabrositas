@@ -1,51 +1,38 @@
-<article class="tarjeta">
-  <div class="imagen">
-    <img [src]="producto().imagen" [alt]="producto().nombre" />
+<article class="item" [class.en-carrito]="cantidad() > 0">
+
+  <div class="item-foto-wrap">
+    <img class="item-foto" [src]="producto().imagen" [alt]="producto().nombre" loading="lazy" />
     @if (cantidad() > 0) {
       <span class="badge-cantidad">{{ cantidad() }}</span>
     }
-
-    @if (esSalsa()) {
-      @if (salsasGratisDisponibles() > 0) {
-        <span class="badge-salsa gratis">🎁 GRATIS ({{ salsasGratisDisponibles() }} disponibles)</span>
-      } @else {
-        <span class="badge-salsa cobrada">$500 c/u</span>
-      }
-    }
   </div>
 
-  <div class="cuerpo">
-    <h3>{{ producto().nombre }}</h3>
+  <div class="item-info">
+    <div class="item-linea-top">
+      <h3 class="item-nombre">{{ producto().nombre }}</h3>
+      @if (esSalsa()) {
+        <span class="chip chip-salsa">🥫 Salsa</span>
+      }
+    </div>
 
     @if (esSalsa()) {
-      <p class="info-salsa">
-        Las primeras 3 salsas son <strong>GRATIS</strong>.
-        Después de las 3, cada una cuesta <strong>$500</strong>.
-      </p>
-
-      @if (cantidad() > 0) {
-        <div class="resumen-salsa">
-          @if (salsasGratis() > 0) {
-            <span class="res-gratis">✓ {{ salsasGratis() }} gratis</span>
-          }
-          @if (salsasCobradas() > 0) {
-            <span class="res-cobrada">+ {{ salsasCobradas() }} x $500</span>
-          }
-        </div>
-      }
-    } @else {
-      <p class="precio">{{ formatearPrecio(producto().precio) }}</p>
+      <p class="item-sub">🎁 Primeras 3 gratis · luego $500 c/u</p>
     }
 
+    <span class="item-precio">{{ formatearPrecio(producto().precio) }}</span>
+  </div>
+
+  <div class="item-accion">
     @if (cantidad() === 0) {
-      <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()">
-        @if (agregado()) { ¡AGREGADO! ✓ } @else { AGREGAR <span class="mas">+</span> }
+      <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()"
+        [attr.aria-label]="'Agregar ' + producto().nombre">
+        <span class="btn-icono">{{ agregado() ? '✓' : '+' }}</span>
       </button>
     } @else {
-      <div class="contador">
-        <button class="btn-menos" (click)="quitar()" aria-label="Quitar uno">−</button>
-        <span class="cantidad">{{ cantidad() }}</span>
-        <button class="btn-mas" (click)="agregar()" aria-label="Agregar uno">+</button>
+      <div class="stepper">
+        <button class="stepper-btn menos" (click)="quitar()" aria-label="Quitar uno">−</button>
+        <span class="stepper-cant">{{ cantidad() }}</span>
+        <button class="stepper-btn mas" (click)="agregar()" aria-label="Agregar uno">+</button>
       </div>
     }
   </div>

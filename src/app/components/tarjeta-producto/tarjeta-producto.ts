@@ -15,16 +15,9 @@ export class TarjetaProducto {
   agregado = signal(false);
   private temporizador?: ReturnType<typeof setTimeout>;
 
-  // ✅ Convertido a computed para reactividad con signals
+  // Solo lo imprescindible: cantidad (para stepper) y tipo
   cantidad = computed(() => this.carrito.cantidadDe(this.producto().id));
-
   esSalsa = computed(() => this.producto().categoria === 'salsa');
-
-  salsasGratisDisponibles = computed(() => this.carrito.salsasGratisDisponibles());
-
-  salsasGratis = computed(() => this.carrito.salsasGratisDe(this.producto()));
-
-  salsasCobradas = computed(() => this.carrito.salsasCobradasDe(this.producto()));
 
   agregar(): void {
     this.carrito.agregar(this.producto());
@@ -38,6 +31,6 @@ export class TarjetaProducto {
   }
 
   formatearPrecio(valor: number): string {
-    return '$' + valor.toLocaleString('es-CO');
+    return '$' + Number(valor || 0).toLocaleString('es-CO');
   }
 }

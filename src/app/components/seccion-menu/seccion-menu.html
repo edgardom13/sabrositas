@@ -3,9 +3,14 @@
     @if (tema() === 'verde') { 🧊 }
     {{ titulo() }}
   </h2>
-  <div class="grid">
-    @for (producto of productos(); track producto.id) {
-      <app-tarjeta-producto [producto]="producto" />
-    }
-  </div>
+
+  @if (productos().length === 0) {
+    <p class="sin-productos">Pronto agregaremos productos aquí 🥟</p>
+  } @else {
+    <div class="grid">
+      @for (producto of productos(); track producto.id) {
+        <app-tarjeta-producto [producto]="producto" />
+      }
+    </div>
+  }
 </section>

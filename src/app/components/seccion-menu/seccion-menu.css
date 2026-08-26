@@ -1,24 +1,36 @@
-.seccion {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 193, 7, 0.25);
-  border-radius: 16px;
-  padding: 56px 20px 24px;
-  position: relative;
+/* ===== SECCIÓN DE MENÚ ===== */
+:host {
+  display: block;
+  width: 100%;
 }
 
+.seccion {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(43, 22, 8, 0.4), rgba(28, 13, 5, 0.4));
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 16px;
+  padding: 56px 16px 20px;
+  position: relative;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== TÍTULO (RIBBON) ===== */
 .titulo {
   position: absolute;
-  top: -22px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%) rotate(-1.5deg) skewX(-8deg);
   background: linear-gradient(180deg, #e5383b, #a4161a);
   color: #fff;
-  padding: 8px 30px;
+  padding: 8px 28px;
   border-radius: 10px 22px 12px 20px;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 30px;
+  font-size: 26px;
   letter-spacing: 2px;
   white-space: nowrap;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .titulo.amarillo {
@@ -32,12 +44,45 @@
   border: 2px solid #059669;
 }
 
+/* ===== GRID DE PRODUCTOS ===== */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
 
-@media (max-width: 700px) {
-  .grid { grid-template-columns: 1fr; }
+.sin-productos {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  padding: 30px 0;
+  margin: 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (min-width: 760px) {
+  .seccion {
+    padding: 60px 20px 24px;
+  }
+  
+  .titulo {
+    font-size: 30px;
+    padding: 10px 32px;
+    top: -22px;
+  }
+  
+  .grid {
+    gap: 12px;
+  }
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .seccion {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 253, 248, 0.8));
+  border-color: rgba(180, 90, 20, 0.2);
+}
+
+body.claro .sin-productos {
+  color: rgba(58, 36, 16, 0.5);
 }
