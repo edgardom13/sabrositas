@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import type { User } from '@supabase/supabase-js';
@@ -12,13 +12,14 @@ export interface Perfil {
   telefono: string | null;
   codigo_referido: string | null;
   puntos: number;
-  permisos?: Record<string, { ver: boolean; editar: boolean }>;  // ← NUEVO
+  permisos?: Record<string, { ver: boolean; editar: boolean }>;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private supabase = inject(SupabaseService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   usuario = signal<User | null>(null);
   perfil = signal<Perfil | null>(null);
@@ -26,40 +27,66 @@ export class AuthService {
 
   rol = computed(() => this.perfil()?.rol ?? null);
 
+  // ✅ Se resuelve cuando la sesión inicial está lista (los guards lo esperan)
+  private resolverLista!: () => void;
+  readonly sesionLista = new Promise<void>((resolve) => (this.resolverLista = resolve));
+
   constructor() {
     this.inicializarSesion();
   }
 
   private inicializarSesion(): void {
-    this.supabase.client.auth.getSession().then(async ({ data }) => {
-      const user = data.session?.user ?? null;
-      this.usuario.set(user);
-      if (user) await this.cargarPerfil();
-      this.cargando.set(false);
-    });
+    // Sesión inicial al cargar la app
+    this.supabase.client.auth
+      .getSession()
+      .then(async ({ data }) => {
+        const user = data.session?.user ?? null;
+        this.usuario.set(user);
+        if (user) await this.cargarPerfil();
+        this.cargando.set(false);
+        this.resolverLista();
+      })
+      .catch(() => {
+        this.cargando.set(false);
+        this.resolverLista();
+      });
 
-    this.supabase.client.auth.onAuthStateChange(async (_evento, sesion) => {
-      const user = sesion?.user ?? null;
-      this.usuario.set(user);
-      if (user) await this.cargarPerfil();
-      else this.perfil.set(null);
+    // ⚠️ NUNCA hagas await de Supabase dentro de este callback (deadlock).
+    // Lo diferimos con setTimeout para liberar el lock interno de Supabase.
+    this.supabase.client.auth.onAuthStateChange((_evento, sesion) => {
+      setTimeout(() => {
+        this.ngZone.run(async () => {
+          const user = sesion?.user ?? null;
+          this.usuario.set(user);
+          if (user) await this.cargarPerfil();
+          else this.perfil.set(null);
+        });
+      }, 0);
     });
   }
 
-  // Lee el perfil (rol, puntos, código) del usuario autenticado
+  // Lee el perfil (rol, puntos, código, permisos) del usuario autenticado
   async cargarPerfil(): Promise<void> {
     const user = this.usuario();
     if (!user) {
       this.perfil.set(null);
       return;
     }
-    const { data } = await this.supabase.client
-      .from('perfiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle();
+    try {
+      const { data, error } = await this.supabase.client
+        .from('perfiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    this.perfil.set((data as Perfil) ?? null);
+      if (error) {
+        console.error('⚠️ Error cargando perfil:', error.message);
+        return;
+      }
+      this.perfil.set((data as Perfil) ?? null);
+    } catch (e) {
+      console.error('⚠️ Excepción cargando perfil:', e);
+    }
   }
 
   async iniciarSesion(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
@@ -72,22 +99,18 @@ export class AuthService {
     this.usuario.set(data.user);
     await this.cargarPerfil();
 
-    // 🛡️ Si la cuenta no tiene perfil legible, no deambules: avisa
     if (!this.perfil()) {
       await this.cerrarSesion();
-      return {
-        ok: false,
-        error: 'Tu cuenta no tiene un perfil asignado. Contacta al administrador.',
-      };
+      return { ok: false, error: 'Tu cuenta no tiene un perfil asignado. Contacta al administrador.' };
     }
 
-    // Cada rol va a SU panel
     this.router.navigate([this.rutaPorRol()]);
     return { ok: true };
   }
 
   async cerrarSesion(): Promise<void> {
-    await this.supabase.client.auth.signOut();
+    // 'local' → cierra solo este dispositivo, no tumba los demás
+    await this.supabase.client.auth.signOut({ scope: 'local' });
     this.usuario.set(null);
     this.perfil.set(null);
     this.router.navigate(['/admin']);
@@ -106,20 +129,27 @@ export class AuthService {
     return this.usuario() !== null;
   }
 
-  // Cada rol tiene su ruta
-  rutaPorRol(): string {
-  switch (this.rol()) {
-    case 'admin':
-    case 'inversor':
-      return '/dashboard/pedidos';
-    case 'domiciliario':
-      return '/panel-domiciliario';
-    case 'cliente':
-      return '/panel-cliente';
-    default:
-      return '/admin';
+  async refrescarSesion(): Promise<boolean> {
+    const { data, error } = await this.supabase.client.auth.refreshSession();
+    if (error || !data.session) return false;
+    this.usuario.set(data.session.user);
+    await this.cargarPerfil();
+    return true;
   }
-}
+
+  rutaPorRol(): string {
+    switch (this.rol()) {
+      case 'admin':
+      case 'inversor':
+        return '/dashboard/pedidos';
+      case 'domiciliario':
+        return '/panel-domiciliario';
+      case 'cliente':
+        return '/panel-cliente';
+      default:
+        return '/admin';
+    }
+  }
 
   private traducirError(mensaje: string): string {
     const traducciones: Record<string, string> = {
@@ -130,8 +160,6 @@ export class AuthService {
     return traducciones[mensaje] ?? 'Error al iniciar sesión';
   }
 
-
-    // ===== Registro con rol elegido + redirección a /confirmado =====
   async registrarse(
     nombre: string,
     telefono: string,
@@ -144,14 +172,10 @@ export class AuthService {
       password,
       options: {
         data: { nombre, telefono, rol },
-        emailRedirectTo: `${window.location.origin}/confirmado`, // ← link del correo va a NUESTRA página
+        emailRedirectTo: `${window.location.origin}/confirmado`,
       },
     });
-
     if (error) return { ok: false, error: this.traducirError(error.message) };
-
-    // Con confirmación activada, el usuario debe abrir el correo
     return { ok: true };
   }
-
 }
