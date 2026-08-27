@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { InversorService, Inversor, ID_DUENO } from '../../services/inversor.service';
 import { EstadisticasService } from '../../services/estadisticas.service';
 
+type TabId = 'reparto' | 'tesoreria' | 'dashboard' | 'proyeccion' | 'pagos' | 'editar';
+
 @Component({
   selector: 'app-admin-inversor',
   standalone: true,
@@ -12,19 +14,29 @@ import { EstadisticasService } from '../../services/estadisticas.service';
 })
 export class AdminInversor implements OnInit {
   inv = inject(InversorService);
-  private stats = inject(EstadisticasService); // 🎯 fuente única de pedidos + egresos completos
+  private stats = inject(EstadisticasService);
 
-  tab = signal<'reparto' | 'dashboard' | 'proyeccion' | 'pagos' | 'editar'>('reparto');
+  tab = signal<TabId>('reparto');
   seleccionadoId = signal<number | null>(null);
   mostrarFormNuevo = signal(false);
-  periodoReparto = signal<'hoy' | 'semana' | 'mes' | 'ano'>('semana');
+  periodoReparto = signal<'hoy' | 'semana' | 'mes' | 'ano' | 'historico'>('mes');
 
   nuevo = { nombre: '', capital_invertido: 0, porcentaje_ganancias: 0, fecha_inicio: '', notas: '' };
   pagoForm = { monto: 0, concepto: '', fecha: this.hoy(), tipo: 'mensual' };
+  retiroForm = { monto: 0, concepto: '', fecha: this.hoy() };
   editForm = signal({ nombre: '', capital_invertido: 0, porcentaje_ganancias: 0, fecha_inicio: '', notas: '' });
 
+    // Períodos del reparto (tipado estricto para el template)
+  periodosReparto: { v: 'hoy' | 'semana' | 'mes' | 'ano' | 'historico'; l: string }[] = [
+    { v: 'hoy',       l: '📅 Hoy' },
+    { v: 'semana',    l: '🗓️ Semana' },
+    { v: 'mes',       l: '📆 Últ. 30 días' },
+    { v: 'ano',       l: '🌟 Año' },
+    { v: 'historico', l: '♾️ Histórico' },
+  ];
+  
   async ngOnInit() {
-    await this.stats.cargar();          // 🎯 carga TODOS los pedidos y TODOS los egresos
+    await this.stats.cargar();
     await this.inv.cargarInversores();
     await this.inv.cargarPagos();
     if (this.inv.inversores().length > 0) {
@@ -42,7 +54,6 @@ export class AdminInversor implements OnInit {
     else this.tab.set('dashboard');
   }
 
-  // ===== DATOS DEL SELECCIONADO =====
   pct = computed(() => Number(this.seleccionado()?.porcentaje_ganancias ?? 0) / 100);
 
   pagosSel = computed(() =>
@@ -52,7 +63,7 @@ export class AdminInversor implements OnInit {
   totalPagadoSel = computed(() => this.pagosSel().reduce((t, p) => t + Number(p.monto), 0));
 
   pagadoPorTipoSel = computed(() => {
-    const r: Record<string, number> = { mensual: 0, adelanto: 0, extra: 0, reintegro: 0 };
+    const r: Record<string, number> = { mensual: 0, adelanto: 0, extra: 0, reintegro: 0, retiro_dueño: 0 };
     for (const p of this.pagosSel()) r[p.tipo] = (r[p.tipo] ?? 0) + Number(p.monto);
     return r;
   });
@@ -65,7 +76,7 @@ export class AdminInversor implements OnInit {
     );
   });
 
-  // ===== 🎯 RANGO DE FECHAS (idéntico a Estadísticas) =====
+  // ===== RANGOS =====
   private parseFecha(fecha: string | Date): Date {
     if (fecha instanceof Date) return fecha;
     const s = String(fecha).trim();
@@ -84,11 +95,11 @@ export class AdminInversor implements OnInit {
       case 'semana': desde.setDate(desde.getDate() - 6);  desde.setHours(0, 0, 0, 0); break;
       case 'mes':    desde.setDate(desde.getDate() - 29); desde.setHours(0, 0, 0, 0); break;
       case 'ano':    desde.setMonth(0, 1); desde.setHours(0, 0, 0, 0); break;
+      case 'historico': desde.setTime(0); break;
     }
     return { desde, hasta: ahora };
   });
 
-  // ===== 🎯 REPARTO (misma fórmula y datos que Estadísticas) =====
   pedidosPeriodoReparto = computed(() => {
     const r = this.rangoReparto();
     return this.stats.pedidos().filter((p) => {
@@ -119,14 +130,52 @@ export class AdminInversor implements OnInit {
     return this.inv.inversores().map((socio) => {
       const pct = Number(socio.porcentaje_ganancias);
       const corresponde = ganancia * (pct / 100);
-      const pagado = socio.id === ID_DUENO ? 0 :
-        this.inv.pagos().filter((p) => p.inversor_id === socio.id).reduce((t, p) => t + Number(p.monto), 0);
+      // Pagos del socio (incluye retiros del dueño)
+      const pagosSocio = this.inv.pagos()
+        .filter((p) => p.inversor_id === socio.id || (socio.es_dueno && p.tipo === 'retiro_dueño'));
+      const pagado = pagosSocio.reduce((t, p) => t + Number(p.monto), 0);
       const pendiente = Math.max(0, corresponde - pagado);
       return { socio, pct, corresponde, pagado, pendiente };
     });
   });
 
-  // ===== 🎯 GANANCIAS DEL SELECCIONADO (datos completos de stats) =====
+  // ===== TESORERÍA (flujo global) =====
+  gananciaHistorica = computed(() => {
+    const ventas = this.stats.pedidos()
+      .filter((p) => p.estado === 'entregado')
+      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+    const egresos = this.stats.egresos().reduce((t, e) => t + Number(e.monto), 0);
+    return Math.max(0, ventas - egresos);
+  });
+
+  totalRetiradoGlobal = computed(() =>
+    this.inv.pagos().reduce((t, p) => t + Number(p.monto), 0)
+  );
+
+  retiradoPorTipo = computed(() => {
+    const r: Record<string, number> = {};
+    for (const p of this.inv.pagos()) {
+      r[p.tipo] = (r[p.tipo] ?? 0) + Number(p.monto);
+    }
+    return r;
+  });
+
+  retiradoPorSocio = computed(() => {
+    const mapa = new Map<number, { nombre: string; monto: number; es_dueno?: boolean }>();
+    for (const p of this.inv.pagos()) {
+      const id = p.inversor_id ?? ID_DUENO;
+      const socio = this.inv.inversores().find((i) => i.id === id);
+      const nombre = socio?.nombre ?? 'Sin asignar';
+      const act = mapa.get(id) ?? { nombre, monto: 0, es_dueno: socio?.es_dueno };
+      act.monto += Number(p.monto);
+      mapa.set(id, act);
+    }
+    return Array.from(mapa.values()).sort((a, b) => b.monto - a.monto);
+  });
+
+  saldoEnCaja = computed(() => this.gananciaHistorica() - this.totalRetiradoGlobal());
+
+  // ===== GANANCIAS DEL SELECCIONADO =====
   gananciaHoySel = computed(() => {
     const hoy = this.hoy();
     const ventas = this.pedidosDelInversor()
@@ -166,6 +215,13 @@ export class AdminInversor implements OnInit {
     return Math.max(0, ventas - egresos) * this.pct();
   });
 
+  gananciaHistoricaSel = computed(() => {
+    const ventas = this.pedidosDelInversor()
+      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+    const egresos = this.stats.egresos().reduce((t, e) => t + Number(e.monto), 0);
+    return Math.max(0, ventas - egresos) * this.pct();
+  });
+
   roiSel = computed(() => {
     const capital = Number(this.seleccionado()?.capital_invertido ?? 0);
     if (capital <= 0) return 0;
@@ -173,10 +229,10 @@ export class AdminInversor implements OnInit {
   });
 
   saldoPendienteSel = computed(() =>
-    Math.max(0, this.gananciaAnioSel() - this.totalPagadoSel())
+    Math.max(0, this.gananciaHistoricaSel() - this.totalPagadoSel())
   );
 
-  // ===== PROYECCIÓN (días trabajados) =====
+  // ===== PROYECCIÓN =====
   diasTrabajadosTotal = computed(() => {
     const set = new Set<string>();
     for (const p of this.pedidosDelInversor()) set.add(p.creado_en.split('T')[0]);
@@ -218,7 +274,7 @@ export class AdminInversor implements OnInit {
     return Math.ceil(capital / mensual).toString();
   });
 
-  // ===== ACCIONES CRUD =====
+  // ===== ACCIONES =====
   async crearInversor() {
     if (!this.nuevo.nombre.trim()) return;
     const id = await this.inv.crear({
@@ -266,24 +322,50 @@ export class AdminInversor implements OnInit {
   async registrarPago() {
     const sel = this.seleccionado();
     if (!sel || this.pagoForm.monto <= 0 || !this.pagoForm.concepto.trim()) return;
-    const ok = await this.inv.registrarPago({ ...this.pagoForm, inversor_id: sel.id });
-    if (ok) {
-      this.pagoForm = { monto: 0, concepto: '', fecha: this.hoy(), tipo: 'mensual' };
-    }
+    const ok = await this.inv.registrarPago({
+      monto: this.pagoForm.monto,
+      concepto: this.pagoForm.concepto,
+      fecha: this.pagoForm.fecha,
+      tipo: this.pagoForm.tipo,
+      inversor_id: sel.id,
+    });
+    if (ok) this.pagoForm = { monto: 0, concepto: '', fecha: this.hoy(), tipo: 'mensual' };
+  }
+
+  async registrarRetiroDueno() {
+    if (this.retiroForm.monto <= 0 || !this.retiroForm.concepto.trim()) return;
+    const ok = await this.inv.registrarPago({
+      monto: this.retiroForm.monto,
+      concepto: this.retiroForm.concepto,
+      fecha: this.retiroForm.fecha,
+      tipo: 'retiro_dueño',
+      inversor_id: ID_DUENO,
+    });
+    if (ok) this.retiroForm = { monto: 0, concepto: '', fecha: this.hoy() };
   }
 
   async eliminarPago(id: number) {
-    if (!confirm('¿Eliminar este pago?')) return;
+    if (!confirm('¿Eliminar este pago/retiro? Se revertirá el saldo.')) return;
     await this.inv.eliminarPago(id);
   }
 
-  // ===== UTILIDADES =====
   formatearPrecio(v: number): string {
     return '$' + Number(v).toLocaleString('es-CO');
   }
 
   emojiTipo(t: string): string {
-    return t === 'mensual' ? '📅' : t === 'adelanto' ? '⏩' : t === 'extra' ? '✨' : '🔄';
+    const map: Record<string, string> = {
+      mensual: '📅', adelanto: '⏩', extra: '✨', reintegro: '🔄', retiro_dueño: '👑',
+    };
+    return map[t] ?? '💸';
+  }
+
+  textoTipo(t: string): string {
+    const map: Record<string, string> = {
+      mensual: 'Pago mensual', adelanto: 'Adelanto', extra: 'Extra',
+      reintegro: 'Reintegro', retiro_dueño: 'Retiro del dueño',
+    };
+    return map[t] ?? t;
   }
 
   private hoy(): string {

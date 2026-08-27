@@ -2,127 +2,90 @@
 
   <div class="inv-header">
     <div>
-      <h2>💼 Panel de Inversores</h2>
-      <p class="inv-sub">Control financiero de todos tus socios inversionistas</p>
+      <h2>💼 Panel Financiero de Socios</h2>
+      <p class="inv-sub">Control integral de inversiones, ganancias, retiros y tesorería</p>
     </div>
   </div>
 
-  <!-- ===== SELECTOR DE INVERSORES ===== -->
+  <!-- SELECTOR -->
   <div class="inv-selector">
     @for (inv of inv.inversores(); track inv.id) {
-      <button
-        class="inv-chip"
-        [class.activo]="seleccionadoId() === inv.id"
-        [class.dueno]="inv.es_dueno"
-        (click)="seleccionar(inv.id)"
-      >
+      <button class="inv-chip" [class.activo]="seleccionadoId() === inv.id" [class.dueno]="inv.es_dueno" (click)="seleccionar(inv.id)">
         {{ inv.es_dueno ? '👑' : '💼' }} {{ inv.nombre }} · {{ inv.porcentaje_ganancias }}%
       </button>
     }
-    <button class="inv-chip nuevo" (click)="mostrarFormNuevo.set(!mostrarFormNuevo())">
-      ➕ Nuevo inversor
-    </button>
+    <button class="inv-chip nuevo" (click)="mostrarFormNuevo.set(!mostrarFormNuevo())">➕ Nuevo inversor</button>
   </div>
 
-  <!-- ===== FORM NUEVO INVERSOR ===== -->
+  <!-- FORM NUEVO -->
   @if (mostrarFormNuevo()) {
     <div class="inv-form-nuevo">
       <h3>➕ Registrar nuevo inversor</h3>
       <div class="form-grid">
-        <div class="form-field">
-          <label>Nombre</label>
-          <input [(ngModel)]="nuevo.nombre" placeholder="Ej: Juan Pérez" />
-        </div>
-        <div class="form-field">
-          <label>Capital invertido ($)</label>
-          <input type="number" [(ngModel)]="nuevo.capital_invertido" placeholder="0" />
-        </div>
-        <div class="form-field">
-          <label>% de ganancias</label>
-          <input type="number" [(ngModel)]="nuevo.porcentaje_ganancias" placeholder="0" step="0.1" />
-        </div>
-        <div class="form-field">
-          <label>Fecha de inicio</label>
-          <input type="date" [(ngModel)]="nuevo.fecha_inicio" />
-        </div>
+        <div class="form-field"><label>Nombre</label><input [(ngModel)]="nuevo.nombre" placeholder="Ej: Juan Pérez" /></div>
+        <div class="form-field"><label>Capital invertido ($)</label><input type="number" [(ngModel)]="nuevo.capital_invertido" placeholder="0" /></div>
+        <div class="form-field"><label>% de ganancias</label><input type="number" [(ngModel)]="nuevo.porcentaje_ganancias" placeholder="0" step="0.1" /></div>
+        <div class="form-field"><label>Fecha de inicio</label><input type="date" [(ngModel)]="nuevo.fecha_inicio" /></div>
       </div>
       <label>Notas / acuerdos</label>
-      <textarea [(ngModel)]="nuevo.notas" rows="2" placeholder="Ej: Contrato firmado..."></textarea>
+      <textarea [(ngModel)]="nuevo.notas" rows="2" placeholder="Contrato, condiciones..."></textarea>
       <div class="form-acciones">
-        <button class="btn-guardar" (click)="crearInversor()">💾 Guardar inversor</button>
+        <button class="btn-guardar" (click)="crearInversor()">💾 Guardar</button>
         <button class="btn-cancelar" (click)="mostrarFormNuevo.set(false)">✕ Cancelar</button>
       </div>
     </div>
   }
 
   @if (!seleccionado()) {
-    <div class="vacio">
-      <span class="vacio-icono">💼</span>
-      <p>Aún no tienes inversores. Crea el primero con el botón "➕ Nuevo inversor".</p>
-    </div>
+    <div class="vacio"><span class="vacio-icono">💼</span><p>No hay socios registrados.</p></div>
   } @else {
 
     <!-- TABS -->
     <div class="inv-tabs">
       <button [class.activo]="tab() === 'reparto'" (click)="tab.set('reparto')">📊 Reparto</button>
+      <button [class.activo]="tab() === 'tesoreria'" (click)="tab.set('tesoreria')">🏦 Tesorería</button>
       @if (!seleccionado()?.es_dueno) {
-        <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📊 Dashboard</button>
-        <button [class.activo]="tab() === 'proyeccion'" (click)="tab.set('proyeccion')">📈 Proyección</button>
+        <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📈 Estado</button>
+        <button [class.activo]="tab() === 'proyeccion'" (click)="tab.set('proyeccion')">🚀 Proyección</button>
         <button [class.activo]="tab() === 'pagos'" (click)="tab.set('pagos')">💸 Pagos</button>
         <button [class.activo]="tab() === 'editar'" (click)="abrirEdicion()">⚙️ Editar</button>
       }
+      @if (seleccionado()?.es_dueno) {
+        <button [class.activo]="tab() === 'dashboard'" (click)="tab.set('dashboard')">📈 Mi estado</button>
+        <button [class.activo]="tab() === 'pagos'" (click)="tab.set('pagos')">💰 Mis retiros</button>
+      }
     </div>
 
-    <!-- ===== TAB: REPARTO DE GANANCIAS ===== -->
+    <!-- ===== REPARTO ===== -->
     @if (tab() === 'reparto') {
       <div class="inv-reparto">
         <div class="reparto-header">
           <h3>📊 Reparto de ganancias netas</h3>
-          <p>Desglose de cómo se distribuye la ganancia entre todos los socios</p>
+          <p>Distribución automática según porcentaje. Los retiros aparecen en Tesorería.</p>
         </div>
 
-        <!-- Selector de período -->
         <div class="reparto-periodo">
-          <button [class.activo]="periodoReparto() === 'hoy'" (click)="periodoReparto.set('hoy')">📅 Hoy</button>
-          <button [class.activo]="periodoReparto() === 'semana'" (click)="periodoReparto.set('semana')">🗓️ Semana</button>
-          <button [class.activo]="periodoReparto() === 'mes'" (click)="periodoReparto.set('mes')">📆 Últ. 30 días</button>
-          <button [class.activo]="periodoReparto() === 'ano'" (click)="periodoReparto.set('ano')">🌟 Año</button>
+          @for (p of periodosReparto; track p.v) {
+            <button [class.activo]="periodoReparto() === p.v" (click)="periodoReparto.set(p.v)">{{ p.l }}</button>
+          }
         </div>
 
-        <!-- Resumen financiero -->
         <div class="reparto-resumen">
-          <div class="resumen-card">
-            <span class="resumen-icono">💵</span>
-            <div>
-              <small>VENTAS DEL PERÍODO</small>
-              <strong>{{ formatearPrecio(ventasPeriodo()) }}</strong>
-            </div>
+          <div class="resumen-card"><span class="resumen-icono">💵</span>
+            <div><small>VENTAS</small><strong>{{ formatearPrecio(ventasPeriodo()) }}</strong></div>
           </div>
-          <div class="resumen-card">
-            <span class="resumen-icono">💸</span>
-            <div>
-              <small>EGRESOS DEL PERÍODO</small>
-              <strong>{{ formatearPrecio(egresosPeriodo()) }}</strong>
-            </div>
+          <div class="resumen-card"><span class="resumen-icono">💸</span>
+            <div><small>EGRESOS</small><strong>{{ formatearPrecio(egresosPeriodo()) }}</strong></div>
           </div>
-          <div class="resumen-card destacado">
-            <span class="resumen-icono">💎</span>
-            <div>
-              <small>GANANCIA NETA</small>
-              <strong>{{ formatearPrecio(gananciaNetaPeriodo()) }}</strong>
-            </div>
+          <div class="resumen-card destacado"><span class="resumen-icono">💎</span>
+            <div><small>GANANCIA NETA</small><strong>{{ formatearPrecio(gananciaNetaPeriodo()) }}</strong></div>
           </div>
         </div>
 
-        <!-- Tabla de reparto -->
         <div class="reparto-tabla">
           <h4>👥 Desglose por socio</h4>
           <div class="tabla-header">
-            <span>Socio</span>
-            <span>% Participación</span>
-            <span>Le corresponde</span>
-            <span>Ya pagado</span>
-            <span>Pendiente</span>
+            <span>Socio</span><span>%</span><span>Le corresponde</span><span>Ya retirado</span><span>Disponible</span>
           </div>
           @for (r of repartoSocios(); track r.socio.id) {
             <div class="tabla-fila" [class.dueno]="r.socio.es_dueno">
@@ -130,30 +93,15 @@
                 <span class="socio-emoji">{{ r.socio.es_dueno ? '👑' : '💼' }}</span>
                 <div>
                   <strong>{{ r.socio.nombre }}</strong>
-                  @if (!r.socio.es_dueno) {
-                    <small>Capital: {{ formatearPrecio(r.socio.capital_invertido) }}</small>
-                  }
+                  @if (!r.socio.es_dueno) { <small>Capital: {{ formatearPrecio(r.socio.capital_invertido) }}</small> }
+                  @if (r.socio.es_dueno) { <small>Trabajo + gestión</small> }
                 </div>
               </div>
-              <div class="fila-pct">
-                <strong>{{ r.pct }}%</strong>
-              </div>
-              <div class="fila-corresponde">
-                <strong>{{ formatearPrecio(r.corresponde) }}</strong>
-              </div>
-              <div class="fila-pagado">
-                @if (r.socio.es_dueno) {
-                  <span class="na">N/A</span>
-                } @else {
-                  <strong>{{ formatearPrecio(r.pagado) }}</strong>
-                }
-              </div>
+              <div class="fila-pct"><strong>{{ r.pct }}%</strong></div>
+              <div class="fila-corresponde"><strong>{{ formatearPrecio(r.corresponde) }}</strong></div>
+              <div class="fila-pagado"><strong>{{ formatearPrecio(r.pagado) }}</strong></div>
               <div class="fila-pendiente">
-                @if (r.socio.es_dueno) {
-                  <strong class="dueno-ganancia">{{ formatearPrecio(r.corresponde) }}</strong>
-                } @else {
-                  <strong [class.negativo]="r.pendiente > 0">{{ formatearPrecio(r.pendiente) }}</strong>
-                }
+                <strong [class.negativo]="r.pendiente > 0">{{ formatearPrecio(r.pendiente) }}</strong>
               </div>
             </div>
           }
@@ -161,26 +109,145 @@
 
         <div class="reparto-nota">
           <strong>💡 Cómo funciona:</strong>
+          <p>La <b>ganancia neta</b> (ventas − egresos operativos) se reparte según el % acordado. Los domicilios NO se incluyen (son ingreso externo del domiciliario). Cada retiro se registra en <b>Tesorería</b> y descuenta del disponible de cada socio.</p>
+        </div>
+      </div>
+    }
+
+    <!-- ===== TESORERÍA ===== -->
+    @if (tab() === 'tesoreria') {
+      <div class="inv-tesoreria">
+        <div class="tes-header">
+          <h3>🏦 Tesorería del negocio</h3>
+          <p>Flujo real de caja: ganancia generada vs dinero retirado por socios</p>
+        </div>
+
+        <div class="tes-kpis">
+          <div class="tes-kpi positivo">
+            <span class="kpi-icono">💎</span>
+            <div>
+              <small>GANANCIA HISTÓRICA</small>
+              <strong>{{ formatearPrecio(gananciaHistorica()) }}</strong>
+              <span class="kpi-sub">Acumulada desde el inicio</span>
+            </div>
+          </div>
+          <div class="tes-kpi negativo">
+            <span class="kpi-icono">💸</span>
+            <div>
+              <small>TOTAL RETIRADO</small>
+              <strong>{{ formatearPrecio(totalRetiradoGlobal()) }}</strong>
+              <span class="kpi-sub">Inversores + dueño</span>
+            </div>
+          </div>
+          <div class="tes-kpi" [class.saldo-positivo]="saldoEnCaja() >= 0" [class.saldo-negativo]="saldoEnCaja() < 0">
+            <span class="kpi-icono">🏦</span>
+            <div>
+              <small>SALDO EN CAJA</small>
+              <strong>{{ formatearPrecio(saldoEnCaja()) }}</strong>
+              <span class="kpi-sub">Disponible para retiros/operación</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tes-grid">
+          <div class="tes-card">
+            <h4>📋 Retiros por tipo</h4>
+            <div class="desglose-lista">
+              @for (tipo of ['mensual','adelanto','extra','reintegro','retiro_dueño']; track tipo) {
+                @if (retiradoPorTipo()[tipo]) {
+                  <div class="desglose-item">
+                    <span>{{ emojiTipo(tipo) }} {{ textoTipo(tipo) }}</span>
+                    <strong>{{ formatearPrecio(retiradoPorTipo()[tipo]) }}</strong>
+                  </div>
+                }
+              }
+              @if (totalRetiradoGlobal() === 0) {
+                <p class="sin-datos">Aún no hay retiros registrados.</p>
+              }
+            </div>
+          </div>
+
+          <div class="tes-card">
+            <h4>👥 Retiros por socio</h4>
+            <div class="desglose-lista">
+              @for (s of retiradoPorSocio(); track s.nombre) {
+                <div class="desglose-item">
+                  <span>{{ s.es_dueno ? '👑' : '💼' }} {{ s.nombre }}</span>
+                  <strong>{{ formatearPrecio(s.monto) }}</strong>
+                </div>
+              }
+              @if (retiradoPorSocio().length === 0) {
+                <p class="sin-datos">Sin retiros aún.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Form retiro del dueño -->
+        @if (seleccionado()?.es_dueno) {
+          <div class="tes-retiro-form">
+            <h4>👑 Registrar retiro del dueño</h4>
+            <p class="tes-retiro-hint">
+              Al retirar, el monto se descuenta del <b>saldo en caja</b> y queda registrado como "Retiro del dueño".
+              <b>No es un egreso operativo</b>: no afecta la ganancia neta del negocio.
+            </p>
+            <div class="form-grid">
+              <div class="form-field"><label>Monto</label><input type="number" [(ngModel)]="retiroForm.monto" placeholder="$ 0" /></div>
+              <div class="form-field"><label>Fecha</label><input type="date" [(ngModel)]="retiroForm.fecha" /></div>
+              <div class="form-field"><label>Concepto</label><input [(ngModel)]="retiroForm.concepto" placeholder="Ej: Retiro personal agosto" /></div>
+            </div>
+            <button class="btn-guardar" (click)="registrarRetiroDueno()">💰 Registrar retiro</button>
+            @if (saldoEnCaja() < retiroForm.monto && retiroForm.monto > 0) {
+              <div class="aviso">⚠️ Estás retirando más del saldo en caja actual.</div>
+            }
+          </div>
+        }
+
+        <!-- Historial global de movimientos -->
+        <div class="tes-historial">
+          <h4>📜 Historial global de movimientos ({{ inv.pagos().length }})</h4>
+          @for (p of inv.pagos(); track p.id) {
+            <div class="mov-item">
+              <div class="mov-emoji">{{ emojiTipo(p.tipo) }}</div>
+              <div class="mov-info">
+                <strong>{{ p.concepto }}</strong>
+                <small>
+                  {{ inv.formatearFecha(p.fecha) }} · {{ textoTipo(p.tipo) }}
+                  @if (p.inversor_id) {
+                    · para {{ inv.inversores().find(i => i.id === p.inversor_id)?.nombre ?? 'Inversor' }}
+                  }
+                </small>
+              </div>
+              <div class="mov-monto">
+                <strong>−{{ formatearPrecio(p.monto) }}</strong>
+                <button (click)="eliminarPago(p.id)" title="Eliminar">🗑️</button>
+              </div>
+            </div>
+          }
+          @if (inv.pagos().length === 0) {
+            <div class="vacio"><span class="vacio-icono">📭</span><p>Sin movimientos registrados.</p></div>
+          }
+        </div>
+
+        <div class="reparto-nota">
+          <strong>💡 Impacto financiero de cada retiro:</strong>
           <p>
-            La ganancia neta (ventas − egresos) se reparte según el % acordado con cada socio.
-            Tú como dueño recibes el {{ repartoSocios()[0].pct }}% restante después de pagar a los inversores.
-          </p>
-          <p style="margin-top: 6px">
-            📌 Los domicilios NO se incluyen porque son un ingreso externo que se paga al domiciliario.
+            Cada retiro <b>reduce el saldo en caja</b> pero <b>NO toca la ganancia neta</b> ni los egresos operativos.
+            Es una <b>distribución de utilidades</b> entre socios. El saldo en caja debe ser siempre ≥ 0 para que la operación sea sana.
           </p>
         </div>
       </div>
     }
 
-    <!-- ===== TAB: DASHBOARD ===== -->
-    @if (tab() === 'dashboard' && !seleccionado()?.es_dueno) {
+    <!-- ===== DASHBOARD ===== -->
+    @if (tab() === 'dashboard') {
       <div class="inv-dashboard">
         <div class="inv-stats">
           <div class="inv-stat-card capital">
             <span class="stat-emoji">💰</span>
             <div>
-              <h3>{{ formatearPrecio(seleccionado()?.capital_invertido || 0) }}</h3>
-              <p>Capital de {{ seleccionado()?.nombre }}</p>
+              <h3>{{ seleccionado()?.es_dueno ? '—' : formatearPrecio(seleccionado()?.capital_invertido || 0) }}</h3>
+              <p>{{ seleccionado()?.es_dueno ? 'Sin capital fijo' : 'Capital invertido' }}</p>
             </div>
           </div>
           <div class="inv-stat-card porcentaje">
@@ -190,138 +257,135 @@
               <p>De ganancias</p>
             </div>
           </div>
-          <div class="inv-stat-card roi">
-            <span class="stat-emoji">📈</span>
-            <div>
-              <h3>{{ roiSel().toFixed(1) }}%</h3>
-              <p>ROI recuperado</p>
+          @if (!seleccionado()?.es_dueno) {
+            <div class="inv-stat-card roi">
+              <span class="stat-emoji">📈</span>
+              <div>
+                <h3>{{ roiSel().toFixed(1) }}%</h3>
+                <p>ROI recuperado</p>
+              </div>
             </div>
-          </div>
+          }
           <div class="inv-stat-card pendiente">
             <span class="stat-emoji">⏳</span>
             <div>
               <h3>{{ formatearPrecio(saldoPendienteSel()) }}</h3>
-              <p>Pendiente de pago</p>
+              <p>Disponible por retirar</p>
             </div>
           </div>
         </div>
 
         <h3 class="subtitulo">💎 Ganancias de {{ seleccionado()?.nombre }}</h3>
         <div class="inv-ganancias">
-          <div class="ganancia-card dia">
-            <span class="g-icono">📅</span>
+          <div class="ganancia-card dia"><span class="g-icono">📅</span>
             <div class="g-info"><small>HOY</small><strong>{{ formatearPrecio(gananciaHoySel()) }}</strong></div>
           </div>
-          <div class="ganancia-card mes">
-            <span class="g-icono">🗓️</span>
+          <div class="ganancia-card mes"><span class="g-icono">🗓️</span>
             <div class="g-info"><small>ESTE MES</small><strong>{{ formatearPrecio(gananciaMesSel()) }}</strong></div>
           </div>
-          <div class="ganancia-card anio">
-            <span class="g-icono">📆</span>
+          <div class="ganancia-card anio"><span class="g-icono">📆</span>
             <div class="g-info"><small>ESTE AÑO</small><strong>{{ formatearPrecio(gananciaAnioSel()) }}</strong></div>
           </div>
-          <div class="ganancia-card total">
-            <span class="g-icono">💵</span>
-            <div class="g-info"><small>TOTAL PAGADO</small><strong>{{ formatearPrecio(totalPagadoSel()) }}</strong></div>
+          <div class="ganancia-card total"><span class="g-icono">♾️</span>
+            <div class="g-info"><small>HISTÓRICO</small><strong>{{ formatearPrecio(gananciaHistoricaSel()) }}</strong></div>
           </div>
         </div>
 
-        <h3 class="subtitulo">📋 Desglose de pagos</h3>
-        <div class="inv-desglose">
-          <div class="desglose-item"><span>📅 Mensuales</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['mensual'] || 0) }}</strong></div>
-          <div class="desglose-item"><span>⏩ Adelantos</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['adelanto'] || 0) }}</strong></div>
-          <div class="desglose-item"><span>✨ Extras</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['extra'] || 0) }}</strong></div>
-          <div class="desglose-item"><span>🔄 Reintegros</span><strong>{{ formatearPrecio(pagadoPorTipoSel()['reintegro'] || 0) }}</strong></div>
+        <h3 class="subtitulo">📋 Historial de pagos/retiros ({{ pagosSel().length }})</h3>
+        <div class="desglose-lista">
+          @for (p of pagosSel(); track p.id) {
+            <div class="mov-item">
+              <div class="mov-emoji">{{ emojiTipo(p.tipo) }}</div>
+              <div class="mov-info">
+                <strong>{{ p.concepto }}</strong>
+                <small>{{ inv.formatearFecha(p.fecha) }} · {{ textoTipo(p.tipo) }}</small>
+              </div>
+              <div class="mov-monto">
+                <strong>{{ formatearPrecio(p.monto) }}</strong>
+                <button (click)="eliminarPago(p.id)">🗑️</button>
+              </div>
+            </div>
+          }
+          @if (pagosSel().length === 0) {
+            <p class="sin-datos">Aún no hay pagos/retiros para este socio.</p>
+          }
         </div>
       </div>
     }
 
-    <!-- ===== TAB: PROYECCIÓN ===== -->
+    <!-- ===== PROYECCIÓN ===== -->
     @if (tab() === 'proyeccion' && !seleccionado()?.es_dueno) {
       <div class="inv-proyeccion">
         <div class="proy-card destacada">
           <span class="proy-emoji">🚀</span>
           <div>
-            <small>PROYECCIÓN MENSUAL PARA {{ seleccionado()?.nombre }}</small>
+            <small>PROYECCIÓN MENSUAL</small>
             <strong>{{ formatearPrecio(proyeccionMensualSel()) }}</strong>
-            <p>Basada en tus {{ diasTrabajadosMes() }} días trabajados el último mes</p>
+            <p>Basada en {{ diasTrabajadosMes() }} días trabajados los últimos 30 días</p>
           </div>
         </div>
 
         <div class="proy-grid">
-          <div class="proy-card">
-            <small>PROYECCIÓN ANUAL</small>
-            <strong>{{ formatearPrecio(proyeccionMensualSel() * 12) }}</strong>
-          </div>
-          <div class="proy-card">
-            <small>MESES PARA RECUPERAR CAPITAL</small>
-            <strong>{{ mesesParaRecuperarSel() }}</strong>
-          </div>
-          <div class="proy-card">
-            <small>DÍAS TRABAJADOS (ÚLT. 30)</small>
-            <strong>{{ diasTrabajadosMes() }} días</strong>
-          </div>
-          <div class="proy-card">
-            <small>GANANCIA INVERSOR / DÍA TRABAJADO</small>
-            <strong>{{ formatearPrecio(gananciaPorDiaTrabajado()) }}</strong>
-          </div>
+          <div class="proy-card"><small>ANUAL</small><strong>{{ formatearPrecio(proyeccionMensualSel() * 12) }}</strong></div>
+          <div class="proy-card"><small>MESES RECUPERAR CAPITAL</small><strong>{{ mesesParaRecuperarSel() }}</strong></div>
+          <div class="proy-card"><small>DÍAS TRABAJADOS (30D)</small><strong>{{ diasTrabajadosMes() }}</strong></div>
+          <div class="proy-card"><small>GANANCIA / DÍA</small><strong>{{ formatearPrecio(gananciaPorDiaTrabajado()) }}</strong></div>
         </div>
 
         <div class="proy-nota">
-          <strong>💡 Cómo se calcula:</strong>
-          <p>
-            Promedio de ventas por día trabajado ({{ formatearPrecio(promedioDiaTrabajado()) }})
-            × {{ diasTrabajadosMes() }} días trabajados el último mes
-            × margen 70% × {{ seleccionado()?.porcentaje_ganancias || 0 }}% de {{ seleccionado()?.nombre }}.
-          </p>
-          <p style="margin-top: 8px; opacity: 0.8">
-            📌 Solo cuenta los días que realmente vendiste, así la proyección refleja tu ritmo real de trabajo.
-          </p>
+          <strong>💡 Fórmula:</strong>
+          <p>Promedio por día trabajado × días trabajados × margen 70% × {{ seleccionado()?.porcentaje_ganancias || 0 }}%</p>
         </div>
       </div>
     }
 
-    <!-- ===== TAB: PAGOS ===== -->
-    @if (tab() === 'pagos' && !seleccionado()?.es_dueno) {
+    <!-- ===== PAGOS ===== -->
+    @if (tab() === 'pagos') {
       <div class="inv-pagos">
         <div class="pago-form">
-          <h3>➕ Pago a {{ seleccionado()?.nombre }}</h3>
+          <h3>➕ {{ seleccionado()?.es_dueno ? 'Registrar retiro del dueño' : 'Pago a ' + seleccionado()?.nombre }}</h3>
 
-          <div class="form-grid">
-            <div class="form-field">
-              <label>Monto</label>
-              <input type="number" [(ngModel)]="pagoForm.monto" placeholder="$ 0" />
+          @if (!seleccionado()?.es_dueno) {
+            <div class="form-grid">
+              <div class="form-field"><label>Monto</label><input type="number" [(ngModel)]="pagoForm.monto" placeholder="$ 0" /></div>
+              <div class="form-field"><label>Fecha</label><input type="date" [(ngModel)]="pagoForm.fecha" /></div>
+              <div class="form-field">
+                <label>Tipo</label>
+                <select [(ngModel)]="pagoForm.tipo">
+                  <option value="mensual">📅 Mensual</option>
+                  <option value="adelanto">⏩ Adelanto</option>
+                  <option value="extra">✨ Extra</option>
+                  <option value="reintegro">🔄 Reintegro</option>
+                </select>
+              </div>
             </div>
-            <div class="form-field">
-              <label>Fecha</label>
-              <input type="date" [(ngModel)]="pagoForm.fecha" />
+            <label>Concepto</label>
+            <input [(ngModel)]="pagoForm.concepto" placeholder="Ej: Pago mes de agosto" />
+            <button class="btn-guardar" (click)="registrarPago()">💾 Registrar pago</button>
+          } @else {
+            <div class="form-grid">
+              <div class="form-field"><label>Monto</label><input type="number" [(ngModel)]="retiroForm.monto" placeholder="$ 0" /></div>
+              <div class="form-field"><label>Fecha</label><input type="date" [(ngModel)]="retiroForm.fecha" /></div>
+              <div class="form-field"><label>Concepto</label><input [(ngModel)]="retiroForm.concepto" placeholder="Ej: Retiro personal" /></div>
             </div>
-            <div class="form-field">
-              <label>Tipo</label>
-              <select [(ngModel)]="pagoForm.tipo">
-                <option value="mensual">📅 Mensual</option>
-                <option value="adelanto">⏩ Adelanto</option>
-                <option value="extra">✨ Extra</option>
-                <option value="reintegro">🔄 Reintegro</option>
-              </select>
-            </div>
-          </div>
+            <button class="btn-guardar" (click)="registrarRetiroDueno()">💰 Registrar retiro</button>
+          }
 
-          <label>Concepto</label>
-          <input [(ngModel)]="pagoForm.concepto" placeholder="Ej: Pago mes de agosto" />
-
-          <button class="btn-guardar" (click)="registrarPago()">💾 Registrar pago</button>
+          <p class="hint">
+            {{ seleccionado()?.es_dueno
+              ? 'Los retiros del dueño son distribución de utilidades. Reducen el saldo en caja pero NO afectan la ganancia neta.'
+              : 'Los pagos a inversores reducen su saldo pendiente y el saldo en caja del negocio.' }}
+          </p>
         </div>
 
         <div class="pago-historial">
           <h3>📜 Historial ({{ pagosSel().length }})</h3>
-
           @for (p of pagosSel(); track p.id) {
             <div class="pago-item">
               <div class="pago-emoji">{{ emojiTipo(p.tipo) }}</div>
               <div class="pago-info">
                 <strong>{{ p.concepto }}</strong>
-                <small>{{ inv.formatearFecha(p.fecha) }} · {{ p.tipo }}</small>
+                <small>{{ inv.formatearFecha(p.fecha) }} · {{ textoTipo(p.tipo) }}</small>
               </div>
               <div class="pago-monto">
                 <strong>{{ formatearPrecio(p.monto) }}</strong>
@@ -329,38 +393,26 @@
               </div>
             </div>
           }
-
           @if (pagosSel().length === 0) {
-            <div class="vacio"><span class="vacio-icono">📭</span><p>Sin pagos para este inversor</p></div>
+            <div class="vacio"><span class="vacio-icono">📭</span><p>Sin movimientos.</p></div>
           }
         </div>
       </div>
     }
 
-    <!-- ===== TAB: EDITAR ===== -->
+    <!-- ===== EDITAR ===== -->
     @if (tab() === 'editar' && !seleccionado()?.es_dueno) {
       <div class="inv-config">
         <div class="config-panel">
           <h3>⚙️ Editar a {{ seleccionado()?.nombre }}</h3>
-
-          <label>Nombre</label>
-          <input [(ngModel)]="editForm().nombre" />
-
-          <label>Capital invertido ($)</label>
-          <input type="number" [(ngModel)]="editForm().capital_invertido" />
-
-          <label>% de ganancias</label>
-          <input type="number" [(ngModel)]="editForm().porcentaje_ganancias" step="0.1" />
-
-          <label>Fecha de inicio</label>
-          <input type="date" [(ngModel)]="editForm().fecha_inicio" />
-
-          <label>Notas</label>
-          <textarea [(ngModel)]="editForm().notas" rows="3"></textarea>
-
+          <label>Nombre</label><input [(ngModel)]="editForm().nombre" />
+          <label>Capital invertido ($)</label><input type="number" [(ngModel)]="editForm().capital_invertido" />
+          <label>% de ganancias</label><input type="number" [(ngModel)]="editForm().porcentaje_ganancias" step="0.1" />
+          <label>Fecha de inicio</label><input type="date" [(ngModel)]="editForm().fecha_inicio" />
+          <label>Notas</label><textarea [(ngModel)]="editForm().notas" rows="3"></textarea>
           <div class="form-acciones">
-            <button class="btn-guardar" (click)="guardarEdicion()">💾 Guardar cambios</button>
-            <button class="btn-eliminar" (click)="eliminarInversor(seleccionado()!.id)">🗑️ Eliminar inversor</button>
+            <button class="btn-guardar" (click)="guardarEdicion()">💾 Guardar</button>
+            <button class="btn-eliminar" (click)="eliminarInversor(seleccionado()!.id)">🗑️ Eliminar</button>
           </div>
         </div>
 

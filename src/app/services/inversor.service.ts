@@ -18,7 +18,7 @@ export interface PagoInversor {
   monto: number;
   concepto: string;
   fecha: string;
-  tipo: 'mensual' | 'adelanto' | 'extra' | 'reintegro';
+  tipo: 'mensual' | 'adelanto' | 'extra' | 'reintegro' | 'retiro_dueño';
   inversor_id: number | null;
   creado_en: string;
 }
@@ -32,7 +32,6 @@ export class InversorService {
   inversoresBD = signal<Inversor[]>([]);
   pagos = signal<PagoInversor[]>([]);
 
-  // 🧑‍💼 Todos los socios = inversores de BD + dueño virtual
   inversores = computed<Inversor[]>(() => {
     const invBD = this.inversoresBD();
     const sumaPctInversores = invBD.reduce((t, i) => t + Number(i.porcentaje_ganancias), 0);
@@ -87,7 +86,13 @@ export class InversorService {
     await this.cargarPagos();
   }
 
-  async registrarPago(p: { monto: number; concepto: string; fecha: string; tipo: string; inversor_id: number }): Promise<boolean> {
+  async registrarPago(p: {
+    monto: number;
+    concepto: string;
+    fecha: string;
+    tipo: string;
+    inversor_id: number | null;
+  }): Promise<boolean> {
     const { error } = await this.supabase.client.from('pagos_inversor').insert([p]);
     if (error) return false;
     await this.cargarPagos();

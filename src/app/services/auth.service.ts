@@ -36,33 +36,39 @@ export class AuthService {
   }
 
   private inicializarSesion(): void {
-    // Sesión inicial al cargar la app
-    this.supabase.client.auth
-      .getSession()
-      .then(async ({ data }) => {
-        const user = data.session?.user ?? null;
-        this.usuario.set(user);
-        if (user) await this.cargarPerfil();
-        this.cargando.set(false);
-        this.resolverLista();
-      })
-      .catch(() => {
-        this.cargando.set(false);
-        this.resolverLista();
-      });
-
-    // ⚠️ NUNCA hagas await de Supabase dentro de este callback (deadlock).
-    // Lo diferimos con setTimeout para liberar el lock interno de Supabase.
-    this.supabase.client.auth.onAuthStateChange((_evento, sesion) => {
-      setTimeout(() => {
-        this.ngZone.run(async () => {
-          const user = sesion?.user ?? null;
+    try {
+      // Sesión inicial al cargar la app
+      this.supabase.client.auth
+        .getSession()
+        .then(async ({ data }) => {
+          const user = data.session?.user ?? null;
           this.usuario.set(user);
           if (user) await this.cargarPerfil();
-          else this.perfil.set(null);
+          this.cargando.set(false);
+          this.resolverLista();
+        })
+        .catch(() => {
+          this.cargando.set(false);
+          this.resolverLista();
         });
-      }, 0);
-    });
+
+      // ⚠️ NUNCA hagas await de Supabase dentro de este callback (deadlock).
+      // Lo diferimos con setTimeout para liberar el lock interno de Supabase.
+      this.supabase.client.auth.onAuthStateChange((_evento, sesion) => {
+        setTimeout(() => {
+          this.ngZone.run(async () => {
+            const user = sesion?.user ?? null;
+            this.usuario.set(user);
+            if (user) await this.cargarPerfil();
+            else this.perfil.set(null);
+          });
+        }, 0);
+      });
+    } catch {
+      // 🛡️ Si Supabase falla al arrancar, no dejes la app colgada (pantalla negra)
+      this.cargando.set(false);
+      this.resolverLista();
+    }
   }
 
   // Lee el perfil (rol, puntos, código, permisos) del usuario autenticado
