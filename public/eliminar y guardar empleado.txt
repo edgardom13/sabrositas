@@ -1,0 +1,55 @@
+eliminar un empleado
+
+do $$
+declare
+  uid uuid;
+begin
+  select id into uid from auth.users where email = 'maryoris@sabrositas.com';
+
+  if uid is null then
+    raise notice 'Usuario no encontrado';
+    return;
+  end if;
+
+  -- 1) Desvincular perfil
+  delete from public.perfiles where id = uid;
+
+  -- 2) Limpiar auth
+  delete from auth.identities     where user_id = uid;
+  delete from auth.sessions       where user_id = uid;
+  delete from auth.refresh_tokens where user_id = uid::text;  -- ← cast a text
+
+  -- 3) Eliminar el usuario
+  delete from auth.users where id = uid;
+
+  raise notice 'Usuario eliminado: %', uid;
+end $$;
+
+
+crear empleado
+
+primero créalo en la base de datos y luego usa este código 
+
+insert into public.perfiles (id, rol, nombre, telefono, permisos, admin_id)
+values (
+  'AQUI_EL_NUEVO_UUID', 'empleado', 'Maryoris', null,
+  '{
+    "pos":         {"ver": true,  "editar": true},
+    "pedidos":     {"ver": false, "editar": false},
+    "clientes":    {"ver": false, "editar": false},
+    "catalogo":    {"ver": false, "editar": false},
+    "promociones": {"ver": false, "editar": false},
+    "marketing":   {"ver": false, "editar": false},
+    "referidos":   {"ver": false, "editar": false},
+    "reportes":    {"ver": false, "editar": false},
+    "egresos":     {"ver": false, "editar": false},
+    "inversor":    {"ver": false, "editar": false},
+    "empleados":   {"ver": false, "editar": false},
+    "usuarios":    {"ver": false, "editar": false},
+    "cierre":      {"ver": false, "editar": false},
+    "ajustes":     {"ver": false, "editar": false}
+  }'::jsonb,
+  '55f94087-4e68-44a6-8f1c-3ae1e14cb859'
+)
+on conflict (id) do update
+  set rol = 'empleado', permisos = excluded.permisos, admin_id = excluded.admin_id;
