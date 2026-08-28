@@ -175,6 +175,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/panel-cliente/panel-cliente').then((m) => m.PanelCliente),
     canActivate: [roleGuard('cliente')],
   },
+    // 👩‍🍳 Panel EMPLEADO (solo POS)
+  {
+    path: 'empleado',
+    loadComponent: () =>
+      import('./pages/empleado-dashboard/empleado-dashboard').then((m) => m.EmpleadoDashboard),
+    canActivate: [roleGuard('empleado')],
+  },
 
   // ❓ 404
   {

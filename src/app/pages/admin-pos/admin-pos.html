@@ -2,7 +2,7 @@
 
   @if (toast()) { <div class="pos-toast">{{ toast() }}</div> }
 
-  <div class="pos-productos">
+    <div class="pos-productos">
     <div class="pos-buscar">
       <span>🔍</span>
       <input [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" placeholder="Buscar producto o combo..." />
@@ -16,38 +16,45 @@
       }
     </div>
 
-    <!-- 🎁 GRID DE COMBOS -->
-    @if (filtroCat() === 'todos' || filtroCat() === 'combos') {
-      <div class="pos-grid">
-        @for (c of combosLista(); track c.id) {
-          <button class="pos-item pos-item-combo" (click)="abrirComboModal(c)">
-            <img [src]="c.imagen" [alt]="c.nombre" />
-            <div class="pos-item-info">
-              <strong>{{ c.nombre }}</strong>
-              <span>{{ pos.formatearPrecio(c.precio) }}</span>
-              <small class="pos-combo-mini">{{ resumenCombo(c) }}</small>
-            </div>
-            @if (pos.comboCantidadDe(c.id) > 0) { <span class="pos-qty">{{ pos.comboCantidadDe(c.id) }}</span> }
-          </button>
-        }
-      </div>
-    }
+    <!-- 📜 UN SOLO contenedor con scroll para combos + productos -->
+    <div class="pos-scroll">
 
-    <!-- 🥟 GRID DE PRODUCTOS -->
-    @if (filtroCat() !== 'combos') {
-      <div class="pos-grid">
-        @for (p of lista(); track p.id) {
-          <button class="pos-item" (click)="pos.agregar(p)">
-            <img [src]="p.imagen" [alt]="p.nombre" />
-            <div class="pos-item-info">
-              <strong>{{ p.nombre }}</strong>
-              <span>{{ pos.formatearPrecio(p.precio) }}</span>
-            </div>
-            @if (pos.cantidadDe(p.id) > 0) { <span class="pos-qty">{{ pos.cantidadDe(p.id) }}</span> }
-          </button>
-        }
-      </div>
-    }
+      <!-- 🎁 GRID DE COMBOS -->
+      @if (filtroCat() === 'todos' || filtroCat() === 'combos') {
+        <h3 class="pos-seccion-titulo">🎁 Combos</h3>
+        <div class="pos-grid">
+          @for (c of combosLista(); track c.id) {
+            <button class="pos-item pos-item-combo" (click)="abrirComboModal(c)">
+              <img [src]="c.imagen" [alt]="c.nombre" />
+              <div class="pos-item-info">
+                <strong>{{ c.nombre }}</strong>
+                <span>{{ pos.formatearPrecio(c.precio) }}</span>
+                <small class="pos-combo-mini">{{ resumenCombo(c) }}</small>
+              </div>
+              @if (pos.comboCantidadDe(c.id) > 0) { <span class="pos-qty">{{ pos.comboCantidadDe(c.id) }}</span> }
+            </button>
+          }
+        </div>
+      }
+
+      <!-- 🥟 GRID DE PRODUCTOS -->
+      @if (filtroCat() !== 'combos') {
+        <h3 class="pos-seccion-titulo">🥟 Productos</h3>
+        <div class="pos-grid">
+          @for (p of lista(); track p.id) {
+            <button class="pos-item" (click)="pos.agregar(p)">
+              <img [src]="p.imagen" [alt]="p.nombre" />
+              <div class="pos-item-info">
+                <strong>{{ p.nombre }}</strong>
+                <span>{{ pos.formatearPrecio(p.precio) }}</span>
+              </div>
+              @if (pos.cantidadDe(p.id) > 0) { <span class="pos-qty">{{ pos.cantidadDe(p.id) }}</span> }
+            </button>
+          }
+        </div>
+      }
+
+    </div>
   </div>
 
   @if (panelAbierto()) { <div class="pos-overlay" (click)="cerrarPanel()"></div> }

@@ -3,8 +3,7 @@ import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
 import type { User } from '@supabase/supabase-js';
 
-export type Rol = 'admin' | 'inversor' | 'domiciliario' | 'cliente';
-
+export type Rol = 'admin' | 'inversor' | 'empleado' | 'domiciliario' | 'cliente';
 export interface Perfil {
   id: string;
   rol: Rol;
@@ -143,11 +142,13 @@ export class AuthService {
     return true;
   }
 
-  rutaPorRol(): string {
+    rutaPorRol(): string {
     switch (this.rol()) {
       case 'admin':
       case 'inversor':
         return '/dashboard/pedidos';
+      case 'empleado':
+        return '/empleado';
       case 'domiciliario':
         return '/panel-domiciliario';
       case 'cliente':

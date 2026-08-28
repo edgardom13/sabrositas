@@ -1,0 +1,28 @@
+<div class="emp-page">
+
+  <header class="emp-topbar">
+    <div class="emp-marca">
+      <img src="img/logo.png" alt="Sabrositas" class="emp-logo" />
+      <div>
+        <h1 class="emp-titulo">SABROSITAS</h1>
+        <p class="emp-sub">Punto de venta · Empleado</p>
+      </div>
+    </div>
+
+    <div class="emp-acciones">
+      <button class="emp-btn" (click)="alternarTema()" aria-label="Cambiar tema">
+        {{ tema.oscuro() ? '☀️' : '🌙' }}
+      </button>
+      <div class="emp-usuario">
+        <span class="emp-avatar">{{ inicialUsuario() }}</span>
+        <span class="emp-email">{{ emailUsuario() }}</span>
+      </div>
+      <button class="emp-btn salir" (click)="cerrarSesion()">🚪 Salir</button>
+    </div>
+  </header>
+
+  <main class="emp-contenido">
+    <app-admin-pos />
+  </main>
+
+</div>
