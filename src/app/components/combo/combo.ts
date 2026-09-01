@@ -16,9 +16,11 @@ export class Combo {
   nombre: 'Combo Sabrositas',
   precio: 12000,
   imagen: '/combo.jpg',
+  imagen_pos: null,  // ← AGREGAR ESTA LÍNEA
   categoria: 'empanada', // o la que corresponda
   orden: 0,              // ← AGREGA
   activo: true,          // ← AGREGA
+  activo_pos: true,   // ← agregar
 };
 
   pedirCombo(): void {

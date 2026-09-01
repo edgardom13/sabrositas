@@ -5,6 +5,10 @@ export const CATEGORIAS_DISPONIBLES: { valor: CategoriaProducto; etiqueta: strin
   { valor: 'jugo', etiqueta: '🍹 Jugo' },
   { valor: 'frio', etiqueta: '🧊 Frío' },
   { valor: 'salsa', etiqueta: '🥫 Salsa' },
+  { valor: 'arroz', etiqueta: '🍚 Arroz' },
+  { valor: 'asadura', etiqueta: '🥩 Asadura' },
+  { valor: 'plastico', etiqueta: '🛍️ Plástico' },
+  { valor: 'papa', etiqueta: '🥔 Papa' },
 ];
 
 export const ETIQUETA_CATEGORIA: Record<CategoriaProducto, string> = {
@@ -12,4 +16,8 @@ export const ETIQUETA_CATEGORIA: Record<CategoriaProducto, string> = {
   jugo: '🍹 Jugo',
   frio: '🧊 Frío',
   salsa: '🥫 Salsa',
+  arroz: '🍚 Arroz',
+  asadura: '🥩 Asadura',
+  plastico: '🛍️ Plástico',
+  papa: '🥔 Papa',
 };

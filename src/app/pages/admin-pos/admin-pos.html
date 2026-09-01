@@ -37,13 +37,13 @@
         </div>
       }
 
-      <!-- 🥟 GRID DE PRODUCTOS -->
+            <!-- 🥟 GRID DE PRODUCTOS -->
       @if (filtroCat() !== 'combos') {
         <h3 class="pos-seccion-titulo">🥟 Productos</h3>
         <div class="pos-grid">
           @for (p of lista(); track p.id) {
             <button class="pos-item" (click)="pos.agregar(p)">
-              <img [src]="p.imagen" [alt]="p.nombre" />
+              <img [src]="pos.imagenParaPos(p)" [alt]="p.nombre" />
               <div class="pos-item-info">
                 <strong>{{ p.nombre }}</strong>
                 <span>{{ pos.formatearPrecio(p.precio) }}</span>
@@ -167,7 +167,7 @@
         <p class="pos-modal-sub">Selecciona {{ combo.jugos }} jugo(s) · {{ pos.formatearPrecio(combo.precio) }}</p>
 
         <!-- 🍹 JUGOS COMO CARDS (igual que los productos) -->
-        <div class="pos-grid pos-modal-grid">
+                <div class="pos-grid pos-modal-grid">
           @for (j of productos.jugos(); track j.id) {
             <button
               class="pos-item"
@@ -175,7 +175,7 @@
               [disabled]="jugoElegidoCantidad(j.nombre) === 0 && jugosElegidos().length >= combo.jugos"
               (click)="elegirJugo(j.nombre)"
             >
-              <img [src]="j.imagen" [alt]="j.nombre" />
+              <img [src]="pos.imagenParaPos(j)" [alt]="j.nombre" />
               <div class="pos-item-info">
                 <strong>{{ j.nombre }}</strong>
                 <span>{{ pos.formatearPrecio(j.precio) }}</span>

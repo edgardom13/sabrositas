@@ -107,6 +107,10 @@ export class PosService {
       .reduce((t, i) => t + i.cantidad * Number(i.producto.precio), 0)
   );
 
+    // 🖼️ Obtiene la imagen correcta para POS (usa imagen_pos si existe, sino imagen normal)
+  imagenParaPos(p: Producto): string {
+    return p.imagen_pos || p.imagen;
+  }
   
 
   descuentoCanje = computed(() => {

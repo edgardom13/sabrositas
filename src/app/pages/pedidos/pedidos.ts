@@ -72,6 +72,38 @@ export class Pedidos implements OnInit, OnDestroy {
     return lista;
   });
 
+    // 💰 COBROS POR MÉTODO DE PAGO DEL DÍA (excluye cancelados)
+  cobrosDia = computed(() => {
+    const lista = this.pedidosFecha();
+
+    // ✅ Solo cuenta como cobro si está PAGADO y NO fue cancelado
+    const pagados = lista.filter((p) => p.pagado && p.estado !== 'cancelado');
+    const sinPagar = lista.filter((p) => !p.pagado && p.estado !== 'cancelado');
+
+    const efectivo = pagados.filter((p) => (p.metodo_pago ?? '').includes('Efectivo'));
+    const tarjeta  = pagados.filter((p) => ['Tarjeta', 'Transferencia'].includes(p.metodo_pago ?? ''));
+    const nequi    = pagados.filter((p) => (p.metodo_pago ?? '').includes('Nequi'));
+
+    return {
+      efectivo: efectivo.reduce((t, p) => t + Number(p.total), 0),
+      tarjeta:  tarjeta.reduce((t, p) => t + Number(p.total), 0),
+      nequi:    nequi.reduce((t, p) => t + Number(p.total), 0),
+      sinPagar: sinPagar.reduce((t, p) => t + Number(p.total), 0),
+      countEfectivo: efectivo.length,
+      countTarjeta:  tarjeta.length,
+      countNequi:    nequi.length,
+      countSinPagar: sinPagar.length,
+    };
+  });
+
+  emojiMetodoPago(metodo: string | null): string {
+    if (!metodo) return '💰';
+    if (metodo.includes('Efectivo')) return '💵';
+    if (metodo.includes('Tarjeta') || metodo.includes('Transferencia')) return '💳';
+    if (metodo.includes('Nequi')) return '📱';
+    return '💰';
+  }
+
   statsDia = computed(() => {
     const lista = this.pedidosFecha();
     const entregados = lista.filter((p) => p.estado === 'entregado');

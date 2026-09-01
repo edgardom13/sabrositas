@@ -8,9 +8,11 @@ const FORM_VACIO: ProductoInput = {
   nombre: '',
   precio: 0,
   imagen: '',
+  imagen_pos: null,
   categoria: 'empanada',
   orden: 0,
   activo: true,
+  activo_pos: true,
 };
 
 @Component({
@@ -29,13 +31,12 @@ export class Productos implements OnInit {
   busqueda = signal('');
   mensaje = signal<string | null>(null);
 
-  // ✅ Ahora el formulario se controla con este signal
   mostrarFormulario = signal(false);
   editandoId = signal<number | null>(null);
   formulario = signal<ProductoInput>({ ...FORM_VACIO });
   subiendoImagen = signal(false);
+  subiendoImagenPos = signal(false);
 
-  // ✅ Filtros reactivos con computed (sin setInterval)
   productosFiltrados = computed(() => {
     let lista = this.service.productos();
     const cat = this.filtroCategoria();
@@ -59,11 +60,8 @@ export class Productos implements OnInit {
 
   nuevo(): void {
     this.editandoId.set(null);
-    this.formulario.set({
-      ...FORM_VACIO,
-      orden: this.service.productos().length + 1,
-    });
-    this.mostrarFormulario.set(true); // ✅ ahora sí abre el formulario
+    this.formulario.set({ ...FORM_VACIO, orden: this.service.productos().length + 1 });
+    this.mostrarFormulario.set(true);
   }
 
   editar(p: Producto): void {
@@ -72,9 +70,11 @@ export class Productos implements OnInit {
       nombre: p.nombre,
       precio: p.precio,
       imagen: p.imagen,
+      imagen_pos: p.imagen_pos,
       categoria: p.categoria,
       orden: p.orden,
       activo: p.activo,
+      activo_pos: p.activo_pos,
     });
     this.mostrarFormulario.set(true);
   }
@@ -85,43 +85,50 @@ export class Productos implements OnInit {
     this.mostrarFormulario.set(false);
   }
 
-  // ===== 📷 Subir imagen a Supabase Storage =====
   async subirImagen(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const archivo = input.files?.[0];
     if (!archivo) return;
-
     this.subiendoImagen.set(true);
     const nombreUnico = `${Date.now()}-${archivo.name.replace(/\s+/g, '-')}`;
-
-    const { error } = await this.supabase.client.storage
-      .from('productos')
-      .upload(nombreUnico, archivo);
-
+    const { error } = await this.supabase.client.storage.from('productos').upload(nombreUnico, archivo);
     if (error) {
       console.error('❌ Error al subir imagen:', error.message);
       this.mostrarMensaje('⚠️ No se pudo subir la imagen');
       this.subiendoImagen.set(false);
       return;
     }
-
-    const { data } = this.supabase.client.storage
-      .from('productos')
-      .getPublicUrl(nombreUnico);
-
-    // La URL pública se coloca sola en el campo de imagen
+    const { data } = this.supabase.client.storage.from('productos').getPublicUrl(nombreUnico);
     this.formulario.update((f) => ({ ...f, imagen: data.publicUrl }));
     this.subiendoImagen.set(false);
-    this.mostrarMensaje('✅ Imagen cargada');
+    this.mostrarMensaje('✅ Imagen de tienda cargada');
+  }
+
+  async subirImagenPos(evento: Event): Promise<void> {
+    const input = evento.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    if (!archivo) return;
+    this.subiendoImagenPos.set(true);
+    const nombreUnico = `${Date.now()}-pos-${archivo.name.replace(/\s+/g, '-')}`;
+    const { error } = await this.supabase.client.storage.from('productos').upload(nombreUnico, archivo);
+    if (error) {
+      console.error('❌ Error al subir imagen POS:', error.message);
+      this.mostrarMensaje('⚠️ No se pudo subir la imagen POS');
+      this.subiendoImagenPos.set(false);
+      return;
+    }
+    const { data } = this.supabase.client.storage.from('productos').getPublicUrl(nombreUnico);
+    this.formulario.update((f) => ({ ...f, imagen_pos: data.publicUrl }));
+    this.subiendoImagenPos.set(false);
+    this.mostrarMensaje('✅ Imagen de POS cargada');
   }
 
   async guardar(): Promise<void> {
     const f = this.formulario();
     if (!f.nombre.trim() || f.precio < 0 || !f.imagen.trim()) {
-      this.mostrarMensaje('⚠️ Completa nombre, imagen y precio válido');
+      this.mostrarMensaje('⚠️ Completa nombre, imagen de tienda y precio válido');
       return;
     }
-
     let ok = false;
     if (this.editandoId() !== null) {
       ok = await this.service.actualizar(this.editandoId()!, f);
@@ -130,7 +137,6 @@ export class Productos implements OnInit {
       ok = await this.service.crear(f);
       if (ok) this.mostrarMensaje('✅ Producto creado');
     }
-
     if (ok) this.cancelar();
   }
 
@@ -140,10 +146,18 @@ export class Productos implements OnInit {
     if (ok) this.mostrarMensaje('🗑️ Producto eliminado');
   }
 
+  // 🛍️ Ojito TIENDA
   async toggleActivo(p: Producto): Promise<void> {
-    const nuevoEstado = !p.activo;
-    const ok = await this.service.toggleActivo(p.id, nuevoEstado);
-    if (ok) this.mostrarMensaje(nuevoEstado ? '✅ Producto activado' : '⏸️ Producto ocultado');
+    const nuevo = !p.activo;
+    const ok = await this.service.toggleActivo(p.id, nuevo);
+    if (ok) this.mostrarMensaje(nuevo ? '🛍️ Visible en TIENDA' : '🛍️ Oculto en TIENDA');
+  }
+
+  // 🏪 Ojito POS
+  async toggleActivoPos(p: Producto): Promise<void> {
+    const nuevo = !p.activo_pos;
+    const ok = await this.service.toggleActivoPos(p.id, nuevo);
+    if (ok) this.mostrarMensaje(nuevo ? '🏪 Visible en POS' : '🏪 Oculto en POS');
   }
 
   private mostrarMensaje(texto: string): void {

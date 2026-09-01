@@ -1,25 +1,31 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { SupabaseService } from './supabase';
 
-export type CategoriaProducto = 'empanada' | 'jugo' | 'frio' | 'salsa';
+export type CategoriaProducto = 
+  | 'empanada' | 'jugo' | 'frio' | 'salsa'
+  | 'arroz' | 'asadura' | 'plastico' | 'papa';
 
 export interface Producto {
   id: number;
   nombre: string;
   precio: number;
   imagen: string;
+  imagen_pos: string | null;
   categoria: CategoriaProducto;
   orden: number;
-  activo: boolean;
+  activo: boolean;       // 🛍️ visible en TIENDA
+  activo_pos: boolean;   // 🏪 visible en POS
 }
 
 export interface ProductoInput {
   nombre: string;
   precio: number;
   imagen: string;
+  imagen_pos: string | null;
   categoria: CategoriaProducto;
   orden: number;
   activo: boolean;
+  activo_pos: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,10 +35,17 @@ export class ProductosService {
   productos = signal<Producto[]>([]);
   cargando = signal(false);
 
-  // Solo los activos y ordenados (lo que ve la tienda)
+  // 🛍️ Catálogo TIENDA (solo activos de tienda)
   catalogo = computed(() =>
     this.productos()
       .filter((p) => p.activo)
+      .sort((a, b) => a.orden - b.orden || a.id - b.id),
+  );
+
+  // 🏪 Catálogo POS (solo activos de POS)
+  catalogoPos = computed(() =>
+    this.productos()
+      .filter((p) => p.activo_pos)
       .sort((a, b) => a.orden - b.orden || a.id - b.id),
   );
 
@@ -40,6 +53,14 @@ export class ProductosService {
   jugos = computed(() => this.catalogo().filter((p) => p.categoria === 'jugo'));
   frios = computed(() => this.catalogo().filter((p) => p.categoria === 'frio'));
   salsas = computed(() => this.catalogo().filter((p) => p.categoria === 'salsa'));
+  arroces = computed(() => this.catalogo().filter((p) => p.categoria === 'arroz'));
+  asaduras = computed(() => this.catalogo().filter((p) => p.categoria === 'asadura'));
+  plasticos = computed(() => this.catalogo().filter((p) => p.categoria === 'plastico'));
+  papas = computed(() => this.catalogo().filter((p) => p.categoria === 'papa'));
+
+  imagenParaPos(p: Producto): string {
+    return p.imagen_pos || p.imagen;
+  }
 
   async cargar(): Promise<void> {
     this.cargando.set(true);
@@ -62,11 +83,7 @@ export class ProductosService {
       .insert([input])
       .select()
       .single();
-
-    if (error) {
-      console.error('❌ Error al crear:', error.message);
-      return false;
-    }
+    if (error) { console.error('❌ Error al crear:', error.message); return false; }
     this.productos.update((lista) => [...lista, data as Producto]);
     return true;
   }
@@ -78,44 +95,31 @@ export class ProductosService {
       .eq('id', id)
       .select()
       .single();
-
-    if (error) {
-      console.error('❌ Error al actualizar:', error.message);
-      return false;
-    }
-    this.productos.update((lista) =>
-      lista.map((p) => (p.id === id ? (data as Producto) : p)),
-    );
+    if (error) { console.error('❌ Error al actualizar:', error.message); return false; }
+    this.productos.update((lista) => lista.map((p) => (p.id === id ? (data as Producto) : p)));
     return true;
   }
 
   async eliminar(id: number): Promise<boolean> {
-    const { error } = await this.supabase.client
-      .from('productos')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('❌ Error al eliminar:', error.message);
-      return false;
-    }
+    const { error } = await this.supabase.client.from('productos').delete().eq('id', id);
+    if (error) { console.error('❌ Error al eliminar:', error.message); return false; }
     this.productos.update((lista) => lista.filter((p) => p.id !== id));
     return true;
   }
 
+  // 🛍️ Ojito TIENDA
   async toggleActivo(id: number, activo: boolean): Promise<boolean> {
-    const { error } = await this.supabase.client
-      .from('productos')
-      .update({ activo })
-      .eq('id', id);
+    const { error } = await this.supabase.client.from('productos').update({ activo }).eq('id', id);
+    if (error) { console.error('❌ Error al cambiar estado:', error.message); return false; }
+    this.productos.update((lista) => lista.map((p) => (p.id === id ? { ...p, activo } : p)));
+    return true;
+  }
 
-    if (error) {
-      console.error('❌ Error al cambiar estado:', error.message);
-      return false;
-    }
-    this.productos.update((lista) =>
-      lista.map((p) => (p.id === id ? { ...p, activo } : p)),
-    );
+  // 🏪 Ojito POS
+  async toggleActivoPos(id: number, activo_pos: boolean): Promise<boolean> {
+    const { error } = await this.supabase.client.from('productos').update({ activo_pos }).eq('id', id);
+    if (error) { console.error('❌ Error al cambiar estado POS:', error.message); return false; }
+    this.productos.update((lista) => lista.map((p) => (p.id === id ? { ...p, activo_pos } : p)));
     return true;
   }
 }

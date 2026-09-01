@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { PosService, ComboPos } from '../../services/pos.service';
 import { ProductosService, Producto } from '../../services/productos.service';
 
-type Cat = 'todos' | 'combos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'domicilio';
+type Cat = 'todos' | 'combos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'domicilio' | 'arroz' | 'asadura' | 'plastico' | 'papa';
 
 @Component({
   selector: 'app-admin-pos',
@@ -22,7 +22,6 @@ export class AdminPos implements OnInit {
   registrando = signal(false);
   panelAbierto = signal(false);
 
-  // 🎁 Modal de combo
   comboModal = signal<ComboPos | null>(null);
   jugosElegidos = signal<string[]>([]);
 
@@ -36,18 +35,31 @@ export class AdminPos implements OnInit {
     { valor: 'jugo', etiqueta: '🍹 Jugos' },
     { valor: 'frio', etiqueta: '🧊 Fríos' },
     { valor: 'salsa', etiqueta: '🥫 Salsas' },
+    { valor: 'arroz', etiqueta: '🍚 Arroces' },
+    { valor: 'asadura', etiqueta: '🥩 Asaduras' },
+    { valor: 'plastico', etiqueta: '🛍️ Plásticos' },
+    { valor: 'papa', etiqueta: '🥔 Papas' },
     { valor: 'domicilio', etiqueta: '🛵 Domicilio' },
   ];
 
-  private ordenCat: Record<string, number> = { empanada: 0, jugo: 1, frio: 2, salsa: 3, domicilio: 4 };
+  private ordenCat: Record<string, number> = {
+    empanada: 0, jugo: 1, frio: 2, salsa: 3,
+    arroz: 4, asadura: 5, plastico: 6, papa: 7, domicilio: 8,
+  };
+
   private ordenDe(p: Producto): number { return (p as any).orden ?? 0; }
 
-  async ngOnInit(): Promise<void> { await this.productos.cargar(); }
+  async ngOnInit(): Promise<void> {
+    await this.productos.cargar();
+  }
 
+  // 🏪 CLAVE: usa catalogoPos() (filtra por activo_pos), NO catalogo()
   lista = computed(() => {
-    const todos = [...this.productos.catalogo().filter((p) => p.activo), this.pos.productoDomicilio()];
+    const todos = [...this.productos.catalogoPos(), this.pos.productoDomicilio()];
     let l = todos;
-    if (this.filtroCat() !== 'todos' && this.filtroCat() !== 'combos') l = l.filter((p) => p.categoria === this.filtroCat());
+    if (this.filtroCat() !== 'todos' && this.filtroCat() !== 'combos') {
+      l = l.filter((p) => p.categoria === this.filtroCat());
+    }
     const q = this.busqueda().trim().toLowerCase();
     if (q) l = l.filter((p) => p.nombre.toLowerCase().includes(q));
     return [...l].sort((a, b) => {
@@ -59,7 +71,6 @@ export class AdminPos implements OnInit {
     });
   });
 
-  // 🎁 Combos visibles
   combosLista = computed(() => {
     const q = this.busqueda().trim().toLowerCase();
     let l = this.pos.combos();
@@ -72,14 +83,15 @@ export class AdminPos implements OnInit {
     return `${emp} 🥟 + ${c.jugos} 🍹`;
   }
 
-  // ===== 🎁 MODAL DE COMBO =====
   abrirComboModal(c: ComboPos): void { this.jugosElegidos.set([]); this.comboModal.set(c); }
   cancelarCombo(): void { this.comboModal.set(null); this.jugosElegidos.set([]); }
 
   elegirJugo(nombre: string): void {
     const combo = this.comboModal();
     if (!combo) return;
-    if (this.jugosElegidos().length < combo.jugos) this.jugosElegidos.update((l) => [...l, nombre]);
+    if (this.jugosElegidos().length < combo.jugos) {
+      this.jugosElegidos.update((l) => [...l, nombre]);
+    }
   }
 
   quitarJugo(index: number): void {
@@ -102,10 +114,12 @@ export class AdminPos implements OnInit {
     else this.mostrarToast('❌ Error al registrar la venta');
   }
 
-    //  Cuántas veces se eligió un jugo en el modal actual
   jugoElegidoCantidad(nombre: string): number {
     return this.jugosElegidos().filter((j) => j === nombre).length;
   }
 
-  private mostrarToast(t: string): void { this.toast.set(t); setTimeout(() => this.toast.set(null), 3000); }
+  private mostrarToast(t: string): void {
+    this.toast.set(t);
+    setTimeout(() => this.toast.set(null), 3000);
+  }
 }

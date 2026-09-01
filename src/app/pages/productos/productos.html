@@ -4,16 +4,14 @@
     <div class="toast-exito">{{ mensaje() }}</div>
   }
 
-  <!-- Encabezado -->
   <div class="productos-header">
     <div>
       <h2 class="titulo-productos">Gestión del catálogo</h2>
-      <p class="sub-productos">Los cambios se reflejan al instante en la tienda pública.</p>
+      <p class="sub-productos">Controla por separado qué se ve en la tienda y qué se ve en el POS.</p>
     </div>
     <button class="btn-nuevo" (click)="nuevo()">➕ Nuevo producto</button>
   </div>
 
-  <!-- Formulario -->
   @if (mostrarFormulario()) {
     <div class="form-producto">
       <h4>{{ editandoId() !== null ? '✏️ Editar producto' : '➕ Nuevo producto' }}</h4>
@@ -23,7 +21,6 @@
           <label>Nombre</label>
           <input [ngModel]="formulario().nombre" (ngModelChange)="formulario.set({ ...formulario(), nombre: $event })" placeholder="Ej: Empanada de queso" />
         </div>
-
         <div class="campo">
           <label>Categoría</label>
           <select [ngModel]="formulario().categoria" (ngModelChange)="formulario.set({ ...formulario(), categoria: $event })">
@@ -32,35 +29,43 @@
             }
           </select>
         </div>
-
         <div class="campo">
           <label>Precio ($)</label>
           <input type="number" [ngModel]="formulario().precio" (ngModelChange)="formulario.set({ ...formulario(), precio: +$event || 0 })" />
         </div>
-
         <div class="campo">
           <label>Orden (menor = aparece antes)</label>
           <input type="number" [ngModel]="formulario().orden" (ngModelChange)="formulario.set({ ...formulario(), orden: +$event || 0 })" />
         </div>
       </div>
 
-      <!-- 📷 Imagen -->
       <div class="campo campo-imagen">
-        <label>📷 Imagen (sube un archivo o pega una URL)</label>
+        <label>🖼️ Imagen para TIENDA (cliente online)</label>
         <input type="file" accept="image/*" (change)="subirImagen($event)" [disabled]="subiendoImagen()" />
-        @if (subiendoImagen()) {
-          <span class="subiendo">⏳ Subiendo imagen…</span>
-        }
+        @if (subiendoImagen()) { <span class="subiendo">⏳ Subiendo imagen de tienda…</span> }
         <input [ngModel]="formulario().imagen" (ngModelChange)="formulario.set({ ...formulario(), imagen: $event })" placeholder="https://... o img/..." />
-        @if (formulario().imagen) {
-          <img [src]="formulario().imagen" class="preview-img" alt="Vista previa" />
-        }
+        @if (formulario().imagen) { <img [src]="formulario().imagen" class="preview-img" alt="Vista previa tienda" /> }
       </div>
 
-      <label class="campo-checkbox">
-        <input type="checkbox" [ngModel]="formulario().activo" (ngModelChange)="formulario.set({ ...formulario(), activo: $event })" />
-        <span>Visible en la tienda pública</span>
-      </label>
+      <div class="campo campo-imagen">
+        <label>🏪 Imagen para POS <small style="color: rgba(255,255,255,.5); font-weight: 400;">(opcional, usa la de tienda si está vacío)</small></label>
+        <input type="file" accept="image/*" (change)="subirImagenPos($event)" [disabled]="subiendoImagenPos()" />
+        @if (subiendoImagenPos()) { <span class="subiendo">⏳ Subiendo imagen POS…</span> }
+        <input [ngModel]="formulario().imagen_pos" (ngModelChange)="formulario.set({ ...formulario(), imagen_pos: $event || null })" placeholder="https://... o dejar vacío" />
+        @if (formulario().imagen_pos) { <img [src]="formulario().imagen_pos" class="preview-img" alt="Vista previa POS" /> }
+      </div>
+
+      <!-- 👁️ Visibilidad por canal -->
+      <div class="visibilidad-canales">
+        <label class="campo-checkbox">
+          <input type="checkbox" [ngModel]="formulario().activo" (ngModelChange)="formulario.set({ ...formulario(), activo: $event })" />
+          <span>🛍️ Visible en la TIENDA pública</span>
+        </label>
+        <label class="campo-checkbox">
+          <input type="checkbox" [ngModel]="formulario().activo_pos" (ngModelChange)="formulario.set({ ...formulario(), activo_pos: $event })" />
+          <span>🏪 Visible en el POS</span>
+        </label>
+      </div>
 
       <div class="form-acciones">
         <button class="btn-cancelar" (click)="cancelar()">✕ Cancelar</button>
@@ -69,7 +74,6 @@
     </div>
   }
 
-  <!-- Filtros -->
   <div class="toolbar">
     <div class="buscador">
       <span class="icono-buscar">🔍</span>
@@ -83,7 +87,6 @@
     </div>
   </div>
 
-  <!-- Lista -->
   @if (service.cargando()) {
     <div class="estado-vacio">⏳ Cargando productos…</div>
   } @else if (productosFiltrados().length === 0) {
@@ -91,22 +94,30 @@
   } @else {
     <div class="lista-productos">
       @for (p of productosFiltrados(); track p.id) {
-        <div class="producto-card" [class.inactivo]="!p.activo">
+        <div class="producto-card" [class.inactivo]="!p.activo && !p.activo_pos">
           <img [src]="p.imagen" [alt]="p.nombre" class="producto-img" />
           <div class="producto-info">
             <strong>{{ p.nombre }}</strong>
             <span class="producto-categoria">{{ p.categoria }}</span>
             <span class="producto-precio">{{ formatearPrecio(p.precio) }}</span>
+            <div class="canales-estado">
+              <span class="canal" [class.on]="p.activo">🛍️ {{ p.activo ? 'Visible' : 'Oculto' }}</span>
+              <span class="canal canal-pos" [class.on]="p.activo_pos">🏪 {{ p.activo_pos ? 'Visible' : 'Oculto' }}</span>
+            </div>
           </div>
           <div class="producto-meta">
             <span class="producto-orden">Orden: {{ p.orden }}</span>
-            <span class="producto-estado" [class.activo]="p.activo">
-              {{ p.activo ? '🟢 Visible' : '⏸️ Oculto' }}
-            </span>
           </div>
           <div class="producto-acciones">
-            <button class="btn-mini" (click)="toggleActivo(p)" [title]="p.activo ? 'Ocultar' : 'Activar'">
-              {{ p.activo ? '👁️' : '👁️🗨️' }}
+            <!-- 👁️ Ojito TIENDA -->
+            <button class="btn-mini" [class.canal-off]="!p.activo" (click)="toggleActivo(p)"
+              [title]="p.activo ? 'Ocultar en TIENDA' : 'Mostrar en TIENDA'">
+              🛍️{{ p.activo ? '👁️' : '🚫' }}
+            </button>
+            <!-- 👁️ Ojito POS -->
+            <button class="btn-mini" [class.canal-off]="!p.activo_pos" (click)="toggleActivoPos(p)"
+              [title]="p.activo_pos ? 'Ocultar en POS' : 'Mostrar en POS'">
+              🏪{{ p.activo_pos ? '👁️' : '🚫' }}
             </button>
             <button class="btn-mini" (click)="editar(p)" title="Editar">✏️</button>
             <button class="btn-mini peligro" (click)="eliminar(p)" title="Eliminar">🗑️</button>

@@ -81,11 +81,49 @@
         <p>Egresos del día</p>
       </div>
     </div>
-    <div class="stat-card stat-verde">
+    <div class="stat-card stat-verde-intenso">
       <span class="stat-icono">📈</span>
       <div>
         <h3>{{ pedidosService.formatearPrecio(statsDia().recogido - egresosService.totalDia()) }}</h3>
         <p>GANANCIA NETA</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 💰 RESUMEN DE COBROS -->
+  <div class="cobros-resumen">
+    <div class="cobros-titulo">
+      <span class="cobros-icono">💳</span>
+      <h3>Cobros del día</h3>
+    </div>
+    <div class="cobros-grid">
+      <div class="cobro-item cobro-efectivo">
+        <span class="cobro-emoji">💵</span>
+        <div>
+          <strong>{{ pedidosService.formatearPrecio(cobrosDia().efectivo) }}</strong>
+          <small>Efectivo · {{ cobrosDia().countEfectivo }} pagos</small>
+        </div>
+      </div>
+      <div class="cobro-item cobro-tarjeta">
+        <span class="cobro-emoji">💳</span>
+        <div>
+          <strong>{{ pedidosService.formatearPrecio(cobrosDia().tarjeta) }}</strong>
+          <small>Tarjeta · {{ cobrosDia().countTarjeta }} pagos</small>
+        </div>
+      </div>
+      <div class="cobro-item cobro-nequi">
+        <span class="cobro-emoji">📱</span>
+        <div>
+          <strong>{{ pedidosService.formatearPrecio(cobrosDia().nequi) }}</strong>
+          <small>Nequi / Daviplata · {{ cobrosDia().countNequi }} pagos</small>
+        </div>
+      </div>
+      <div class="cobro-item cobro-sinpagar">
+        <span class="cobro-emoji">⏳</span>
+        <div>
+          <strong>{{ pedidosService.formatearPrecio(cobrosDia().sinPagar) }}</strong>
+          <small>Sin pagar · {{ cobrosDia().countSinPagar }} pedidos</small>
+        </div>
       </div>
     </div>
   </div>
@@ -164,9 +202,13 @@
 
             <div class="col-total">
               <strong>{{ pedidosService.formatearPrecio(pedido.total) }}</strong>
-              <span class="pago" [class.pagado]="pedido.pagado">
-                {{ pedido.pagado ? '💰 Pagado' : '⏳ Sin pagar' }}
-              </span>
+              @if (pedido.pagado) {
+                <span class="pago-metodo" [class.efectivo]="pedido.metodo_pago === 'Efectivo'" [class.tarjeta]="pedido.metodo_pago === 'Tarjeta' || pedido.metodo_pago === 'Transferencia'" [class.nequi]="pedido.metodo_pago === 'Nequi/Daviplata'">
+                  {{ emojiMetodoPago(pedido.metodo_pago) }} {{ pedido.metodo_pago }}
+                </span>
+              } @else {
+                <span class="pago">⏳ Sin pagar</span>
+              }
             </div>
 
             <div class="col-estado">
@@ -193,7 +235,7 @@
           @if (pedidoExpandido() === pedido.id) {
             <div class="pedido-detalle">
 
-              <!-- 🎟️ BANNER DE CANJE (si aplica) -->
+              <!-- 🎟️ BANNER DE CANJE -->
               @if (tieneCanje(pedido); as tieneC) {
                 @if (infoCanje(pedido); as info) {
                   <div class="canje-banner">
@@ -214,7 +256,7 @@
                 }
               }
 
-              <!-- 🏷️ BANNER DE PROMOCIÓN (si aplica) -->
+              <!-- 🏷️ BANNER DE PROMOCIÓN -->
               @if (tienePromo(pedido)) {
                 <div class="promo-banner">
                   <div class="promo-banner-icono">🏷️</div>
@@ -312,11 +354,18 @@
                   @if (!pedido.pagado) {
                     <div class="botones-pago">
                       <button (click)="marcarPagado(pedido, 'Efectivo')" [disabled]="procesando() === pedido.id">💵 Efectivo</button>
-                      <button (click)="marcarPagado(pedido, 'Transferencia')" [disabled]="procesando() === pedido.id">🏦 Transferencia</button>
+                      <button (click)="marcarPagado(pedido, 'Tarjeta')" [disabled]="procesando() === pedido.id">💳 Tarjeta</button>
                       <button (click)="marcarPagado(pedido, 'Nequi/Daviplata')" [disabled]="procesando() === pedido.id">📱 Nequi</button>
+                      <button (click)="marcarPagado(pedido, 'Transferencia')" [disabled]="procesando() === pedido.id">🏦 Transferencia</button>
                     </div>
                   } @else {
-                    <p class="pagado-info">✅ Pagado · {{ pedido.metodo_pago }}</p>
+                    <div class="pagado-info-box" [class.efectivo]="pedido.metodo_pago === 'Efectivo'" [class.tarjeta]="pedido.metodo_pago === 'Tarjeta' || pedido.metodo_pago === 'Transferencia'" [class.nequi]="pedido.metodo_pago === 'Nequi/Daviplata'">
+                      <span class="pagado-info-emoji">{{ emojiMetodoPago(pedido.metodo_pago) }}</span>
+                      <div>
+                        <strong>✅ Pagado</strong>
+                        <small>{{ pedido.metodo_pago }}</small>
+                      </div>
+                    </div>
                   }
                 </div>
               </div>

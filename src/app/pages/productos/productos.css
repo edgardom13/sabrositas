@@ -358,3 +358,67 @@
 
 /* Modo claro */
 body.claro .subiendo { color: #b45309 !important; }
+
+/* ===== Badge de imagen POS ===== */
+.producto-pos-badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #17a2b8;
+  background: rgba(23, 162, 184, 0.12);
+  border: 1px solid rgba(23, 162, 184, 0.4);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+body.claro .producto-pos-badge {
+  color: #117885 !important;
+  background: rgba(23, 162, 184, 0.08) !important;
+  border-color: rgba(23, 162, 184, 0.3) !important; }
+
+/* ===== Visibilidad por canal ===== */
+.visibilidad-canales {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.canales-estado {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.canal {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(220, 53, 69, 0.12);
+  border: 1px solid rgba(220, 53, 69, 0.4);
+  color: #ff8080;
+}
+
+.canal.on {
+  background: rgba(81, 207, 102, 0.12);
+  border-color: rgba(81, 207, 102, 0.4);
+  color: #51cf66;
+}
+
+.canal-pos.on {
+  background: rgba(23, 162, 184, 0.12);
+  border-color: rgba(23, 162, 184, 0.4);
+  color: #4dd0e1;
+}
+
+.btn-mini.canal-off {
+  opacity: 0.5;
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+body.claro .canal { background: rgba(220,53,69,.08) !important; color: #c92a2a !important; }
+body.claro .canal.on { background: rgba(47,158,68,.1) !important; color: #2f9e44 !important; }
+body.claro .canal-pos.on { background: rgba(17,120,133,.1) !important; color: #117885 !important; }

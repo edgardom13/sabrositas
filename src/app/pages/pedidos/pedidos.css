@@ -911,3 +911,189 @@ body.claro .promo-recordar {
   border-radius: 999px;
   box-shadow: 0 2px 8px rgba(23, 162, 184, 0.4);
 }
+
+/* ===== 💰 RESUMEN DE COBROS ===== */
+.cobros-resumen {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.08), rgba(255, 152, 0, 0.04));
+  border: 1.5px solid rgba(255, 193, 7, 0.25);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.cobros-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cobros-icono { font-size: 24px; }
+
+.cobros-titulo h3 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  color: #ffd54f;
+}
+
+.cobros-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.cobro-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  border-left: 4px solid transparent;
+}
+
+.cobro-emoji { font-size: 28px; }
+
+.cobro-item strong {
+  display: block;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cobro-item small {
+  display: block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.cobro-efectivo { border-left-color: #51cf66; }
+.cobro-efectivo strong { color: #51cf66; }
+
+.cobro-tarjeta { border-left-color: #007bff; }
+.cobro-tarjeta strong { color: #5c9cff; }
+
+.cobro-nequi { border-left-color: #e91e63; }
+.cobro-nequi strong { color: #f06292; }
+
+.cobro-sinpagar { border-left-color: #ff9800; }
+.cobro-sinpagar strong { color: #ffb74d; }
+
+/* ===== 🏷️ BADGE DE MÉTODO DE PAGO EN CABECERA ===== */
+.pago-metodo {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 2px;
+  border: 1px solid transparent;
+}
+
+.pago-metodo.efectivo {
+  background: rgba(81, 207, 102, 0.12);
+  border-color: rgba(81, 207, 102, 0.4);
+  color: #51cf66;
+}
+
+.pago-metodo.tarjeta {
+  background: rgba(0, 123, 255, 0.12);
+  border-color: rgba(0, 123, 255, 0.4);
+  color: #5c9cff;
+}
+
+.pago-metodo.nequi {
+  background: rgba(233, 30, 99, 0.12);
+  border-color: rgba(233, 30, 99, 0.4);
+  color: #f06292;
+}
+
+/* ===== ✅ INFO PAGADO EN DETALLE ===== */
+.pagado-info-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border-left: 4px solid;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pagado-info-emoji { font-size: 30px; }
+
+.pagado-info-box strong {
+  display: block;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pagado-info-box small {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+}
+
+.pagado-info-box.efectivo { border-left-color: #51cf66; }
+.pagado-info-box.efectivo strong { color: #51cf66; }
+
+.pagado-info-box.tarjeta { border-left-color: #007bff; }
+.pagado-info-box.tarjeta strong { color: #5c9cff; }
+
+.pagado-info-box.nequi { border-left-color: #e91e63; }
+.pagado-info-box.nequi strong { color: #f06292; }
+
+/* ===== 🟢 STAT CARD VERDE INTENSO (ganancia neta) ===== */
+.stat-verde-intenso {
+  border-left: 4px solid #51cf66;
+  background: linear-gradient(135deg, rgba(81, 207, 102, 0.15), rgba(81, 207, 102, 0.05));
+}
+.stat-verde-intenso h3 { color: #51cf66; font-size: 24px; }
+
+/* ===== RESPONSIVE COBROS ===== */
+@media (max-width: 1000px) {
+  .cobros-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .cobros-grid { grid-template-columns: 1fr; }
+  .cobro-item { padding: 12px; }
+  .cobro-emoji { font-size: 24px; }
+  .cobro-item strong { font-size: 15px; }
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .cobros-resumen {
+  background: linear-gradient(135deg, rgba(180, 90, 20, 0.06), rgba(255, 152, 0, 0.03)) !important;
+  border-color: rgba(180, 90, 20, 0.25) !important;
+}
+
+body.claro .cobros-titulo h3 { color: #b45309 !important; }
+
+body.claro .cobro-item {
+  background: #fff !important;
+  box-shadow: 0 2px 8px rgba(120, 70, 20, 0.06) !important;
+}
+
+body.claro .cobro-item small { color: rgba(58, 36, 16, 0.7) !important; }
+body.claro .cobro-efectivo strong { color: #2f9e44 !important; }
+body.claro .cobro-tarjeta strong { color: #1976d2 !important; }
+body.claro .cobro-nequi strong { color: #c2185b !important; }
+body.claro .cobro-sinpagar strong { color: #e65100 !important; }
+
+body.claro .pago-metodo.efectivo { background: rgba(47, 158, 68, 0.1) !important; border-color: rgba(47, 158, 68, 0.35) !important; color: #2f9e44 !important; }
+body.claro .pago-metodo.tarjeta { background: rgba(25, 118, 210, 0.1) !important; border-color: rgba(25, 118, 210, 0.35) !important; color: #1976d2 !important; }
+body.claro .pago-metodo.nequi { background: rgba(194, 24, 91, 0.1) !important; border-color: rgba(194, 24, 91, 0.35) !important; color: #c2185b !important; }
+
+body.claro .pagado-info-box { background: #fff !important; }
+body.claro .pagado-info-box small { color: rgba(58, 36, 16, 0.65) !important; }
+
+body.claro .stat-verde-intenso {
+  background: linear-gradient(135deg, rgba(47, 158, 68, 0.1), rgba(47, 158, 68, 0.04)) !important;
+  border-left-color: #2f9e44 !important;
+}
+body.claro .stat-verde-intenso h3 { color: #2f9e44 !important; }
