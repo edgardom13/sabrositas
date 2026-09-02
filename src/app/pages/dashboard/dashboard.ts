@@ -70,6 +70,7 @@ export class Dashboard implements OnInit, OnDestroy {
         { ruta: 'estadisticas', icono: '📊', nombre: 'Estadísticas', modulo: 'reportes' as Modulo },
         { ruta: 'reporte-productos', icono: '📦', nombre: 'Productos entregados', modulo: 'reportes' as Modulo },
         { ruta: 'egresos', icono: '💸', nombre: 'Egresos', modulo: 'egresos' as Modulo },
+        { ruta: 'predictivo', icono: '📈', nombre: 'Análisis Predictivo', modulo: 'reportes' as Modulo },
       ],
     },
     {

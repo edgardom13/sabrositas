@@ -1,0 +1,81 @@
+<div class="pred-page">
+
+  <div class="pred-header">
+    <div>
+      <h2>📈 Análisis Predictivo <span class="pred-ia">IA</span></h2>
+      <p class="pred-sub">Pronóstico de producción por día basado en tu histórico real de ventas</p>
+    </div>
+    <div class="pred-hora">⏰ Hora pico: <strong>{{ horaPico() }}</strong></div>
+  </div>
+
+  <!-- Selector -->
+  <div class="pred-tabs">
+    <button class="pred-chip" [class.activo]="vista() === 'semana'" (click)="vista.set('semana')">📅 Vista semanal</button>
+    @for (d of ordenDias(); track d) {
+      <button class="pred-chip" [class.activo]="vista() === d" (click)="vista.set(d)">
+        {{ dias()[d].etiqueta }}
+      </button>
+    }
+  </div>
+
+  <!-- ===== VISTA SEMANAL ===== -->
+  @if (vista() === 'semana') {
+    <div class="pred-barras">
+      @for (d of ordenDias(); track d) {
+        <button class="barra-col" (click)="vista.set(d)">
+          <div class="barra" [style.height.%]="(dias()[d].ingresoEstimado / maxIngreso()) * 100"></div>
+          <span class="barra-dia">{{ dias()[d].etiqueta | slice:0:3 }}</span>
+          <span class="barra-valor">{{ formatearPrecio(dias()[d].ingresoEstimado) }}</span>
+        </button>
+      }
+    </div>
+
+    <h3 class="pred-titulo">🤖 Recomendaciones de la IA</h3>
+    <div class="pred-insights">
+      @for (i of insights(); track $index) {
+        <div class="insight" [class]="i.tipo">
+          <span class="insight-icono">{{ i.icono }}</span>
+          <div>
+            <strong>{{ i.titulo }}</strong>
+            <p>{{ i.texto }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ===== VISTA POR DÍA ===== -->
+  @if (diaSeleccionado(); as dia) {
+    <div class="pred-dia-header">
+      <h3>🎯 Producción sugerida para {{ dia.etiqueta }}</h3>
+      <span class="confianza" [class]="dia.confianzaGlobal">
+        Confianza {{ dia.confianzaGlobal }} · {{ dia.muestras }} semanas de datos
+      </span>
+    </div>
+
+    @if (dia.productos.length === 0) {
+      <div class="pred-vacio">📭 Sin datos suficientes para este día aún.</div>
+    } @else {
+      <div class="pred-lista">
+        @for (p of dia.productos; track p.nombre) {
+          <div class="pred-item">
+            <span class="pred-emoji">{{ emojiCat(p.categoria) }}</span>
+            <div class="pred-info">
+              <strong>{{ p.nombre }}</strong>
+              <small>Promedio histórico: {{ p.promedio }} · {{ flechaTendencia(p.tendencia) }}</small>
+            </div>
+            <span class="confianza-mini" [class]="p.confianza">{{ p.confianza }}</span>
+            <div class="pred-cantidad">
+              <strong>{{ p.cantidad }}</strong>
+              <small>unidades</small>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="pred-total">
+        Total estimado: <strong>{{ dia.totalUnidades }} unidades</strong> · {{ formatearPrecio(dia.ingresoEstimado) }}
+      </div>
+    }
+  }
+
+</div>

@@ -159,6 +159,8 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/ajustes/ajustes').then((m) => m.Ajustes),
         canActivate: [permisoGuard('ajustes')],
       },
+      { path: 'predictivo', loadComponent: () => import('./pages/admin-predictivo/admin-predictivo').then(m => m.AdminPredictivo), 
+        canActivate: [permisoGuard('reportes')] },
     ],
   },
 
