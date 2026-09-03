@@ -23,6 +23,7 @@ export class AdminPos implements OnInit {
   panelAbierto = signal(false);
 
   comboModal = signal<ComboPos | null>(null);
+  empanadasElegidas = signal<string[]>([]); // Nuevo signal
   jugosElegidos = signal<string[]>([]);
 
   abrirPanel(): void { this.panelAbierto.set(true); }
@@ -53,7 +54,6 @@ export class AdminPos implements OnInit {
     await this.productos.cargar();
   }
 
-  // 🏪 CLAVE: usa catalogoPos() (filtra por activo_pos), NO catalogo()
   lista = computed(() => {
     const todos = [...this.productos.catalogoPos(), this.pos.productoDomicilio()];
     let l = todos;
@@ -79,12 +79,38 @@ export class AdminPos implements OnInit {
   });
 
   resumenCombo(c: ComboPos): string {
-    const emp = c.empanadas.reduce((t, e) => t + e.cantidad, 0);
-    return `${emp} 🥟 + ${c.jugos} 🍹`;
+    return `${c.cantidadEmpanadas} 🥟 + ${c.jugos} 🍹`;
   }
 
-  abrirComboModal(c: ComboPos): void { this.jugosElegidos.set([]); this.comboModal.set(c); }
-  cancelarCombo(): void { this.comboModal.set(null); this.jugosElegidos.set([]); }
+  // Modificado para limpiar empanadas también
+  abrirComboModal(c: ComboPos): void { 
+    this.empanadasElegidas.set([]); 
+    this.jugosElegidos.set([]); 
+    this.comboModal.set(c); 
+  }
+  
+  cancelarCombo(): void { 
+    this.comboModal.set(null); 
+    this.empanadasElegidas.set([]); 
+    this.jugosElegidos.set([]); 
+  }
+
+  // Nuevo método para elegir empanadas
+  elegirEmpanada(nombre: string): void {
+    const combo = this.comboModal();
+    if (!combo) return;
+    if (this.empanadasElegidas().length < combo.cantidadEmpanadas) {
+      this.empanadasElegidas.update((l) => [...l, nombre]);
+    }
+  }
+
+  quitarEmpanada(index: number): void {
+    this.empanadasElegidas.update((l) => l.filter((_, i) => i !== index));
+  }
+
+  empanadaElegidaCantidad(nombre: string): number {
+    return this.empanadasElegidas().filter((e) => e === nombre).length;
+  }
 
   elegirJugo(nombre: string): void {
     const combo = this.comboModal();
@@ -98,10 +124,17 @@ export class AdminPos implements OnInit {
     this.jugosElegidos.update((l) => l.filter((_, i) => i !== index));
   }
 
+  jugoElegidoCantidad(nombre: string): number {
+    return this.jugosElegidos().filter((j) => j === nombre).length;
+  }
+
+  // Modificado para pasar empanadas elegidas
   confirmarCombo(): void {
     const combo = this.comboModal();
-    if (!combo || this.jugosElegidos().length !== combo.jugos) return;
-    this.pos.agregarCombo(combo, this.jugosElegidos());
+    if (!combo) return;
+    if (this.empanadasElegidas().length !== combo.cantidadEmpanadas) return;
+    if (this.jugosElegidos().length !== combo.jugos) return;
+    this.pos.agregarCombo(combo, this.empanadasElegidas(), this.jugosElegidos());
     this.cancelarCombo();
   }
 
@@ -112,10 +145,6 @@ export class AdminPos implements OnInit {
     this.registrando.set(false);
     if (id) this.mostrarToast(`✅ Venta #${id} registrada (${this.pos.metodoPago()})`);
     else this.mostrarToast('❌ Error al registrar la venta');
-  }
-
-  jugoElegidoCantidad(nombre: string): number {
-    return this.jugosElegidos().filter((j) => j === nombre).length;
   }
 
   private mostrarToast(t: string): void {

@@ -13,7 +13,7 @@ export interface ComboDetalle {
   comboId: number;
   nombre: string;
   precio: number;
-  empanadas: { nombre: string; cantidad: number }[];
+  empanadasElegidas: string[]; // Cambiado de empanadas fijas a elegidas
   jugosElegidos: string[];
 }
 export interface PosCanje { codigo: string; premio: string; tipo: string; valor: number; cantidad: number; }
@@ -22,7 +22,7 @@ export interface ComboPos {
   id: number;
   nombre: string;
   precio: number;
-  empanadas: { nombre: string; cantidad: number }[];
+  cantidadEmpanadas: number; // Total de empanadas permitidas
   jugos: number;
   imagen: string;
 }
@@ -37,27 +37,23 @@ function comboImg(n: number): string {
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-
-const POLLO = 'Empanada de pollo';
-const CARNE = 'Empanada de carne';
-
-// 🎁 Combos oficiales Sabrositas (según menú) — edita nombres/precios si cambia el menú
+// 🎁 Combos oficiales Sabrositas — ahora solo definen cantidades, no sabores
 export const COMBOS_POS: ComboPos[] = [
-  { id: -1001, nombre: 'Combo 1 · Personal',       precio: 5000,  empanadas: [{ nombre: POLLO, cantidad: 1 }, { nombre: CARNE, cantidad: 1 }],  jugos: 1, imagen: comboImg(1) },
-  { id: -1002, nombre: 'Combo 2 · Pollo Lovers',   precio: 5000,  empanadas: [{ nombre: POLLO, cantidad: 2 }],                                  jugos: 1, imagen: comboImg(2) },
-  { id: -1003, nombre: 'Combo 3 · Carne Lovers',   precio: 5000,  empanadas: [{ nombre: CARNE, cantidad: 2 }],                                  jugos: 1, imagen: comboImg(3) },
-  { id: -1004, nombre: 'Combo 4 · Pareja',         precio: 9000,  empanadas: [{ nombre: POLLO, cantidad: 2 }, { nombre: CARNE, cantidad: 2 }],  jugos: 1, imagen: comboImg(4) },
-  { id: -1005, nombre: 'Combo 5 · Trío Mixto',     precio: 7000,  empanadas: [{ nombre: POLLO, cantidad: 2 }, { nombre: CARNE, cantidad: 1 }],  jugos: 1, imagen: comboImg(5) },
-  { id: -1006, nombre: 'Combo 6 · Familiar',       precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 3 }, { nombre: CARNE, cantidad: 3 }],  jugos: 2, imagen: comboImg(6) },
-  { id: -1007, nombre: 'Combo 7 · Familia Pollo',  precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 5 }, { nombre: CARNE, cantidad: 1 }],  jugos: 2, imagen: comboImg(7) },
-  { id: -1008, nombre: 'Combo 8 · Familia Carne',  precio: 13000, empanadas: [{ nombre: POLLO, cantidad: 1 }, { nombre: CARNE, cantidad: 5 }],  jugos: 2, imagen: comboImg(8) },
-  { id: -1009, nombre: 'Combo 9 · Grande',         precio: 17000, empanadas: [{ nombre: POLLO, cantidad: 4 }, { nombre: CARNE, cantidad: 4 }],  jugos: 2, imagen: comboImg(9) },
-  { id: -1010, nombre: 'Combo 10 · Compartir',     precio: 23000, empanadas: [{ nombre: POLLO, cantidad: 5 }, { nombre: CARNE, cantidad: 5 }],  jugos: 3, imagen: comboImg(10) },
-  { id: -1011, nombre: 'Combo 11 · Familiar Plus', precio: 28000, empanadas: [{ nombre: POLLO, cantidad: 6 }, { nombre: CARNE, cantidad: 6 }],  jugos: 4, imagen: comboImg(11) },
-  { id: -1012, nombre: 'Combo 12 · Mega Familiar', precio: 36000, empanadas: [{ nombre: POLLO, cantidad: 8 }, { nombre: CARNE, cantidad: 8 }],  jugos: 4, imagen: comboImg(12) },
-  { id: -1013, nombre: 'Combo 13 · Fiesta',        precio: 45000, empanadas: [{ nombre: POLLO, cantidad: 10 }, { nombre: CARNE, cantidad: 10 }], jugos: 5, imagen: comboImg(13) },
-  { id: -1014, nombre: 'Combo 14 · Gran Fiesta',   precio: 52000, empanadas: [{ nombre: POLLO, cantidad: 12 }, { nombre: CARNE, cantidad: 12 }], jugos: 6, imagen: comboImg(14) },
-  { id: -1015, nombre: 'Combo 15 · Súper Fiesta',  precio: 65000, empanadas: [{ nombre: POLLO, cantidad: 15 }, { nombre: CARNE, cantidad: 15 }], jugos: 8, imagen: comboImg(15) },
+  { id: -1001, nombre: 'Combo 1 · Personal',       precio: 5000,  cantidadEmpanadas: 2,  jugos: 1, imagen: comboImg(1) },
+  { id: -1002, nombre: 'Combo 2 · Pollo Lovers',   precio: 5000,  cantidadEmpanadas: 2,  jugos: 1, imagen: comboImg(2) },
+  { id: -1003, nombre: 'Combo 3 · Carne Lovers',   precio: 5000,  cantidadEmpanadas: 2,  jugos: 1, imagen: comboImg(3) },
+  { id: -1004, nombre: 'Combo 4 · Pareja',         precio: 9000,  cantidadEmpanadas: 4,  jugos: 1, imagen: comboImg(4) },
+  { id: -1005, nombre: 'Combo 5 · Trío Mixto',     precio: 7000,  cantidadEmpanadas: 3,  jugos: 1, imagen: comboImg(5) },
+  { id: -1006, nombre: 'Combo 6 · Familiar',       precio: 13000, cantidadEmpanadas: 6,  jugos: 2, imagen: comboImg(6) },
+  { id: -1007, nombre: 'Combo 7 · Familia Pollo',  precio: 13000, cantidadEmpanadas: 6,  jugos: 2, imagen: comboImg(7) },
+  { id: -1008, nombre: 'Combo 8 · Familia Carne',  precio: 13000, cantidadEmpanadas: 6,  jugos: 2, imagen: comboImg(8) },
+  { id: -1009, nombre: 'Combo 9 · Grande',         precio: 17000, cantidadEmpanadas: 8,  jugos: 2, imagen: comboImg(9) },
+  { id: -1010, nombre: 'Combo 10 · Compartir',     precio: 23000, cantidadEmpanadas: 10, jugos: 3, imagen: comboImg(10) },
+  { id: -1011, nombre: 'Combo 11 · Familiar Plus', precio: 28000, cantidadEmpanadas: 12, jugos: 4, imagen: comboImg(11) },
+  { id: -1012, nombre: 'Combo 12 · Mega Familiar', precio: 36000, cantidadEmpanadas: 16, jugos: 4, imagen: comboImg(12) },
+  { id: -1013, nombre: 'Combo 13 · Fiesta',        precio: 45000, cantidadEmpanadas: 20, jugos: 5, imagen: comboImg(13) },
+  { id: -1014, nombre: 'Combo 14 · Gran Fiesta',   precio: 52000, cantidadEmpanadas: 24, jugos: 6, imagen: comboImg(14) },
+  { id: -1015, nombre: 'Combo 15 · Súper Fiesta',  precio: 65000, cantidadEmpanadas: 30, jugos: 8, imagen: comboImg(15) },
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -100,18 +96,15 @@ export class PosService {
     return this.tipoEntrega() === 'domicilio' ? Number(this.config.config().domicilio) : 0;
   });
 
-  // 💵 Subtotal sin Domicilio (combos y productos sí suman)
   subtotal = computed(() =>
     this.items()
       .filter((i) => i.producto.id !== ID_PRODUCTO_DOMICILIO)
       .reduce((t, i) => t + i.cantidad * Number(i.producto.precio), 0)
   );
 
-    // 🖼️ Obtiene la imagen correcta para POS (usa imagen_pos si existe, sino imagen normal)
   imagenParaPos(p: Producto): string {
     return p.imagen_pos || p.imagen;
   }
-  
 
   descuentoCanje = computed(() => {
     const c = this.canjeValido();
@@ -148,7 +141,6 @@ export class PosService {
 
   totalProductos = computed(() => this.items().reduce((t, i) => t + i.cantidad, 0));
 
-  // ===== AGREGAR =====
   agregar(p: Producto): void {
     this.items.update((items) => {
       const existe = items.find((i) => i.producto.id === p.id && !i.combo);
@@ -157,7 +149,8 @@ export class PosService {
     });
   }
 
-  agregarCombo(combo: ComboPos, jugosElegidos: string[]): void {
+  // Modificado para aceptar empanadas elegidas
+  agregarCombo(combo: ComboPos, empanadasElegidas: string[], jugosElegidos: string[]): void {
     const virtual: Producto = {
       id: combo.id, nombre: `🎁 ${combo.nombre}`, precio: combo.precio,
       imagen: combo.imagen, categoria: 'empanada', activo: true, orden: 0,
@@ -166,7 +159,7 @@ export class PosService {
       uid: this.nextUid++,
       producto: virtual,
       cantidad: 1,
-      combo: { comboId: combo.id, nombre: combo.nombre, precio: combo.precio, empanadas: combo.empanadas, jugosElegidos },
+      combo: { comboId: combo.id, nombre: combo.nombre, precio: combo.precio, empanadasElegidas, jugosElegidos },
     }]);
   }
 
@@ -191,7 +184,6 @@ export class PosService {
     return this.items().filter((i) => i.combo?.comboId === comboId).reduce((t, i) => t + i.cantidad, 0);
   }
 
-  // ===== 🎟️ CANJE =====
   async validarCanje(): Promise<void> {
     const codigo = this.codigoCanje().trim().toUpperCase();
     this.errorCanje.set(null); this.canjeValido.set(null);
@@ -221,7 +213,6 @@ export class PosService {
     this.metodoPago.set('Efectivo'); this.tipoEntrega.set('local'); this.limpiarCanje();
   }
 
-  // ===== ✅ REGISTRAR (expande combos a productos) =====
   async registrar(): Promise<number | null> {
     if (this.items().length === 0) return null;
     const canje = this.canjeValido();
@@ -234,9 +225,10 @@ export class PosService {
     for (const i of this.items()) {
       if (i.producto.id === ID_PRODUCTO_DOMICILIO) continue;
       if (i.combo) {
-        // 💰 línea del combo (dinero) + 📦 productos que suma (precio 0)
         items.push({ nombre: i.combo.nombre, cantidad: i.cantidad, precio: Number(i.combo.precio) });
-        for (const e of i.combo.empanadas) items.push({ nombre: e.nombre, cantidad: e.cantidad * i.cantidad, precio: 0 });
+        // Agregar empanadas elegidas
+        for (const e of i.combo.empanadasElegidas) items.push({ nombre: e, cantidad: i.cantidad, precio: 0 });
+        // Agregar jugos elegidos
         for (const j of i.combo.jugosElegidos) items.push({ nombre: j, cantidad: i.cantidad, precio: 0 });
       } else {
         items.push({ nombre: i.producto.nombre, cantidad: i.cantidad, precio: Number(i.producto.precio) });

@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { PedidosService } from '../../services/pedidos.service';
+import { ProductosService } from '../../services/productos.service';
 
 interface ProductoEntregado {
   nombre: string;
@@ -7,6 +8,9 @@ interface ProductoEntregado {
   ingreso: number;
   categoria: string;
 }
+
+// 💲 Valor referencial de un jugo cuando se vende DENTRO de un combo
+const PRECIO_JUGO_COMBO = 1000;
 
 @Component({
   selector: 'app-reporte-productos',
@@ -17,6 +21,7 @@ interface ProductoEntregado {
 })
 export class ReporteProductos implements OnInit {
   pedidosService = inject(PedidosService);
+  productos = inject(ProductosService);
 
   fechaSeleccionada = signal<string>(this.hoyLocal());
   verHistorico = signal(false);
@@ -32,9 +37,29 @@ export class ReporteProductos implements OnInit {
 
   ngOnInit(): void {
     this.pedidosService.cargarPedidos();
+    this.productos.cargar();
   }
 
-  // 📦 Pedidos entregados en el rango seleccionado
+  // 🗺️ Mapa: nombre normalizado → { nombre oficial, categoría, precio } del catálogo
+  private canonMap = computed(() => {
+    const map = new Map<string, { nombre: string; categoria: string; precio: number }>();
+    for (const p of this.productos.productos()) {
+      map.set(this.normalizar(p.nombre), { nombre: p.nombre, categoria: p.categoria, precio: Number(p.precio) || 0 });
+    }
+    return map;
+  });
+
+  private normalizar(nombre: string): string {
+    return (nombre || '')
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .split(/\s+/)
+      .map((w) => (w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w))
+      .join(' ');
+  }
+
   pedidosEntregados = computed(() => {
     const todos = this.pedidosService.pedidos().filter((p) => p.estado === 'entregado');
     const ahora = Date.now();
@@ -55,41 +80,56 @@ export class ReporteProductos implements OnInit {
     }
   });
 
-  // 📊 Totales
   totalUnidades = computed(() => {
     let t = 0;
     for (const p of this.pedidosEntregados()) {
       for (const i of (p.items as any[]) || []) {
+        if (this.esLineaDeCombo(i)) continue;
         t += Number(i.cantidad) || 0;
       }
     }
     return t;
   });
 
-  totalIngresos = computed(() => {
-    return this.pedidosEntregados().reduce((t, p) => t + Number(p.total), 0);
-  });
+  totalIngresos = computed(() =>
+    this.pedidosEntregados().reduce((t, p) => t + Number(p.total), 0),
+  );
 
   totalPedidos = computed(() => this.pedidosEntregados().length);
 
-  // 🥇 Ranking de productos
+  // 🥇 Ranking SIN duplicados + valor referencial para productos de combo
   ranking = computed<ProductoEntregado[]>(() => {
     const mapa = new Map<string, ProductoEntregado>();
 
     for (const p of this.pedidosEntregados()) {
       for (const i of (p.items as any[]) || []) {
-        const nombre = i.nombre;
-        const cantidad = Number(i.cantidad) || 0;
-        const precio = Number(i.precio) || 0;
-        const ingreso = cantidad * precio;
-        const categoria = this.detectarCategoria(nombre);
+        if (this.esLineaDeCombo(i)) continue;
 
-        const actual = mapa.get(nombre);
+        const nombreOriginal = i.nombre;
+        const clave = this.normalizar(nombreOriginal);
+        const canon = this.canonMap().get(clave);
+
+        const nombre = canon?.nombre ?? nombreOriginal;
+        const categoria = canon?.categoria ?? this.detectarCategoria(nombreOriginal);
+        const precioCatalogo = canon?.precio ?? 0;
+
+        const cantidad = Number(i.cantidad) || 0;
+        const precioReal = Number(i.precio) || 0;
+
+        // 💡 Si viene de combo (precio 0), usa valor referencial:
+        //    jugo → $1.000 · demás → precio de catálogo
+        const precioUnitario = precioReal > 0
+          ? precioReal
+          : (categoria === 'jugo' ? PRECIO_JUGO_COMBO : precioCatalogo);
+
+        const ingreso = cantidad * precioUnitario;
+
+        const actual = mapa.get(clave);
         if (actual) {
           actual.cantidad += cantidad;
           actual.ingreso += ingreso;
         } else {
-          mapa.set(nombre, { nombre, cantidad, ingreso, categoria });
+          mapa.set(clave, { nombre, cantidad, ingreso, categoria });
         }
       }
     }
@@ -97,14 +137,10 @@ export class ReporteProductos implements OnInit {
     return [...mapa.values()].sort((a, b) => b.cantidad - a.cantidad);
   });
 
-  // 🏆 Top 1 (el más vendido)
   productoTop = computed(() => this.ranking()[0]?.nombre ?? '—');
-
-  // 📈 Máxima cantidad (para las barras de progreso)
   maxCantidad = computed(() => this.ranking()[0]?.cantidad ?? 1);
 
-  // 🎯 Filtro por categoría
-  filtroCategoria = signal<'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa'>('todos');
+  filtroCategoria = signal<'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'arroz' | 'asadura' | 'plastico' | 'papa'>('todos');
 
   rankingFiltrado = computed(() => {
     const cat = this.filtroCategoria();
@@ -112,21 +148,29 @@ export class ReporteProductos implements OnInit {
     return this.ranking().filter((p) => p.categoria === cat);
   });
 
-  conteoCategoria(cat: 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa'): number {
+  conteoCategoria(cat: 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'arroz' | 'asadura' | 'plastico' | 'papa'): number {
     if (cat === 'todos') return this.ranking().length;
     return this.ranking().filter((p) => p.categoria === cat).length;
   }
 
-  categorias: { valor: 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa'; etiqueta: string }[] = [
+  categorias: { valor: 'todos' | 'empanada' | 'jugo' | 'frio' | 'salsa' | 'arroz' | 'asadura' | 'plastico' | 'papa'; etiqueta: string }[] = [
     { valor: 'todos', etiqueta: '🌐 Todos' },
     { valor: 'empanada', etiqueta: '🥟 Empanadas' },
     { valor: 'jugo', etiqueta: '🍹 Jugos' },
     { valor: 'frio', etiqueta: '🧊 Fríos' },
     { valor: 'salsa', etiqueta: '🥫 Salsas' },
+    { valor: 'arroz', etiqueta: '🍚 Arroces' },
+    { valor: 'asadura', etiqueta: '🥩 Asaduras' },
+    { valor: 'plastico', etiqueta: '🛍️ Plásticos' },
+    { valor: 'papa', etiqueta: '🥔 Papas' },
   ];
 
   emojiCategoria(cat: string): string {
-    return cat === 'empanada' ? '🥟' : cat === 'jugo' ? '🍹' : cat === 'frio' ? '🧊' : cat === 'salsa' ? '🥫' : '📦';
+    const emojis: Record<string, string> = {
+      empanada: '🥟', jugo: '🍹', frio: '🧊', salsa: '🥫',
+      arroz: '🍚', asadura: '🥩', plastico: '🛍️', papa: '🥔',
+    };
+    return emojis[cat] ?? '📦';
   }
 
   medalla(index: number): string {
@@ -178,11 +222,21 @@ export class ReporteProductos implements OnInit {
     return f.getFullYear() === y && f.getMonth() + 1 === m && f.getDate() === d;
   }
 
+  private esLineaDeCombo(item: any): boolean {
+    const nombre = (item.nombre || '').toLowerCase();
+    const precio = Number(item.precio) || 0;
+    return precio > 0 && (nombre.includes('combo') || nombre.startsWith('🎁'));
+  }
+
   private detectarCategoria(nombre: string): string {
     const n = nombre.toLowerCase();
-    if (n.includes('salsa') || n.includes('suero') || n.includes('ají')) return 'salsa';
-    if (n.includes('jugo') || n.includes('limonada') || n.includes('agua') || n.includes('maíz') || n.includes('maiz') || n.includes('corozo') || n.includes('zapote')) return 'jugo';
-    if (n.includes('gaseosa') || n.includes('coca') || n.includes('kola') || n.includes('cerveza') || n.includes('malta')) return 'frio';
+    if (n.includes('salsa') || n.includes('suero') || n.includes('ají') || n.includes('aji')) return 'salsa';
+    if (n.includes('jugo') || n.includes('limonada') || n.includes('agua') || n.includes('maíz') || n.includes('maiz') || n.includes('corozo') || n.includes('zapote') || n.includes('mango') || n.includes('guanábana') || n.includes('guanabana') || n.includes('maracuyá') || n.includes('maracuya') || n.includes('tamarindo')) return 'jugo';
+    if (n.includes('gaseosa') || n.includes('coca') || n.includes('kola') || n.includes('cerveza') || n.includes('malta') || n.includes('pony') || n.includes('sprite') || n.includes('fanta')) return 'frio';
+    if (n.includes('arroz') || n.includes('cerdo')) return 'arroz';
+    if (n.includes('asadura') || n.includes('yuca')) return 'asadura';
+    if (n.includes('plástico') || n.includes('plastico') || n.includes('bolsa') || n.includes('envase') || n.includes('contenedor')) return 'plastico';
+    if (n.includes('papa') || n.includes('patata')) return 'papa';
     return 'empanada';
   }
 }
