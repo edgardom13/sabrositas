@@ -1,8 +1,37 @@
 <div class="pos-page">
 
+  <!-- 🆕 TABS DE PEDIDOS (nombres automáticos + total) -->
+  <div class="pos-tabs">
+  @for (pedido of pos.pedidosActivos(); track pedido.id) {
+    <div class="pos-tab" [class.activo]="pos.pedidoActivoId() === pedido.id" (click)="cambiarPedido(pedido.id)">
+      <div class="pos-tab-content">
+        <span class="pos-tab-name">{{ pedido.nombre }}</span>
+        @if (pedido.items.length > 0) {
+          <span class="pos-tab-total">{{ formatearPrecio(calcularTotalPedido(pedido)) }}</span>
+        } @else {
+          <span class="pos-tab-empty">Vacío</span>
+        }
+        @if (pedido.items.length > 0) {
+          <span class="pos-tab-badge">{{ pedido.items.length }}</span>
+        }
+      </div>
+      <button 
+        class="pos-tab-close" 
+        (click)="$event.stopPropagation(); cerrarPedido(pedido.id)"
+        [disabled]="pos.pedidosActivos().length === 1"
+      >
+        ✕
+      </button>
+    </div>
+  }
+  <button class="pos-tab-new" (click)="crearNuevoPedido()">
+    ➕ Nuevo
+  </button>
+</div>
+
   @if (toast()) { <div class="pos-toast">{{ toast() }}</div> }
 
-    <div class="pos-productos">
+  <div class="pos-productos">
     <div class="pos-buscar">
       <span>🔍</span>
       <input [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" placeholder="Buscar producto o combo..." />
@@ -16,10 +45,7 @@
       }
     </div>
 
-    <!-- 📜 UN SOLO contenedor con scroll para combos + productos -->
     <div class="pos-scroll">
-
-      <!-- 🎁 GRID DE COMBOS -->
       @if (filtroCat() === 'todos' || filtroCat() === 'combos') {
         <h3 class="pos-seccion-titulo">🎁 Combos</h3>
         <div class="pos-grid">
@@ -37,7 +63,6 @@
         </div>
       }
 
-            <!-- 🥟 GRID DE PRODUCTOS -->
       @if (filtroCat() !== 'combos') {
         <h3 class="pos-seccion-titulo">🥟 Productos</h3>
         <div class="pos-grid">
@@ -53,7 +78,6 @@
           }
         </div>
       }
-
     </div>
   </div>
 
@@ -110,7 +134,7 @@
         <button (click)="pos.validarCanje()">✔</button>
       </div>
       @if (pos.validandoCanje()) { <small class="pos-canje-info">⏳ Validando…</small> }
-      @if (pos.errorCanje()) { <small class="pos-canje-error">{{ pos.errorCanje() }}</small> }
+      @if (pos.errorCanje(); as err) { <small class="pos-canje-error">{{ err }}</small> }
       @if (pos.canjeValido(); as c) {
         <div class="pos-canje-chip">🎁 {{ c.premio }} <button (click)="pos.limpiarCanje()">✕</button></div>
       }
@@ -150,7 +174,7 @@
     <div class="pos-acciones">
       <button class="btn-limpiar" (click)="pos.vaciar()">🗑️ Limpiar</button>
       <button class="btn-cobrar" [disabled]="pos.items().length === 0 || registrando()" (click)="registrarVenta()">
-        {{ registrando() ? 'Registrando…' : '✅ Cobrar ' + pos.formatearPrecio(pos.total()) }}
+        {{ registrando() ? 'Cobrando…' : '💰 Cobrar ' + pos.formatearPrecio(pos.total()) }}
       </button>
     </div>
   </div>
@@ -159,14 +183,12 @@
     🛒 <span class="fab-qty">{{ pos.totalProductos() }}</span> <span class="fab-total">{{ pos.formatearPrecio(pos.total()) }}</span>
   </button>
 
-    <!-- 🎁 MODAL ELEGIR EMPANADAS Y JUGOS -->
   @if (comboModal(); as combo) {
     <div class="pos-modal-overlay" (click)="cancelarCombo()">
       <div class="pos-modal" (click)="$event.stopPropagation()">
         <h3>🎁 {{ combo.nombre }}</h3>
         <p class="pos-modal-sub">{{ pos.formatearPrecio(combo.precio) }}</p>
 
-        <!-- 🥟 EMPANADAS -->
         <h4>Elige {{ combo.cantidadEmpanadas }} empanada{{ combo.cantidadEmpanadas > 1 ? 's' : '' }}</h4>
         <div class="pos-grid pos-modal-grid">
           @for (e of productos.empanadas(); track e.id) {
@@ -188,7 +210,6 @@
           }
         </div>
 
-        <!-- chips de empanadas seleccionadas -->
         <div class="pos-modal-sel">
           @if (empanadasElegidas().length === 0) {
             <span class="pos-sel-vacio">Toca las empanadas que quieres…</span>
@@ -198,7 +219,6 @@
           }
         </div>
 
-        <!-- 🍹 JUGOS -->
         <h4>Elige {{ combo.jugos }} jugo{{ combo.jugos > 1 ? 's' : '' }}</h4>
         <div class="pos-grid pos-modal-grid">
           @for (j of productos.jugos(); track j.id) {
@@ -220,7 +240,6 @@
           }
         </div>
 
-        <!-- chips de jugos seleccionados -->
         <div class="pos-modal-sel">
           @if (jugosElegidos().length === 0) {
             <span class="pos-sel-vacio">Toca los jugos que quieres…</span>

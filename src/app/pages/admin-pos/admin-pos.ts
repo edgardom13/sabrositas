@@ -23,7 +23,7 @@ export class AdminPos implements OnInit {
   panelAbierto = signal(false);
 
   comboModal = signal<ComboPos | null>(null);
-  empanadasElegidas = signal<string[]>([]); // Nuevo signal
+  empanadasElegidas = signal<string[]>([]);
   jugosElegidos = signal<string[]>([]);
 
   abrirPanel(): void { this.panelAbierto.set(true); }
@@ -82,7 +82,6 @@ export class AdminPos implements OnInit {
     return `${c.cantidadEmpanadas} 🥟 + ${c.jugos} 🍹`;
   }
 
-  // Modificado para limpiar empanadas también
   abrirComboModal(c: ComboPos): void { 
     this.empanadasElegidas.set([]); 
     this.jugosElegidos.set([]); 
@@ -95,7 +94,6 @@ export class AdminPos implements OnInit {
     this.jugosElegidos.set([]); 
   }
 
-  // Nuevo método para elegir empanadas
   elegirEmpanada(nombre: string): void {
     const combo = this.comboModal();
     if (!combo) return;
@@ -128,7 +126,6 @@ export class AdminPos implements OnInit {
     return this.jugosElegidos().filter((j) => j === nombre).length;
   }
 
-  // Modificado para pasar empanadas elegidas
   confirmarCombo(): void {
     const combo = this.comboModal();
     if (!combo) return;
@@ -150,5 +147,42 @@ export class AdminPos implements OnInit {
   private mostrarToast(t: string): void {
     this.toast.set(t);
     setTimeout(() => this.toast.set(null), 3000);
+  }
+
+  crearNuevoPedido(): void {
+    this.pos.crearNuevoPedido();
+    this.mostrarToast('✨ Nuevo pedido creado');
+  }
+
+  cambiarPedido(id: string): void {
+    this.pos.cambiarPedido(id);
+  }
+
+  cerrarPedido(id: string): void {
+    const pedido = this.pos.pedidosActivos().find(p => p.id === id);
+    if (pedido && pedido.items.length > 0) {
+      if (!confirm(`¿Cerrar "${pedido.nombre}"? Se perderán los productos agregados.`)) {
+        return;
+      }
+    }
+    this.pos.cerrarPedido(id);
+  }
+
+  // 🆕 Calcular total de cualquier pedido (en el componente)
+  calcularTotalPedido(pedido: any): number {
+    const items = pedido.items || [];
+    const subtotal = items
+      .filter((i: any) => i.producto.id !== -999)
+      .reduce((t: number, i: any) => t + i.cantidad * Number(i.producto.precio), 0);
+    
+    const domicilio = pedido.tipoEntrega === 'domicilio' ? 3000 : 0;
+    const descuento = pedido.descuentoManual || 0;
+    
+    return Math.max(0, subtotal - descuento + domicilio);
+  }
+
+  // 🆕 Formatear precio (en el componente)
+  formatearPrecio(v: number): string {
+    return '$' + Number(v).toLocaleString('es-CO');
   }
 }
