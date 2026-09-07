@@ -98,10 +98,11 @@
             <div class="pos-fila-info">
               <strong>{{ i.producto.nombre }}</strong>
               <small>{{ pos.formatearPrecio(i.producto.precio) }} c/u</small>
-              @if (i.combo) {
+                            @if (i.combo) {
                 <div class="pos-combo-detalle">
-                  @for (e of i.combo.empanadasElegidas; track $index) { <span>1× 🥟 {{ e }}</span> }
-                  @for (j of i.combo.jugosElegidos; track $index) { <span>1× 🍹 {{ j }}</span> }
+                  @for (r of resumenElecciones(i.combo); track r.nombre) {
+                    <span>{{ r.cantidad }}× {{ r.nombre }}</span>
+                  }
                 </div>
               }
             </div>
@@ -183,76 +184,51 @@
     🛒 <span class="fab-qty">{{ pos.totalProductos() }}</span> <span class="fab-total">{{ pos.formatearPrecio(pos.total()) }}</span>
   </button>
 
+    <!-- 🎁 MODAL DINÁMICO DE COMBO (con stepper) -->
   @if (comboModal(); as combo) {
     <div class="pos-modal-overlay" (click)="cancelarCombo()">
       <div class="pos-modal" (click)="$event.stopPropagation()">
         <h3>🎁 {{ combo.nombre }}</h3>
-        <p class="pos-modal-sub">{{ pos.formatearPrecio(combo.precio) }}</p>
+        <p class="pos-modal-sub">{{ pos.formatearPrecio(combo.precio) }} · {{ resumenCombo(combo) }}</p>
 
-        <h4>Elige {{ combo.cantidadEmpanadas }} empanada{{ combo.cantidadEmpanadas > 1 ? 's' : '' }}</h4>
-        <div class="pos-grid pos-modal-grid">
-          @for (e of productos.empanadas(); track e.id) {
-            <button
-              class="pos-item"
-              [class.pos-item-elegido]="empanadaElegidaCantidad(e.nombre) > 0"
-              [disabled]="empanadaElegidaCantidad(e.nombre) === 0 && empanadasElegidas().length >= combo.cantidadEmpanadas"
-              (click)="elegirEmpanada(e.nombre)"
-            >
-              <img [src]="productos.imagenParaPos(e)" [alt]="e.nombre" />
-              <div class="pos-item-info">
-                <strong>{{ e.nombre }}</strong>
-                <span>{{ pos.formatearPrecio(e.precio) }}</span>
-              </div>
-              @if (empanadaElegidaCantidad(e.nombre) > 0) {
-                <span class="pos-qty">{{ empanadaElegidaCantidad(e.nombre) }}</span>
+        @for (item of combo.items; track $index; let idx = $index) {
+          <div class="pos-modal-item">
+            <h4>
+              {{ item.etiqueta }}
+              <span class="pos-modal-progreso" [class.completo]="totalElegido(idx) === item.cantidad">
+                {{ totalElegido(idx) }}/{{ item.cantidad }}
+              </span>
+            </h4>
+            
+            <div class="pos-grid pos-modal-grid">
+              @for (p of productosDeItem(item); track p.id) {
+                <div class="pos-item pos-item-stepper" [class.pos-item-elegido]="cantidadElegida(idx, p.nombre) > 0">
+                  <img [src]="productos.imagenParaPos(p)" [alt]="p.nombre" />
+                  <div class="pos-item-info">
+                    <strong>{{ p.nombre }}</strong>
+                    <span>{{ pos.formatearPrecio(p.precio) }}</span>
+                  </div>
+                  @if (cantidadElegida(idx, p.nombre) > 0) {
+                    <span class="pos-qty">{{ cantidadElegida(idx, p.nombre) }}</span>
+                  }
+                  <div class="pos-card-stepper">
+                    <button (click)="restarEleccion(idx, p.nombre)" [disabled]="cantidadElegida(idx, p.nombre) === 0">−</button>
+                    <span>{{ cantidadElegida(idx, p.nombre) }}</span>
+                    <button (click)="sumarEleccion(idx, p.nombre)" [disabled]="totalElegido(idx) >= item.cantidad">+</button>
+                  </div>
+                </div>
               }
-            </button>
-          }
-        </div>
-
-        <div class="pos-modal-sel">
-          @if (empanadasElegidas().length === 0) {
-            <span class="pos-sel-vacio">Toca las empanadas que quieres…</span>
-          }
-          @for (e of empanadasElegidas(); track $index) {
-            <span class="pos-sel-chip">🥟 {{ e }} <button (click)="quitarEmpanada($index)">✕</button></span>
-          }
-        </div>
-
-        <h4>Elige {{ combo.jugos }} jugo{{ combo.jugos > 1 ? 's' : '' }}</h4>
-        <div class="pos-grid pos-modal-grid">
-          @for (j of productos.jugos(); track j.id) {
-            <button
-              class="pos-item"
-              [class.pos-item-elegido]="jugoElegidoCantidad(j.nombre) > 0"
-              [disabled]="jugoElegidoCantidad(j.nombre) === 0 && jugosElegidos().length >= combo.jugos"
-              (click)="elegirJugo(j.nombre)"
-            >
-              <img [src]="productos.imagenParaPos(j)" [alt]="j.nombre" />
-              <div class="pos-item-info">
-                <strong>{{ j.nombre }}</strong>
-                <span>{{ pos.formatearPrecio(j.precio) }}</span>
-              </div>
-              @if (jugoElegidoCantidad(j.nombre) > 0) {
-                <span class="pos-qty">{{ jugoElegidoCantidad(j.nombre) }}</span>
+              @if (productosDeItem(item).length === 0) {
+                <div class="pos-modal-vacio">No hay {{ item.etiqueta.toLowerCase() }} disponibles en POS</div>
               }
-            </button>
-          }
-        </div>
-
-        <div class="pos-modal-sel">
-          @if (jugosElegidos().length === 0) {
-            <span class="pos-sel-vacio">Toca los jugos que quieres…</span>
-          }
-          @for (s of jugosElegidos(); track $index) {
-            <span class="pos-sel-chip">🍹 {{ s }} <button (click)="quitarJugo($index)">✕</button></span>
-          }
-        </div>
+            </div>
+          </div>
+        }
 
         <div class="pos-modal-acciones">
           <button class="btn-limpiar" (click)="cancelarCombo()">Cancelar</button>
           <button class="btn-cobrar" 
-                  [disabled]="empanadasElegidas().length !== combo.cantidadEmpanadas || jugosElegidos().length !== combo.jugos" 
+                  [disabled]="!comboCompleto()" 
                   (click)="confirmarCombo()">
             ✅ Agregar combo
           </button>

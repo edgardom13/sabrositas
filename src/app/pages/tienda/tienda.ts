@@ -24,7 +24,6 @@ import { PromoInicio } from '../../components/promo-inicio/promo-inicio';
     SeccionMenu,
     Beneficios,
     BotonCarrito,
-    Loading,
     Cerrado,
     Aparecer,
     PromoInicio,   // ← unificado en un solo array

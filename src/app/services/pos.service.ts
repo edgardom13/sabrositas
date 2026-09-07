@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { SupabaseService } from './supabase';
 import { ConfigService } from './config.service';
-import { Producto } from './productos.service';
+import { Producto, ProductosService } from './productos.service';
 
 export interface PosItem {
   uid: number;
@@ -10,12 +10,12 @@ export interface PosItem {
   combo?: ComboDetalle;
 }
 
+// 🆕 ComboDetalle flexible: guarda elecciones por cada item del combo
 export interface ComboDetalle {
   comboId: number;
   nombre: string;
   precio: number;
-  empanadasElegidas: string[];
-  jugosElegidos: string[];
+  elecciones: { categoria: string; etiqueta: string; nombres: string[] }[];
 }
 
 export interface PosCanje { 
@@ -42,12 +42,12 @@ export interface PedidoActivo {
   fechaCreacion: number;
 }
 
+// 🆕 ComboPos flexible con items
 export interface ComboPos {
   id: number;
   nombre: string;
   precio: number;
-  cantidadEmpanadas: number;
-  jugos: number;
+  items: { categoria: string; cantidad: number; etiqueta: string }[];
   imagen: string;
 }
 
@@ -56,33 +56,11 @@ export const ID_PRODUCTO_DOMICILIO = -999;
 const DOMICILIO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17a2b8"/><stop offset="1" stop-color="#0d5c66"/></linearGradient></defs><rect width="300" height="200" fill="url(#g)"/><text x="150" y="118" font-size="88" text-anchor="middle">🛵</text><text x="150" y="172" font-size="26" fill="#ffffff" text-anchor="middle" font-family="Arial" font-weight="bold">DOMICILIO</text></svg>`;
 export const DOMICILIO_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(DOMICILIO_SVG);
 
-function comboImg(n: number): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd54f"/><stop offset="1" stop-color="#ff8f00"/></linearGradient></defs><rect width="300" height="200" fill="url(#g)"/><text x="150" y="112" font-size="80" text-anchor="middle">🎁</text><text x="150" y="170" font-size="30" fill="#5c1010" text-anchor="middle" font-family="Arial" font-weight="bold">COMBO ${n}</text></svg>`;
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-
-export const COMBOS_POS: ComboPos[] = [
-  { id: -1001, nombre: 'Combo 1 · Personal', precio: 5000, cantidadEmpanadas: 2, jugos: 1, imagen: comboImg(1) },
-  { id: -1002, nombre: 'Combo 2 · Pollo Lovers', precio: 5000, cantidadEmpanadas: 2, jugos: 1, imagen: comboImg(2) },
-  { id: -1003, nombre: 'Combo 3 · Carne Lovers', precio: 5000, cantidadEmpanadas: 2, jugos: 1, imagen: comboImg(3) },
-  { id: -1004, nombre: 'Combo 4 · Pareja', precio: 9000, cantidadEmpanadas: 4, jugos: 1, imagen: comboImg(4) },
-  { id: -1005, nombre: 'Combo 5 · Trío Mixto', precio: 7000, cantidadEmpanadas: 3, jugos: 1, imagen: comboImg(5) },
-  { id: -1006, nombre: 'Combo 6 · Familiar', precio: 13000, cantidadEmpanadas: 6, jugos: 2, imagen: comboImg(6) },
-  { id: -1007, nombre: 'Combo 7 · Familia Pollo', precio: 13000, cantidadEmpanadas: 6, jugos: 2, imagen: comboImg(7) },
-  { id: -1008, nombre: 'Combo 8 · Familia Carne', precio: 13000, cantidadEmpanadas: 6, jugos: 2, imagen: comboImg(8) },
-  { id: -1009, nombre: 'Combo 9 · Grande', precio: 17000, cantidadEmpanadas: 8, jugos: 2, imagen: comboImg(9) },
-  { id: -1010, nombre: 'Combo 10 · Compartir', precio: 23000, cantidadEmpanadas: 10, jugos: 3, imagen: comboImg(10) },
-  { id: -1011, nombre: 'Combo 11 · Familiar Plus', precio: 28000, cantidadEmpanadas: 12, jugos: 4, imagen: comboImg(11) },
-  { id: -1012, nombre: 'Combo 12 · Mega Familiar', precio: 36000, cantidadEmpanadas: 16, jugos: 4, imagen: comboImg(12) },
-  { id: -1013, nombre: 'Combo 13 · Fiesta', precio: 45000, cantidadEmpanadas: 20, jugos: 5, imagen: comboImg(13) },
-  { id: -1014, nombre: 'Combo 14 · Gran Fiesta', precio: 52000, cantidadEmpanadas: 24, jugos: 6, imagen: comboImg(14) },
-  { id: -1015, nombre: 'Combo 15 · Súper Fiesta', precio: 65000, cantidadEmpanadas: 30, jugos: 8, imagen: comboImg(15) },
-];
-
 @Injectable({ providedIn: 'root' })
 export class PosService {
   private supabase = inject(SupabaseService);
   private config = inject(ConfigService);
+  private productosService = inject(ProductosService);
   private nextUid = Date.now();
 
   pedidosActivos = signal<PedidoActivo[]>([]);
@@ -101,21 +79,29 @@ export class PosService {
   errorCanje = signal<string | null>(null);
   validandoCanje = signal(false);
 
-  combos = computed(() => COMBOS_POS);
+  // 🆕 Combos desde Supabase (solo los activos en POS)
+  combos = computed<ComboPos[]>(() => {
+    return this.productosService.combosActivosPos().map(c => ({
+      id: c.id,
+      nombre: c.nombre,
+      precio: Number(c.precio),
+      items: c.items || [],
+      imagen: c.imagen || this.generarImagenCombo(c.nombre),
+    }));
+  });
 
   constructor() {
     this.cargarDeLocalStorage();
+    this.productosService.cargarCombos();
     const contadorGuardado = localStorage.getItem('pos_contador_pedidos');
     if (contadorGuardado) this.contadorPedidos = parseInt(contadorGuardado, 10) || 1;
 
     if (this.pedidosActivos().length === 0) {
       this.crearNuevoPedido();
     } else {
-      // Restaurar el tab activo al iniciar
       this.restaurar(this.pedidoActivoId());
     }
 
-    // Persistencia en tiempo real (campos de texto, etc.)
     effect(() => {
       this.items(); this.descuentoManual(); this.metodoPago(); this.tipoEntrega();
       this.clienteNombre(); this.clienteTelefono(); this.recibido();
@@ -125,9 +111,13 @@ export class PosService {
     });
   }
 
+  private generarImagenCombo(nombre: string): string {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd54f"/><stop offset="1" stop-color="#ff8f00"/></linearGradient></defs><rect width="300" height="200" fill="url(#g)"/><text x="150" y="112" font-size="80" text-anchor="middle">🎁</text><text x="150" y="170" font-size="24" fill="#5c1010" text-anchor="middle" font-family="Arial" font-weight="bold">${(nombre || '').substring(0, 18)}</text></svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
   // ===== 🔄 SINCRONIZACIÓN DETERMINISTA =====
 
-  // Guarda el estado actual de los signals en el tab activo
   private snapshotActual(): void {
     const id = this.pedidoActivoId();
     this.pedidosActivos.update(list => list.map(p => p.id === id ? {
@@ -145,7 +135,6 @@ export class PosService {
     } : p));
   }
 
-  // Carga el estado de un tab a los signals
   private restaurar(id: string): void {
     const p = this.pedidosActivos().find(x => x.id === id);
     if (!p) return;
@@ -164,7 +153,7 @@ export class PosService {
   // ===== 🗂️ GESTIÓN DE TABS =====
 
   crearNuevoPedido(): string {
-    this.snapshotActual(); // no perder el tab actual
+    this.snapshotActual();
     const id = `pedido-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const numero = this.contadorPedidos++;
     localStorage.setItem('pos_contador_pedidos', String(this.contadorPedidos));
@@ -184,9 +173,9 @@ export class PosService {
 
   cambiarPedido(id: string): void {
     if (id === this.pedidoActivoId()) return;
-    this.snapshotActual();          // 1️⃣ guarda el tab actual ANTES de cambiar
-    this.pedidoActivoId.set(id);    // 2️⃣ cambia
-    this.restaurar(id);             // 3️⃣ carga el nuevo tab
+    this.snapshotActual();
+    this.pedidoActivoId.set(id);
+    this.restaurar(id);
     this.guardarEnLocalStorage(this.pedidosActivos());
   }
 
@@ -314,7 +303,8 @@ export class PosService {
     this.guardarEnLocalStorage(this.pedidosActivos());
   }
 
-  agregarCombo(combo: ComboPos, empanadasElegidas: string[], jugosElegidos: string[]): void {
+  // 🆕 Único agregarCombo: flexible por items
+  agregarCombo(combo: ComboPos, elecciones: { categoria: string; etiqueta: string; nombres: string[] }[]): void {
     const virtual: Producto = {
       id: combo.id, nombre: `🎁 ${combo.nombre}`, precio: combo.precio,
       imagen: combo.imagen, categoria: 'empanada', activo: true, activo_pos: true, orden: 0, imagen_pos: null,
@@ -323,7 +313,7 @@ export class PosService {
       uid: this.nextUid++,
       producto: virtual,
       cantidad: 1,
-      combo: { comboId: combo.id, nombre: combo.nombre, precio: combo.precio, empanadasElegidas, jugosElegidos },
+      combo: { comboId: combo.id, nombre: combo.nombre, precio: combo.precio, elecciones },
     }]);
     this.snapshotActual();
     this.guardarEnLocalStorage(this.pedidosActivos());
@@ -413,8 +403,12 @@ export class PosService {
       if (i.producto.id === ID_PRODUCTO_DOMICILIO) continue;
       if (i.combo) {
         items.push({ nombre: i.combo.nombre, cantidad: i.cantidad, precio: Number(i.combo.precio) });
-        for (const e of i.combo.empanadasElegidas) items.push({ nombre: e, cantidad: i.cantidad, precio: 0 });
-        for (const j of i.combo.jugosElegidos) items.push({ nombre: j, cantidad: i.cantidad, precio: 0 });
+        // 🆕 Expandir elecciones flexibles
+        for (const ele of i.combo.elecciones) {
+          for (const nombre of ele.nombres) {
+            items.push({ nombre, cantidad: i.cantidad, precio: 0 });
+          }
+        }
       } else {
         items.push({ nombre: i.producto.nombre, cantidad: i.cantidad, precio: Number(i.producto.precio) });
       }

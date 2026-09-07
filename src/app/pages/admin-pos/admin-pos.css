@@ -507,3 +507,96 @@ body.claro .pos-tab-new {
     min-width: 150px;
   }
 }
+
+/* ===== 🎁 STEPPER DENTRO DE CARDS DEL MODAL ===== */
+.pos-item-stepper {
+  cursor: default;
+}
+
+.pos-item-stepper:hover {
+  transform: none;
+}
+
+.pos-card-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.pos-card-stepper button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.08);
+  color: #ffc107;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pos-card-stepper button:hover:not(:disabled) {
+  background: rgba(255, 193, 7, 0.2);
+}
+
+.pos-card-stepper button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pos-card-stepper span {
+  min-width: 26px;
+  text-align: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Progreso por grupo (ej: 14/30) */
+.pos-modal-progreso {
+  float: right;
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd54f;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pos-modal-progreso.completo {
+  background: rgba(81, 207, 102, 0.15);
+  color: #51cf66;
+}
+
+/* Modo claro */
+body.claro .pos-card-stepper {
+  border-top-color: rgba(180, 90, 20, 0.15);
+  background: rgba(180, 90, 20, 0.04);
+}
+
+body.claro .pos-card-stepper button {
+  border-color: rgba(180, 90, 20, 0.4);
+  background: rgba(180, 90, 20, 0.06);
+  color: #b45309;
+}
+
+body.claro .pos-card-stepper span {
+  color: #3a2410;
+}
+
+body.claro .pos-modal-progreso {
+  background: rgba(180, 90, 20, 0.1);
+  color: #b45309;
+}
+
+body.claro .pos-modal-progreso.completo {
+  background: rgba(47, 158, 68, 0.1);
+  color: #2f9e44;
+}

@@ -23,8 +23,9 @@ export class AdminPos implements OnInit {
   panelAbierto = signal(false);
 
   comboModal = signal<ComboPos | null>(null);
-  empanadasElegidas = signal<string[]>([]);
-  jugosElegidos = signal<string[]>([]);
+
+  // 🆕 Cantidades por producto para cada item del combo: [{ nombreProducto: cantidad }]
+  eleccionesCombo = signal<Record<string, number>[]>([]);
 
   abrirPanel(): void { this.panelAbierto.set(true); }
   cerrarPanel(): void { this.panelAbierto.set(false); }
@@ -79,61 +80,98 @@ export class AdminPos implements OnInit {
   });
 
   resumenCombo(c: ComboPos): string {
-    return `${c.cantidadEmpanadas} 🥟 + ${c.jugos} 🍹`;
+    return c.items.map(i => `${i.cantidad}× ${i.etiqueta}`).join(' + ');
   }
 
+    // 🆕 Agrupa las elecciones del combo: [{ nombre, cantidad }]
+  resumenElecciones(combo: any): { nombre: string; cantidad: number }[] {
+    const mapa = new Map<string, number>();
+    for (const ele of combo?.elecciones || []) {
+      for (const nombre of ele.nombres || []) {
+        mapa.set(nombre, (mapa.get(nombre) || 0) + 1);
+      }
+    }
+    return [...mapa.entries()].map(([nombre, cantidad]) => ({ nombre, cantidad }));
+  }
+
+  // ===== 🎁 MODAL DE COMBO (stepper) =====
+
   abrirComboModal(c: ComboPos): void { 
-    this.empanadasElegidas.set([]); 
-    this.jugosElegidos.set([]); 
+    this.eleccionesCombo.set(c.items.map(() => ({})));
     this.comboModal.set(c); 
   }
   
   cancelarCombo(): void { 
     this.comboModal.set(null); 
-    this.empanadasElegidas.set([]); 
-    this.jugosElegidos.set([]); 
+    this.eleccionesCombo.set([]);
   }
 
-  elegirEmpanada(nombre: string): void {
+  // 🆕 Cantidad elegida de un producto en un item
+  cantidadElegida(itemIndex: number, nombre: string): number {
+    return this.eleccionesCombo()[itemIndex]?.[nombre] || 0;
+  }
+
+  // 🆕 Total elegido en un item (suma de todas las cantidades)
+  totalElegido(itemIndex: number): number {
+    const obj = this.eleccionesCombo()[itemIndex] || {};
+    return Object.values(obj).reduce((t, n) => t + (n || 0), 0);
+  }
+
+  // 🆕 Sumar con stepper (respeta el cupo del item)
+  sumarEleccion(itemIndex: number, nombre: string): void {
     const combo = this.comboModal();
     if (!combo) return;
-    if (this.empanadasElegidas().length < combo.cantidadEmpanadas) {
-      this.empanadasElegidas.update((l) => [...l, nombre]);
-    }
+    const item = combo.items[itemIndex];
+    if (this.totalElegido(itemIndex) >= item.cantidad) return;
+    this.eleccionesCombo.update(all => {
+      const nuevo = [...all];
+      const obj = { ...(nuevo[itemIndex] || {}) };
+      obj[nombre] = (obj[nombre] || 0) + 1;
+      nuevo[itemIndex] = obj;
+      return nuevo;
+    });
   }
 
-  quitarEmpanada(index: number): void {
-    this.empanadasElegidas.update((l) => l.filter((_, i) => i !== index));
+  // 🆕 Restar con stepper
+  restarEleccion(itemIndex: number, nombre: string): void {
+    this.eleccionesCombo.update(all => {
+      const nuevo = [...all];
+      const obj = { ...(nuevo[itemIndex] || {}) };
+      if ((obj[nombre] || 0) > 0) {
+        obj[nombre] -= 1;
+        if (obj[nombre] === 0) delete obj[nombre];
+      }
+      nuevo[itemIndex] = obj;
+      return nuevo;
+    });
   }
 
-  empanadaElegidaCantidad(nombre: string): number {
-    return this.empanadasElegidas().filter((e) => e === nombre).length;
+  productosDeItem(item: { categoria: string }): Producto[] {
+    return this.productos.productosPorCategoriaPos(item.categoria as any);
   }
 
-  elegirJugo(nombre: string): void {
+  comboCompleto = computed(() => {
     const combo = this.comboModal();
-    if (!combo) return;
-    if (this.jugosElegidos().length < combo.jugos) {
-      this.jugosElegidos.update((l) => [...l, nombre]);
-    }
-  }
-
-  quitarJugo(index: number): void {
-    this.jugosElegidos.update((l) => l.filter((_, i) => i !== index));
-  }
-
-  jugoElegidoCantidad(nombre: string): number {
-    return this.jugosElegidos().filter((j) => j === nombre).length;
-  }
+    if (!combo) return false;
+    return combo.items.every((item, idx) => this.totalElegido(idx) === item.cantidad);
+  });
 
   confirmarCombo(): void {
     const combo = this.comboModal();
-    if (!combo) return;
-    if (this.empanadasElegidas().length !== combo.cantidadEmpanadas) return;
-    if (this.jugosElegidos().length !== combo.jugos) return;
-    this.pos.agregarCombo(combo, this.empanadasElegidas(), this.jugosElegidos());
+    if (!combo || !this.comboCompleto()) return;
+    const elecciones = combo.items.map((item, idx) => {
+      const obj = this.eleccionesCombo()[idx] || {};
+      const nombres: string[] = [];
+      Object.entries(obj).forEach(([nombre, cant]) => {
+        for (let i = 0; i < cant; i++) nombres.push(nombre);
+      });
+      return { categoria: item.categoria, etiqueta: item.etiqueta, nombres };
+    });
+    this.pos.agregarCombo(combo, elecciones);
     this.cancelarCombo();
   }
+
+  // ===== 💰 VENTA =====
 
   async registrarVenta(): Promise<void> {
     if (this.pos.items().length === 0) return;
@@ -168,20 +206,16 @@ export class AdminPos implements OnInit {
     this.pos.cerrarPedido(id);
   }
 
-  // 🆕 Calcular total de cualquier pedido (en el componente)
   calcularTotalPedido(pedido: any): number {
     const items = pedido.items || [];
     const subtotal = items
       .filter((i: any) => i.producto.id !== -999)
       .reduce((t: number, i: any) => t + i.cantidad * Number(i.producto.precio), 0);
-    
     const domicilio = pedido.tipoEntrega === 'domicilio' ? 3000 : 0;
     const descuento = pedido.descuentoManual || 0;
-    
     return Math.max(0, subtotal - descuento + domicilio);
   }
 
-  // 🆕 Formatear precio (en el componente)
   formatearPrecio(v: number): string {
     return '$' + Number(v).toLocaleString('es-CO');
   }
