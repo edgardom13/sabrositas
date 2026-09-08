@@ -11,13 +11,18 @@
       <p class="vacio">Aún no has agregado productos. ¡Agrega unas empanaditas! 🥟</p>
     } @else {
       <ul class="items">
-                @for (item of carrito.itemsSignal(); track item.producto.id) {
-          <li>
-            <span>{{ item.cantidad }} x {{ item.producto.nombre }}</span>
-            <span>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</span>
-          </li>
+  @for (item of carrito.itemsSignal(); track item.producto.id) {
+    <li>
+      <div>
+        <span>{{ item.cantidad }} x {{ item.producto.nombre }}</span>
+        @if (item.producto.detalle) {
+          <p class="carrito-detalle">🎁 {{ item.producto.detalle }}</p>
         }
-      </ul>
+      </div>
+      <span>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</span>
+    </li>
+  }
+</ul>
 
       <p class="nota-domicilio">
         🛵 El domicilio tiene un valor de {{ formatearPrecio(DOMICILIO) }} que se suma al total.
@@ -176,13 +181,18 @@
         <div class="bloque-modal">
           <h4>🛒 TU PEDIDO</h4>
           <ul class="lista-modal">
-                        @for (item of carrito.itemsSignal(); track item.producto.id) {
-              <li>
-                <span>{{ item.cantidad }} × {{ item.producto.nombre }}</span>
-                <strong>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</strong>
-              </li>
-            }
-          </ul>
+  @for (item of carrito.itemsSignal(); track item.producto.id) {
+    <li>
+      <div>
+        <span>{{ item.cantidad }} × {{ item.producto.nombre }}</span>
+        @if (item.producto.detalle) {
+          <p class="carrito-detalle">🎁 {{ item.producto.detalle }}</p>
+        }
+      </div>
+      <strong>{{ formatearPrecio(item.cantidad * precioUnitario(item)) }}</strong>
+    </li>
+  }
+</ul>
         </div>
 
         @if (canjeValido(); as canje) {

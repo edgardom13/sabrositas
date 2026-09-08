@@ -15,6 +15,7 @@ export interface Producto {
   orden: number;
   activo: boolean;
   activo_pos: boolean;
+  detalle?: string;
 }
 
 export interface ProductoInput {
@@ -116,6 +117,11 @@ export class ProductosService {
   // 🆕 Productos de una categoría específica para el POS (para combos flexibles)
   productosPorCategoriaPos(cat: CategoriaProducto): Producto[] {
     return this.catalogoPos().filter((p) => p.categoria === cat);
+  }
+
+    // 🆕 Productos de una categoría visibles en TIENDA (para el modal de combos)
+  productosPorCategoria(cat: CategoriaProducto): Producto[] {
+    return this.catalogo().filter((p) => p.categoria === cat);
   }
 
   imagenParaPos(p: Producto): string {

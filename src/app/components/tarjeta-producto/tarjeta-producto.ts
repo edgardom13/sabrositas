@@ -1,6 +1,7 @@
 import { Component, input, inject, signal, computed } from '@angular/core';
 import { Carrito } from '../../services/carrito';
-import { Producto } from '../../services/productos.service';
+import { Producto, ProductosService } from '../../services/productos.service';
+import { ComboTienda } from '../../services/combo-tienda.service';
 
 @Component({
   selector: 'app-tarjeta-producto',
@@ -12,14 +13,26 @@ import { Producto } from '../../services/productos.service';
 export class TarjetaProducto {
   producto = input.required<Producto>();
   carrito = inject(Carrito);
+  private productosService = inject(ProductosService);
+  private comboTienda = inject(ComboTienda);
   agregado = signal(false);
   private temporizador?: ReturnType<typeof setTimeout>;
 
-  // Solo lo imprescindible: cantidad (para stepper) y tipo
   cantidad = computed(() => this.carrito.cantidadDe(this.producto().id));
   esSalsa = computed(() => this.producto().categoria === 'salsa');
+  esCombo = computed(() => (this.producto().categoria as string) === 'combo');
 
   agregar(): void {
+    // 🎁 Si es combo, abrir modal de selección en vez de agregar directo
+    if (this.esCombo()) {
+      const comboId = -10000 - this.producto().id;
+      const combo = this.productosService.combos().find((c) => c.id === comboId);
+      if (combo) {
+        this.comboTienda.abrir(combo);
+        return;
+      }
+    }
+
     this.carrito.agregar(this.producto());
     this.agregado.set(true);
     clearTimeout(this.temporizador);

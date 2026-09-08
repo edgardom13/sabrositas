@@ -339,7 +339,7 @@ export class AdminInversor implements OnInit {
       concepto: this.retiroForm.concepto,
       fecha: this.retiroForm.fecha,
       tipo: 'retiro_dueño',
-      inversor_id: ID_DUENO,
+      inversor_id: null,
     });
     if (ok) this.retiroForm = { monto: 0, concepto: '', fecha: this.hoy() };
   }

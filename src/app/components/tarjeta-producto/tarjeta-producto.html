@@ -1,39 +1,39 @@
-<article class="item" [class.en-carrito]="cantidad() > 0">
+<article class="card" [class.en-carrito]="cantidad() > 0">
 
-  <div class="item-foto-wrap">
-    <img class="item-foto" [src]="producto().imagen" [alt]="producto().nombre" loading="lazy" />
-    @if (cantidad() > 0) {
-      <span class="badge-cantidad">{{ cantidad() }}</span>
-    }
+  <div class="card-media">
+    <img class="card-img" [src]="producto().imagen" [alt]="producto().nombre" loading="lazy" />
+    @if (esCombo()) { <span class="card-tag">🎁 Combo</span> }
+    @if (esSalsa()) { <span class="card-tag tag-salsa">🥫 Salsa</span> }
+    @if (cantidad() > 0) { <span class="badge-cantidad">{{ cantidad() }}</span> }
   </div>
 
-  <div class="item-info">
-    <div class="item-linea-top">
-      <h3 class="item-nombre">{{ producto().nombre }}</h3>
-      @if (esSalsa()) {
-        <span class="chip chip-salsa">🥫 Salsa</span>
-      }
-    </div>
+    <div class="card-body">
+    <h3 class="card-nombre">{{ producto().nombre }}</h3>
 
+    @if (esCombo()) {
+      <p class="card-sub card-sub-combo">🎁 {{ producto().detalle }}</p>
+    }
     @if (esSalsa()) {
-      <p class="item-sub">🎁 Primeras 3 gratis · luego $500 c/u</p>
+      <p class="card-sub">🎁 Primeras 3 gratis · luego $500 c/u</p>
     }
 
-    <span class="item-precio">{{ formatearPrecio(producto().precio) }}</span>
-  </div>
-
-  <div class="item-accion">
-    @if (cantidad() === 0) {
-      <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()"
-        [attr.aria-label]="'Agregar ' + producto().nombre">
-        <span class="btn-icono">{{ agregado() ? '✓' : '+' }}</span>
-      </button>
-    } @else {
-      <div class="stepper">
-        <button class="stepper-btn menos" (click)="quitar()" aria-label="Quitar uno">−</button>
-        <span class="stepper-cant">{{ cantidad() }}</span>
-        <button class="stepper-btn mas" (click)="agregar()" aria-label="Agregar uno">+</button>
+    <div class="card-footer">
+      <span class="card-precio">{{ formatearPrecio(producto().precio) }}</span>
+      <div class="card-accion">
+        @if (cantidad() === 0) {
+          <button class="btn-agregar" [class.agregado]="agregado()" (click)="agregar()"
+            [attr.aria-label]="'Agregar ' + producto().nombre">
+            <span class="btn-icono">{{ agregado() ? '✓' : '+' }}</span>
+          </button>
+        } @else {
+          <div class="stepper">
+            <button class="stepper-btn menos" (click)="quitar()" aria-label="Quitar uno">−</button>
+            <span class="stepper-cant">{{ cantidad() }}</span>
+            <button class="stepper-btn mas" (click)="agregar()" aria-label="Agregar uno">+</button>
+          </div>
+        }
       </div>
-    }
+    </div>
   </div>
+
 </article>

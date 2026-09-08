@@ -23,8 +23,6 @@ export class BotonCarrito {
   private productosService = inject(ProductosService);
   horario = inject(Horario);
 
-
-  // Señales nuevas:
   mostrarAvisoHorario = false;
   pedidoProgramado = signal(false);
 
@@ -48,7 +46,6 @@ export class BotonCarrito {
   direccion = '';
   formularioValido = true;
 
-  // 🎟️ Cupón de canje (código CANJE-XXXX del cliente) — ahora con tipo, valor y cantidad
   codigoCanje = '';
   validandoCanje = signal(false);
   canjeValido = signal<{ id: number; premio: string; tipo: string; valor: number; cantidad: number } | null>(null);
@@ -67,7 +64,6 @@ export class BotonCarrito {
   constructor() {
     this.configService.cargar();
 
-    // 🛒 Evento global: la promo lo dispara para abrir el carrito (funciona en móvil y escritorio)
     window.addEventListener('abrir-carrito', () => {
       this.ngZone.run(() => {
         this.panelAbierto = true;
@@ -75,7 +71,6 @@ export class BotonCarrito {
       });
     });
 
-    // 🎯 Si hay un canje pendiente en localStorage, aplicarlo automáticamente
     const codigoPendiente = localStorage.getItem('canje_pendiente');
     if (codigoPendiente) {
       this.codigoCanje = codigoPendiente;
@@ -100,7 +95,6 @@ export class BotonCarrito {
     this.panelAbierto = !this.panelAbierto;
   }
 
-  // ✅ Total final coherente con cupón + canje + promo + domicilio
   totalConDomicilio(): number {
     return (
       this.carrito.totalPedido() -
@@ -111,7 +105,6 @@ export class BotonCarrito {
     );
   }
 
-  // ===== 💰 Descuento que aplica el canje según el tipo de premio (con cantidad) =====
   descuentoCanje(): number {
     const canje = this.canjeValido();
     if (!canje) return 0;
@@ -140,7 +133,7 @@ export class BotonCarrito {
       case 'monto':
         return canje.valor;
       default:
-        return 0; // 'otro' se entrega físico
+        return 0;
     }
   }
 
@@ -325,7 +318,7 @@ export class BotonCarrito {
     }
   }
 
-    enviarPedido(): void {
+  enviarPedido(): void {
     this.formularioValido =
       this.nombre.trim() !== '' &&
       this.apellido.trim() !== '' &&
@@ -335,7 +328,6 @@ export class BotonCarrito {
     if (!this.formularioValido) return;
     if (!this.carrito.tieneProductosPrincipales()) return;
 
-    // 🕓 Si la tienda está cerrada por horario, avisar al cliente
     if (!this.horario.abiertoPorHora()) {
       this.mostrarAvisoHorario = true;
       return;
@@ -344,7 +336,7 @@ export class BotonCarrito {
     this.mostrarModal = true;
   }
 
-    confirmarEnvioProgramado(): void {
+  confirmarEnvioProgramado(): void {
     this.mostrarAvisoHorario = false;
     this.pedidoProgramado.set(true);
     this.mostrarModal = true;
@@ -373,14 +365,16 @@ export class BotonCarrito {
     });
     const hora = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
     const numeroPedido = `${ahora.getHours().toString().padStart(2, '0')}${ahora.getMinutes().toString().padStart(2, '0')}`;
-        const avisoProgramado = this.pedidoProgramado()
+    
+    const avisoProgramado = this.pedidoProgramado()
       ? `⏰ *PEDIDO PROGRAMADO*\n   Tu pedido se enviará ${this.horario.proximaAperturaTexto()}\n\n`
       : '';
+    
     const lineasProductos = items
-      .map(
-        (i, index) =>
-          `   ${index + 1}. *${i.cantidad}* x ${i.producto.nombre} ${this.emojiDe(i.producto.nombre)} — _${this.formatearPrecio(i.cantidad * this.precioUnitario(i))}_`,
-      )
+      .map((i, index) => {
+        const detalle = i.producto.detalle ? `\n      _${i.producto.detalle}_` : '';
+        return `   ${index + 1}. *${i.cantidad}* x ${i.producto.nombre} ${this.emojiDe(i.producto.nombre)} — _${this.formatearPrecio(i.cantidad * this.precioUnitario(i))}_${detalle}`;
+      })
       .join('\n');
 
     const lineaSalsasGratis =
@@ -417,8 +411,7 @@ export class BotonCarrito {
       ? `   🎟️ *CANJE ACTIVO:* ${this.codigoCanje.trim().toUpperCase()}\n      Premio: *${canje.premio}*\n      ⚠️ _Entregar premio al cliente_\n`
       : '';
 
-
-        const mensaje =
+    const mensaje =
       avisoProgramado +
       `┏━━━━━━━━━━━━━━━━━━━━━━┓\n` +
       `   🥟 *SABROSITAS* 🥟\n` +
@@ -469,16 +462,50 @@ export class BotonCarrito {
       }
     }
 
-        const ok = await this.supabase.registrarPedido({
+    // 🎁 EXPANDIR COMBOS EN LÍNEAS SEPARADAS (igual que POS)
+    const itemsParaSupabase: { nombre: string; cantidad: number; precio: number }[] = [];
+    
+    for (const i of items) {
+      const esCombo = (i.producto.categoria as string) === 'combo';
+      
+      if (esCombo && i.producto.detalle) {
+        // Línea del combo con su precio
+        itemsParaSupabase.push({
+          nombre: i.producto.nombre,
+          cantidad: i.cantidad,
+          precio: i.producto.precio,
+        });
+        
+        // Expandir productos elegidos del combo (precio 0)
+        const partes = i.producto.detalle.split(',').map((s: string) => s.trim());
+        for (const parte of partes) {
+          const match = parte.match(/^(\d+)×\s+(.+)$/);
+          if (match) {
+            const cantidad = parseInt(match[1], 10);
+            const nombre = match[2];
+            itemsParaSupabase.push({
+              nombre,
+              cantidad: cantidad * i.cantidad,
+              precio: 0,
+            });
+          }
+        }
+      } else {
+        // Producto normal
+        itemsParaSupabase.push({
+          nombre: i.producto.nombre,
+          cantidad: i.cantidad,
+          precio: i.producto.precio,
+        });
+      }
+    }
+
+    const ok = await this.supabase.registrarPedido({
       nombre_cliente: this.nombre.trim(),
       apellido_cliente: this.apellido.trim(),
       telefono: this.telefono.trim(),
       direccion: this.direccion.trim(),
-      items: items.map((i) => ({
-        nombre: i.producto.nombre,
-        cantidad: i.cantidad,
-        precio: i.producto.precio,
-      })),
+      items: itemsParaSupabase,
       subtotal,
       descuento: descuentoTotal,
       domicilio,
@@ -537,7 +564,6 @@ export class BotonCarrito {
     return '🥟';
   }
 
-  // 🥫 Muestra el precio configurado en el admin para salsas; precio real para el resto
   precioUnitario(item: any): number {
     return item.producto.categoria === 'salsa'
       ? this.carrito.precioSalsaExtra()
@@ -548,7 +574,6 @@ export class BotonCarrito {
     return this.carrito.salsasGratis() * this.carrito.precioSalsaExtra();
   }
 
-  // Subtotal "visible" con las salsas a su precio real
   subtotalVisible(): number {
     return this.carrito.totalPedido() + this.valorSalsasGratis();
   }

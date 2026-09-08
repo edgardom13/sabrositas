@@ -1,16 +1,32 @@
-<section class="seccion" [id]="idSeccion()">
-  <h2 class="titulo" [class.amarillo]="tema() === 'amarillo'" [class.verde]="tema() === 'verde'">
-    @if (tema() === 'verde') { 🧊 }
-    {{ titulo() }}
-  </h2>
+<section class="seccion-wrapper">
+  <header class="seccion-header" (click)="toggleAcordeon()" role="button" [attr.aria-expanded]="estaAbierto()">
+    <div class="header-acento"></div>
+    <div class="header-contenido">
+      <h2 class="titulo">{{ titulo() }}</h2>
+      <div class="header-meta">
+        <!-- @if (productos().length > 0) {
+          <span class="badge-count">{{ productos().length }} productos</span>
+        } -->
+        <span class="acordeon-flecha" [class.abierto]="estaAbierto()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <div class="seccion-divider"></div>
 
   @if (productos().length === 0) {
     <p class="sin-productos">Pronto agregaremos productos aquí 🥟</p>
   } @else {
-    <div class="grid">
-      @for (producto of productos(); track producto.id) {
-        <app-tarjeta-producto [producto]="producto" />
-      }
+    <div class="acordeon-contenido" [class.abierto]="estaAbierto()">
+      <div class="grid" [class.carrusel]="variante() === 'carrusel'">
+        @for (producto of productos(); track producto.id) {
+          <app-tarjeta-producto [producto]="producto" />
+        }
+      </div>
     </div>
   }
 </section>

@@ -86,15 +86,27 @@ export class InversorService {
     await this.cargarPagos();
   }
 
-  async registrarPago(p: {
+    async registrarPago(pago: {
     monto: number;
     concepto: string;
     fecha: string;
     tipo: string;
-    inversor_id: number | null;
+    inversor_id: number | null;      // ← CAMBIO: acepta null
   }): Promise<boolean> {
-    const { error } = await this.supabase.client.from('pagos_inversor').insert([p]);
-    if (error) return false;
+    const { error } = await this.supabase.client
+      .from('pagos_inversor')
+      .insert([{
+        monto: pago.monto,
+        concepto: pago.concepto,
+        fecha: pago.fecha,
+        tipo: pago.tipo,
+        inversor_id: pago.inversor_id,   // null → columna NULL (válida)
+      }]);
+
+    if (error) {
+      console.error('❌ Error al registrar pago:', error.message);
+      return false;
+    }
     await this.cargarPagos();
     return true;
   }

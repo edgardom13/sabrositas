@@ -12,14 +12,72 @@ main {
   padding: 0 12px;
 }
 
-/* ===== GRID DE SECCIONES ===== */
+/* =====  BARRA STICKY DE CATEGORÍAS ===== */
+.cat-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 4px;
+  margin: 8px 0 4px;
+  background: linear-gradient(180deg, rgba(15, 10, 5, 0.97), rgba(15, 10, 5, 0.9));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(255, 193, 7, 0.15);
+}
+.cat-nav::-webkit-scrollbar { display: none; }
+
+.cat-pill {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.cat-pill:hover {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.6);
+  color: #ffd54f;
+  transform: translateY(-1px);
+}
+
+/* ===== GRID DE SECCIONES (1 columna, secciones a ancho completo) ===== */
 .menu-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 40px 14px;
-  padding: 20px 0 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 24px 0 30px;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Suaviza el salto al hacer click en una categoría */
+.menu-grid app-seccion-menu {
+  scroll-margin-top: 70px;
+}
+
+body.claro .cat-nav {
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.97), rgba(255, 253, 248, 0.9));
+  border-bottom-color: rgba(180, 90, 20, 0.2);
+}
+body.claro .cat-pill {
+  background: #fff;
+  border-color: rgba(180, 90, 20, 0.25);
+  color: rgba(58, 36, 16, 0.8);
+}
+body.claro .cat-pill:hover {
+  background: rgba(180, 90, 20, 0.08);
+  border-color: rgba(180, 90, 20, 0.5);
+  color: #b45309;
 }
 
 @media (min-width: 900px) {
@@ -236,4 +294,28 @@ body.claro .footer-bottom {
 
 body.claro .footer-bottom span {
   color: rgba(58, 36, 16, 0.5);
+}
+
+/* Cards de combo destacadas */
+app-tarjeta-producto[data-categoria="combo"] .tarjeta-producto,
+.tarjeta-producto.combo {
+  border-color: rgba(255, 193, 7, 0.5);
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.08), rgba(255, 193, 7, 0.02));
+}
+
+/* Cards de combo más grandes y destacadas */
+#combos .grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+#combos .card {
+  border-color: rgba(255, 193, 7, 0.4);
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.08), rgba(28, 13, 5, 0.7));
+}
+
+@media (max-width: 480px) {
+  #combos .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

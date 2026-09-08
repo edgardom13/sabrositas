@@ -1,0 +1,57 @@
+@if (comboTienda.comboAbierto(); as combo) {
+  <div class="mct-overlay" (click)="comboTienda.cerrar()">
+    <div class="mct-modal" (click)="$event.stopPropagation()">
+      <header class="mct-header">
+        <h3>🎁 {{ combo.nombre }}</h3>
+        <button class="mct-cerrar" (click)="comboTienda.cerrar()">✕</button>
+      </header>
+      <p class="mct-sub">{{ formatearPrecio(combo.precio) }} · Elige tus productos</p>
+
+      <div class="mct-cuerpo">
+        @for (item of combo.items; track $index; let idx = $index) {
+          <div class="mct-item">
+            <h4>
+              {{ item.etiqueta }}
+              <span class="mct-progreso" [class.completo]="comboTienda.totalElegido(idx) === item.cantidad">
+                {{ comboTienda.totalElegido(idx) }}/{{ item.cantidad }}
+              </span>
+            </h4>
+
+            <div class="mct-grid">
+              @for (p of comboTienda.productosDeItem(item); track p.id) {
+                <div class="mct-card" [class.elegido]="comboTienda.cantidadElegida(idx, p.nombre) > 0">
+                  <img [src]="p.imagen" [alt]="p.nombre" loading="lazy" />
+                  <div class="mct-card-info">
+                    <strong>{{ p.nombre }}</strong>
+                    <span>{{ formatearPrecio(p.precio) }}</span>
+                  </div>
+                  <div class="mct-stepper">
+                    <button (click)="comboTienda.restar(idx, p.nombre)"
+                      [disabled]="comboTienda.cantidadElegida(idx, p.nombre) === 0">−</button>
+                    <span>{{ comboTienda.cantidadElegida(idx, p.nombre) }}</span>
+                    <button (click)="comboTienda.sumar(idx, p.nombre)"
+                      [disabled]="comboTienda.totalElegido(idx) >= item.cantidad">+</button>
+                  </div>
+                </div>
+              }
+              @if (comboTienda.productosDeItem(item).length === 0) {
+                <p class="mct-vacio">No hay {{ item.etiqueta.toLowerCase() }} disponibles</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <footer class="mct-footer">
+        <button class="mct-cancelar" (click)="comboTienda.cerrar()">Cancelar</button>
+        <button class="mct-confirmar" [disabled]="!comboTienda.completo()" (click)="comboTienda.confirmar()">
+          ✅ Agregar al carrito
+        </button>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (comboTienda.toast(); as t) {
+  <div class="mct-toast">{{ t }}</div>
+}

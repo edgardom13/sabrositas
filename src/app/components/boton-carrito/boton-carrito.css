@@ -806,3 +806,21 @@ body.claro .aviso-horario-card {
 body.claro .aviso-horario-card strong { color: #117885 !important; }
 body.claro .aviso-horario-card p,
 body.claro .aviso-horario-info p { color: rgba(58,36,16,.8) !important; }
+
+/* Detalle de combos */
+.carrito-detalle {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #ffd54f;
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 6px;
+  padding: 4px 8px;
+  line-height: 1.4;
+}
+
+body.claro .carrito-detalle {
+  color: #b45309;
+  background: rgba(180, 90, 20, 0.06);
+  border-color: rgba(180, 90, 20, 0.25);
+}
