@@ -219,4 +219,74 @@ export class AdminPos implements OnInit {
   formatearPrecio(v: number): string {
     return '$' + Number(v).toLocaleString('es-CO');
   }
+
+     // ===== 🍚 MODAL DE ARROZ (extra sobre precio estándar) =====
+  modalArroz = signal<Producto | null>(null);
+  montoExtra = signal(0);            // Extra en pesos sobre el precio estándar
+  modoManualArroz = signal(false);
+
+  // Montos extra rápidos
+  montosRapidos = [1000, 2000, 3000, 5000];
+
+  abrirModalArroz(p: Producto): void {
+    if (p.categoria === 'arroz') {
+      this.modalArroz.set(p);
+      this.montoExtra.set(0);
+      this.modoManualArroz.set(false);
+    } else {
+      this.pos.agregar(p);
+    }
+  }
+
+  // Toggle: si ya está seleccionado ese extra, lo quita
+  seleccionarExtra(monto: number): void {
+    this.montoExtra.set(this.montoExtra() === monto ? 0 : monto);
+    this.modoManualArroz.set(false);
+  }
+
+  activarModoManual(): void {
+    this.modoManualArroz.set(true);
+  }
+
+  onExtraManualChange(event: Event): void {
+    const valor = +(event.target as HTMLInputElement).value || 0;
+    this.montoExtra.set(valor);
+  }
+
+  // Total del arroz = precio estándar + extra
+  totalArroz(): number {
+    const p = this.modalArroz();
+    if (!p) return 0;
+    return Number(p.precio) + this.montoExtra();
+  }
+
+  confirmarArroz(): void {
+  const p = this.modalArroz();
+  if (!p) return;
+  const extra = this.montoExtra();
+
+  if (extra > 0) {
+    // Arroz con extra: ID único negativo para que sea una línea separada
+    const virtual = {
+      ...p,
+      id: -(Date.now() + Math.floor(Math.random() * 1000)), // ID único negativo
+      nombre: `${p.nombre} (+$${extra.toLocaleString('es-CO')} extra)`,
+      precio: Number(p.precio) + extra,
+    };
+    this.pos.agregar(virtual);
+    this.mostrarToast(`✅ ${p.nombre} + extra = $${this.totalArroz().toLocaleString('es-CO')}`);
+  } else {
+    // Sin extra: agrega el arroz estándar
+    this.pos.agregar(p);
+    this.mostrarToast(`✅ ${p.nombre} agregado`);
+  }
+
+  this.cerrarModalArroz();
+}
+
+  cerrarModalArroz(): void {
+    this.modalArroz.set(null);
+    this.montoExtra.set(0);
+    this.modoManualArroz.set(false);
+  }
 }

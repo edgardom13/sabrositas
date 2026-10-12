@@ -600,3 +600,232 @@ body.claro .pos-modal-progreso.completo {
   background: rgba(47, 158, 68, 0.1);
   color: #2f9e44;
 }
+
+/* ===== 🍚 MODAL DE ARROZ POR MONTO ===== */
+.pos-modal-arroz {
+  max-width: 480px;
+}
+
+.arroz-container {
+  padding: 10px 0;
+}
+
+.arroz-pregunta {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+/* Botones rápidos de montos */
+.arroz-botones-rapidos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.arroz-btn-rapido {
+  background: rgba(255, 193, 7, 0.08);
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 16px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.arroz-btn-rapido:hover {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.5);
+  transform: translateY(-2px);
+}
+
+.arroz-btn-rapido.activo {
+  background: rgba(255, 193, 7, 0.2);
+  border-color: #ffd54f;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+}
+
+.arroz-btn-rapido .monto {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffd54f;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.arroz-btn-rapido .kilos {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.arroz-btn-rapido.activo .kilos {
+  color: #ffd54f;
+}
+
+/* Botón modo manual */
+.arroz-btn-manual {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+.arroz-btn-manual:hover {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.5);
+  color: #ffd54f;
+}
+
+/* Input manual */
+.arroz-input-container {
+  margin-bottom: 16px;
+}
+
+.arroz-input-container label {
+  display: block;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.arroz-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.arroz-signo {
+  position: absolute;
+  left: 16px;
+  color: #ffd54f;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: none;
+}
+
+.arroz-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255, 193, 7, 0.4);
+  border-radius: 10px;
+  padding: 14px 16px 14px 40px;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.arroz-input:focus {
+  border-color: #ffd54f;
+  background: rgba(255, 193, 7, 0.08);
+}
+
+.arroz-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 18px;
+}
+
+.arroz-hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.arroz-hint strong {
+  color: #ffd54f;
+}
+
+/* Total */
+.arroz-total {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.arroz-total span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.arroz-total strong {
+  color: #ffd54f;
+  font-size: 22px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Modo claro */
+body.claro .arroz-pregunta { color: rgba(58, 36, 16, 0.8) !important; }
+
+body.claro .arroz-btn-rapido {
+  background: rgba(180, 90, 20, 0.08) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+body.claro .arroz-btn-rapido:hover {
+  background: rgba(180, 90, 20, 0.15) !important;
+  border-color: rgba(180, 90, 20, 0.5) !important;
+}
+body.claro .arroz-btn-rapido.activo {
+  background: rgba(180, 90, 20, 0.2) !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 0 0 3px rgba(180, 90, 20, 0.2) !important;
+}
+body.claro .arroz-btn-rapido .monto { color: #b45309 !important; }
+body.claro .arroz-btn-rapido .kilos { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .arroz-btn-rapido.activo .kilos { color: #b45309 !important; }
+
+body.claro .arroz-btn-manual {
+  background: rgba(180, 90, 20, 0.05) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+  color: rgba(58, 36, 16, 0.8) !important;
+}
+body.claro .arroz-btn-manual:hover {
+  background: rgba(180, 90, 20, 0.1) !important;
+  border-color: rgba(180, 90, 20, 0.5) !important;
+  color: #b45309 !important;
+}
+
+body.claro .arroz-input-container label { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .arroz-signo { color: #b45309 !important; }
+body.claro .arroz-input {
+  background: #fffdf8 !important;
+  border-color: rgba(180, 90, 20, 0.4) !important;
+  color: #3a2410 !important;
+}
+body.claro .arroz-input:focus {
+  border-color: #b45309 !important;
+  background: #fff !important;
+}
+body.claro .arroz-input::placeholder { color: rgba(58, 36, 16, 0.3) !important; }
+body.claro .arroz-hint { color: rgba(58, 36, 16, 0.6) !important; }
+body.claro .arroz-hint strong { color: #b45309 !important; }
+
+body.claro .arroz-total {
+  background: rgba(180, 90, 20, 0.1) !important;
+  border-color: rgba(180, 90, 20, 0.3) !important;
+}
+body.claro .arroz-total span { color: rgba(58, 36, 16, 0.8) !important; }
+body.claro .arroz-total strong { color: #b45309 !important; }
