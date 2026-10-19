@@ -1097,3 +1097,71 @@ body.claro .stat-verde-intenso {
   border-left-color: #2f9e44 !important;
 }
 body.claro .stat-verde-intenso h3 { color: #2f9e44 !important; }
+
+/* ===== 👁️ AVISO MODO SOLO LECTURA PARA EMPLEADOS ===== */
+.aviso-empleado {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(23, 162, 184, 0.12), rgba(17, 120, 133, 0.08));
+  border: 1.5px solid rgba(23, 162, 184, 0.4);
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+
+.aviso-icono {
+  font-size: 32px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(23, 162, 184, 0.4));
+}
+
+.aviso-empleado strong {
+  display: block;
+  color: #17a2b8;
+  font-size: 15px;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+.aviso-empleado p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ===== 📋 INFORMACIÓN DE SOLO LECTURA ===== */
+.info-solo-lectura {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13.5px;
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.estado-solo-lectura {
+  padding: 4px 0;
+}
+
+/* ===== MODO CLARO ===== */
+body.claro .aviso-empleado {
+  background: linear-gradient(135deg, rgba(23, 162, 184, 0.08), rgba(17, 120, 133, 0.05)) !important;
+  border-color: rgba(23, 162, 184, 0.35) !important;
+}
+
+body.claro .aviso-empleado strong {
+  color: #117885 !important;
+}
+
+body.claro .aviso-empleado p {
+  color: rgba(58, 36, 16, 0.75) !important;
+}
+
+body.claro .info-solo-lectura {
+  color: rgba(58, 36, 16, 0.65) !important;
+  background: rgba(58, 36, 16, 0.04) !important;
+  border-left-color: rgba(58, 36, 16, 0.2) !important;
+}

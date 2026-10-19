@@ -4,6 +4,16 @@
     <div class="toast-exito">✅ {{ mensajeExito() }}</div>
   }
 
+  @if (esEmpleado()) {
+    <div class="aviso-empleado">
+      <span class="aviso-icono">👁️</span>
+      <div>
+        <strong>Modo solo lectura</strong>
+        <p>Como empleado puedes ver los pedidos pero no modificarlos. Contacta al administrador si necesitas hacer cambios.</p>
+      </div>
+    </div>
+  }
+
   <div class="filtro-fecha">
     <button class="chip" [class.activo]="!verHistorico()" (click)="irAHoy()">📅 Hoy</button>
     <input
@@ -220,7 +230,8 @@
               </span>
             </div>
 
-            @if (siguienteEstado(pedido.estado); as sig) {
+            <!-- 🚫 Botón avanzar solo para NO empleados -->
+            @if (!esEmpleado() && siguienteEstado(pedido.estado); as sig) {
               <button
                 class="btn-avanzar"
                 [title]="'Pasar a ' + pedidosService.textoEstado(sig)"
@@ -305,67 +316,107 @@
                     <a [href]="linkWhatsApp(pedido.telefono)" target="_blank">💬 WhatsApp</a>
                   </div>
 
-                  <h4>💬 Mensajes rápidos al cliente</h4>
-                  <div class="botones-wsp">
-                    <button (click)="enviarWhatsapp(pedido, 'recibido')">📥 Pedido recibido</button>
-                    <button (click)="enviarWhatsapp(pedido, 'camino')">🛵 En camino</button>
-                    <button (click)="enviarWhatsapp(pedido, 'entregado')">✅ Entregado</button>
-                  </div>
+                  <!-- 🚫 Mensajes WhatsApp solo para NO empleados -->
+                  @if (!esEmpleado()) {
+                    <h4>💬 Mensajes rápidos al cliente</h4>
+                    <div class="botones-wsp">
+                      <button (click)="enviarWhatsapp(pedido, 'recibido')">📥 Pedido recibido</button>
+                      <button (click)="enviarWhatsapp(pedido, 'camino')">🛵 En camino</button>
+                      <button (click)="enviarWhatsapp(pedido, 'entregado')">✅ Entregado</button>
+                    </div>
+                  }
 
-                  <h4>🛵 Asignar domiciliario</h4>
-                  <div class="domiciliario-box">
+                  <!-- 🚫 Asignar domiciliario solo para NO empleados -->
+                  @if (!esEmpleado()) {
+                    <h4>🛵 Asignar domiciliario</h4>
+                    <div class="domiciliario-box">
+                      @if (pedido.domiciliario_id) {
+                        <div class="domiciliario-actual">
+                          <span>Asignado actualmente:</span>
+                          <strong>🛵 {{ nombreDomiciliario(pedido) }}</strong>
+                        </div>
+                      }
+                      <select
+                        [value]="pedido.domiciliario_id ?? ''"
+                        (change)="asignarDomiciliario(pedido, $event)"
+                        class="select-domiciliario"
+                        [disabled]="procesando() === pedido.id"
+                      >
+                        <option value="">Sin asignar</option>
+                        @for (dom of domiciliariosDisponibles(); track dom.id) {
+                          <option [value]="dom.id" [selected]="dom.id === pedido.domiciliario_id">
+                            {{ dom.nombre }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+
+                    <h4>🔄 Cambiar estado</h4>
+                    <div class="botones-estado">
+                      @for (estado of estadosPedido; track estado) {
+                        <button
+                          class="btn-estado"
+                          [class.activo]="pedido.estado === estado"
+                          [style.--color-estado]="pedidosService.colorEstado(estado)"
+                          [disabled]="procesando() === pedido.id"
+                          (click)="cambiarEstado(pedido, estado)"
+                        >
+                          {{ pedidosService.textoEstado(estado) }}
+                        </button>
+                      }
+                    </div>
+
+                    <h4>💰 Pago</h4>
+                    @if (!pedido.pagado) {
+                      <div class="botones-pago">
+                        <button (click)="marcarPagado(pedido, 'Efectivo')" [disabled]="procesando() === pedido.id">💵 Efectivo</button>
+                        <button (click)="marcarPagado(pedido, 'Tarjeta')" [disabled]="procesando() === pedido.id">💳 Tarjeta</button>
+                        <button (click)="marcarPagado(pedido, 'Nequi/Daviplata')" [disabled]="procesando() === pedido.id">📱 Nequi</button>
+                        <button (click)="marcarPagado(pedido, 'Transferencia')" [disabled]="procesando() === pedido.id">🏦 Transferencia</button>
+                      </div>
+                    } @else {
+                      <div class="pagado-info-box" [class.efectivo]="pedido.metodo_pago === 'Efectivo'" [class.tarjeta]="pedido.metodo_pago === 'Tarjeta' || pedido.metodo_pago === 'Transferencia'" [class.nequi]="pedido.metodo_pago === 'Nequi/Daviplata'">
+                        <span class="pagado-info-emoji">{{ emojiMetodoPago(pedido.metodo_pago) }}</span>
+                        <div>
+                          <strong>✅ Pagado</strong>
+                          <small>{{ pedido.metodo_pago }}</small>
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <!-- 👁️ Vista de solo lectura para empleados -->
+                    <h4>🛵 Domiciliario asignado</h4>
                     @if (pedido.domiciliario_id) {
                       <div class="domiciliario-actual">
-                        <span>Asignado actualmente:</span>
+                        <span>Asignado:</span>
                         <strong>🛵 {{ nombreDomiciliario(pedido) }}</strong>
                       </div>
+                    } @else {
+                      <p class="info-solo-lectura">Sin domiciliario asignado</p>
                     }
-                    <select
-                      [value]="pedido.domiciliario_id ?? ''"
-                      (change)="asignarDomiciliario(pedido, $event)"
-                      class="select-domiciliario"
-                      [disabled]="procesando() === pedido.id"
-                    >
-                      <option value="">Sin asignar</option>
-                      @for (dom of domiciliariosDisponibles(); track dom.id) {
-                        <option [value]="dom.id" [selected]="dom.id === pedido.domiciliario_id">
-                          {{ dom.nombre }}
-                        </option>
-                      }
-                    </select>
-                  </div>
 
-                  <h4>🔄 Cambiar estado</h4>
-                  <div class="botones-estado">
-                    @for (estado of estadosPedido; track estado) {
-                      <button
-                        class="btn-estado"
-                        [class.activo]="pedido.estado === estado"
-                        [style.--color-estado]="pedidosService.colorEstado(estado)"
-                        [disabled]="procesando() === pedido.id"
-                        (click)="cambiarEstado(pedido, estado)"
+                    <h4>📋 Estado actual</h4>
+                    <div class="estado-solo-lectura">
+                      <span
+                        class="estado-badge"
+                        [style.--color-estado]="pedidosService.colorEstado(pedido.estado)"
                       >
-                        {{ pedidosService.textoEstado(estado) }}
-                      </button>
-                    }
-                  </div>
+                        {{ pedidosService.textoEstado(pedido.estado) }}
+                      </span>
+                    </div>
 
-                  <h4>💰 Pago</h4>
-                  @if (!pedido.pagado) {
-                    <div class="botones-pago">
-                      <button (click)="marcarPagado(pedido, 'Efectivo')" [disabled]="procesando() === pedido.id">💵 Efectivo</button>
-                      <button (click)="marcarPagado(pedido, 'Tarjeta')" [disabled]="procesando() === pedido.id">💳 Tarjeta</button>
-                      <button (click)="marcarPagado(pedido, 'Nequi/Daviplata')" [disabled]="procesando() === pedido.id">📱 Nequi</button>
-                      <button (click)="marcarPagado(pedido, 'Transferencia')" [disabled]="procesando() === pedido.id">🏦 Transferencia</button>
-                    </div>
-                  } @else {
-                    <div class="pagado-info-box" [class.efectivo]="pedido.metodo_pago === 'Efectivo'" [class.tarjeta]="pedido.metodo_pago === 'Tarjeta' || pedido.metodo_pago === 'Transferencia'" [class.nequi]="pedido.metodo_pago === 'Nequi/Daviplata'">
-                      <span class="pagado-info-emoji">{{ emojiMetodoPago(pedido.metodo_pago) }}</span>
-                      <div>
-                        <strong>✅ Pagado</strong>
-                        <small>{{ pedido.metodo_pago }}</small>
+                    <h4>💰 Estado de pago</h4>
+                    @if (!pedido.pagado) {
+                      <p class="info-solo-lectura">⏳ Pendiente de pago</p>
+                    } @else {
+                      <div class="pagado-info-box" [class.efectivo]="pedido.metodo_pago === 'Efectivo'" [class.tarjeta]="pedido.metodo_pago === 'Tarjeta' || pedido.metodo_pago === 'Transferencia'" [class.nequi]="pedido.metodo_pago === 'Nequi/Daviplata'">
+                        <span class="pagado-info-emoji">{{ emojiMetodoPago(pedido.metodo_pago) }}</span>
+                        <div>
+                          <strong>✅ Pagado</strong>
+                          <small>{{ pedido.metodo_pago }}</small>
+                        </div>
                       </div>
-                    </div>
+                    }
                   }
                 </div>
               </div>

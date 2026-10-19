@@ -32,8 +32,16 @@ export class Pedidos implements OnInit, OnDestroy {
   domiciliariosDisponibles = signal<Domiciliario[]>([]);
   canjesInfo = signal<Map<number, InfoCanje>>(new Map());
 
+  // 🆕 Perfil del usuario autenticado (para detectar rol)
+  perfilUsuario = signal<{ rol: string } | null>(null);
+
   fechaSeleccionada = signal<string>(this.hoyLocal());
   verHistorico = signal(false);
+
+  // 🆕 Detectar si el usuario es empleado (solo lectura)
+  esEmpleado = computed(() => {
+    return this.perfilUsuario()?.rol === 'empleado';
+  });
 
   private intervalo?: ReturnType<typeof setInterval>;
 
@@ -72,11 +80,8 @@ export class Pedidos implements OnInit, OnDestroy {
     return lista;
   });
 
-    // 💰 COBROS POR MÉTODO DE PAGO DEL DÍA (excluye cancelados)
   cobrosDia = computed(() => {
     const lista = this.pedidosFecha();
-
-    // ✅ Solo cuenta como cobro si está PAGADO y NO fue cancelado
     const pagados = lista.filter((p) => p.pagado && p.estado !== 'cancelado');
     const sinPagar = lista.filter((p) => !p.pagado && p.estado !== 'cancelado');
 
@@ -131,6 +136,7 @@ export class Pedidos implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.pedidosService.cargarPedidos();
     this.cargarDomiciliarios();
+    this.cargarPerfilUsuario();  // ← Carga el rol del usuario autenticado
     this.egresosService.cargar(this.hoyLocal());
     this.intervalo = setInterval(() => this.pedidosService.cargarPedidos(), 30000);
   }
@@ -147,6 +153,22 @@ export class Pedidos implements OnInit, OnDestroy {
     this.domiciliariosDisponibles.set((data as Domiciliario[]) ?? []);
   }
 
+  // 🆕 Carga el rol del usuario autenticado desde la tabla perfiles
+  async cargarPerfilUsuario(): Promise<void> {
+    const usuario = this.auth.usuario();
+    if (!usuario?.id) return;
+
+    const { data } = await this.supabase.client
+      .from('perfiles')
+      .select('rol')
+      .eq('id', usuario.id)
+      .maybeSingle();
+
+    if (data) {
+      this.perfilUsuario.set({ rol: (data as any).rol });
+    }
+  }
+
   nombreDomiciliario(pedido: Pedido): string {
     if (!pedido.domiciliario_id) return '';
     const dom = this.domiciliariosDisponibles().find((d) => d.id === pedido.domiciliario_id);
@@ -154,6 +176,7 @@ export class Pedidos implements OnInit, OnDestroy {
   }
 
   async asignarDomiciliario(pedido: Pedido, evento: Event): Promise<void> {
+    if (this.esEmpleado()) return; // 🚫 Bloqueado para empleados
     const id = (evento.target as HTMLSelectElement).value || null;
     this.procesando.set(pedido.id);
     const { error } = await this.supabase.client
@@ -175,7 +198,6 @@ export class Pedidos implements OnInit, OnDestroy {
     return !!(pedido as any).codigo_canje;
   }
 
-  // 🏷️ NUEVO: detecta si el pedido viene de una promoción
   tienePromo(pedido: Pedido): boolean {
     return !!(pedido as any).promo_nombre;
   }
@@ -267,6 +289,7 @@ export class Pedidos implements OnInit, OnDestroy {
   }
 
   async avanzarEstado(pedido: Pedido): Promise<void> {
+    if (this.esEmpleado()) return; // 🚫 Bloqueado para empleados
     const sig = this.siguienteEstado(pedido.estado);
     if (sig) await this.cambiarEstado(pedido, sig);
   }
@@ -284,6 +307,7 @@ export class Pedidos implements OnInit, OnDestroy {
   }
 
   async cambiarEstado(pedido: Pedido, estado: EstadoPedido): Promise<void> {
+    if (this.esEmpleado()) return; // 🚫 Bloqueado para empleados
     if (pedido.estado === estado) return;
     if (estado === 'cancelado') {
       if (!confirm(`¿Cancelar el pedido #${pedido.id}?`)) return;
@@ -295,6 +319,7 @@ export class Pedidos implements OnInit, OnDestroy {
   }
 
   async marcarPagado(pedido: Pedido, metodo: string): Promise<void> {
+    if (this.esEmpleado()) return; // 🚫 Bloqueado para empleados
     this.procesando.set(pedido.id);
     const ok = await this.pedidosService.marcarComoPagado(pedido.id, metodo);
     this.procesando.set(null);
@@ -328,6 +353,7 @@ export class Pedidos implements OnInit, OnDestroy {
   }
 
   enviarWhatsapp(pedido: Pedido, tipo: 'recibido' | 'camino' | 'entregado'): void {
+    if (this.esEmpleado()) return; // 🚫 Bloqueado para empleados
     const config = this.configService.config();
     const plantilla =
       tipo === 'recibido' ? config.plantilla_recibido :
@@ -345,15 +371,15 @@ export class Pedidos implements OnInit, OnDestroy {
       .split('{direccion}').join(pedido.direccion)
       .split('{negocio}').join('Sabrositas');
   }
+
   esProgramado(pedido: Pedido): boolean {
-  return !!(pedido as any).programado_para;
-}
+    return !!(pedido as any).programado_para;
+  }
 
-textoProgramado(pedido: Pedido): string {
-  const fecha = new Date((pedido as any).programado_para);
-  return fecha.toLocaleString('es-CO', {
-    day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true
-  });
+  textoProgramado(pedido: Pedido): string {
+    const fecha = new Date((pedido as any).programado_para);
+    return fecha.toLocaleString('es-CO', {
+      day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  }
 }
-}
-

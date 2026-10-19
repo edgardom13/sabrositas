@@ -1,6 +1,11 @@
 <div class="emp-page">
 
   <header class="emp-topbar">
+    <!-- Hamburguesa mobile -->
+    <button class="emp-hamburger" (click)="toggleSidebar()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+
     <div class="emp-marca">
       <img src="img/logo.png" alt="Sabrositas" class="emp-logo" />
       <div>
@@ -21,8 +26,56 @@
     </div>
   </header>
 
+  <!-- Overlay móvil -->
+  @if (sidebarAbierto()) {
+    <div class="emp-sidebar-overlay" (click)="toggleSidebar()"></div>
+  }
+
+  <!-- Sidebar (desktop visible, móvil drawer) -->
+  <aside class="emp-sidebar" [class.abierto]="sidebarAbierto()">
+    <nav class="emp-nav">
+      <button
+        class="emp-nav-item"
+        [class.activo]="vista() === 'pos'"
+        (click)="cambiarVista('pos')">
+        <span class="emp-nav-icon">🛒</span>
+        <span class="emp-nav-label">Punto de venta</span>
+      </button>
+
+      <button
+        class="emp-nav-item"
+        [class.activo]="vista() === 'pedidos'"
+        (click)="cambiarVista('pedidos')">
+        <span class="emp-nav-icon">📋</span>
+        <span class="emp-nav-label">Pedidos</span>
+      </button>
+    </nav>
+  </aside>
+
   <main class="emp-contenido">
-    <app-admin-pos />
+    @if (vista() === 'pos') {
+      <app-admin-pos />
+    } @else {
+      <app-pedidos />
+    }
   </main>
+
+  <!-- Bottom nav solo móvil -->
+  <nav class="emp-bottom-nav">
+    <button
+      class="emp-bnav-item"
+      [class.activo]="vista() === 'pos'"
+      (click)="cambiarVista('pos')">
+      <span class="emp-bnav-icon">🛒</span>
+      <span class="emp-bnav-label">POS</span>
+    </button>
+    <button
+      class="emp-bnav-item"
+      [class.activo]="vista() === 'pedidos'"
+      (click)="cambiarVista('pedidos')">
+      <span class="emp-bnav-icon">📋</span>
+      <span class="emp-bnav-label">Pedidos</span>
+    </button>
+  </nav>
 
 </div>
