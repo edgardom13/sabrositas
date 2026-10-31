@@ -26,7 +26,6 @@ export class AdminInversor implements OnInit {
   retiroForm = { monto: 0, concepto: '', fecha: this.hoy() };
   editForm = signal({ nombre: '', capital_invertido: 0, porcentaje_ganancias: 0, fecha_inicio: '', notas: '' });
 
-    // Períodos del reparto (tipado estricto para el template)
   periodosReparto: { v: 'hoy' | 'semana' | 'mes' | 'ano' | 'historico'; l: string }[] = [
     { v: 'hoy',       l: '📅 Hoy' },
     { v: 'semana',    l: '🗓️ Semana' },
@@ -34,7 +33,7 @@ export class AdminInversor implements OnInit {
     { v: 'ano',       l: '🌟 Año' },
     { v: 'historico', l: '♾️ Histórico' },
   ];
-  
+
   async ngOnInit() {
     await this.stats.cargar();
     await this.inv.cargarInversores();
@@ -68,11 +67,12 @@ export class AdminInversor implements OnInit {
     return r;
   });
 
+  // ✅ Pedidos del inversor: solo ENTREGADOS y PAGADOS
   pedidosDelInversor = computed(() => {
     const inicio = this.seleccionado()?.fecha_inicio;
     const desde = inicio ? new Date(inicio + 'T00:00:00').getTime() : 0;
     return this.stats.pedidos().filter(
-      (p) => p.estado === 'entregado' && new Date(p.creado_en).getTime() >= desde
+      (p) => p.estado === 'entregado' && p.pagado === true && new Date(p.creado_en).getTime() >= desde
     );
   });
 
@@ -103,14 +103,15 @@ export class AdminInversor implements OnInit {
   pedidosPeriodoReparto = computed(() => {
     const r = this.rangoReparto();
     return this.stats.pedidos().filter((p) => {
-      if (p.estado !== 'entregado') return false;
+      if (p.estado !== 'entregado' || !p.pagado) return false; // ✅ entregado Y pagado
       const f = new Date(p.creado_en);
       return f >= r.desde && f <= r.hasta;
     });
   });
 
+  // ✅ Usa p.total (incluye domicilio) en lugar de subtotal - descuento
   ventasPeriodo = computed(() =>
-    this.pedidosPeriodoReparto().reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0)
+    this.pedidosPeriodoReparto().reduce((t, p) => t + Number(p.total), 0)
   );
 
   egresosPeriodo = computed(() => {
@@ -130,7 +131,6 @@ export class AdminInversor implements OnInit {
     return this.inv.inversores().map((socio) => {
       const pct = Number(socio.porcentaje_ganancias);
       const corresponde = ganancia * (pct / 100);
-      // Pagos del socio (incluye retiros del dueño)
       const pagosSocio = this.inv.pagos()
         .filter((p) => p.inversor_id === socio.id || (socio.es_dueno && p.tipo === 'retiro_dueño'));
       const pagado = pagosSocio.reduce((t, p) => t + Number(p.monto), 0);
@@ -140,10 +140,11 @@ export class AdminInversor implements OnInit {
   });
 
   // ===== TESORERÍA (flujo global) =====
+  // ✅ CORREGIDO: incluye domicilio (p.total) y filtra pagados
   gananciaHistorica = computed(() => {
     const ventas = this.stats.pedidos()
-      .filter((p) => p.estado === 'entregado')
-      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+      .filter((p) => p.estado === 'entregado' && p.pagado === true)
+      .reduce((t, p) => t + Number(p.total), 0);
     const egresos = this.stats.egresos().reduce((t, e) => t + Number(e.monto), 0);
     return Math.max(0, ventas - egresos);
   });
@@ -175,12 +176,32 @@ export class AdminInversor implements OnInit {
 
   saldoEnCaja = computed(() => this.gananciaHistorica() - this.totalRetiradoGlobal());
 
-  // ===== GANANCIAS DEL SELECCIONADO =====
+    // 💳 Desglose de cobros por método de pago (entregados y pagados)
+  cobrosPorMetodo = computed(() => {
+    const pagados = this.stats.pedidos().filter((p) => p.estado === 'entregado' && p.pagado === true);
+    const efectivo = pagados.filter((p) => (p.metodo_pago ?? '').includes('Efectivo'));
+    const tarjeta  = pagados.filter((p) => ['Tarjeta', 'Transferencia'].includes(p.metodo_pago ?? ''));
+    const nequi    = pagados.filter((p) => (p.metodo_pago ?? '').includes('Nequi'));
+    const total    = pagados.reduce((t, p) => t + Number(p.total), 0);
+    return {
+      efectivo: efectivo.reduce((t, p) => t + Number(p.total), 0),
+      tarjeta:  tarjeta.reduce((t, p) => t + Number(p.total), 0),
+      nequi:    nequi.reduce((t, p) => t + Number(p.total), 0),
+      total,
+    };
+  });
+
+  pctDe(monto: number): number {
+    const total = this.cobrosPorMetodo().total;
+    return total > 0 ? Math.round((monto / total) * 100) : 0;
+  }
+
+  // ===== GANANCIAS DEL SELECCIONADO (todos corregidos) =====
   gananciaHoySel = computed(() => {
     const hoy = this.hoy();
     const ventas = this.pedidosDelInversor()
       .filter((p) => this.esMismoDia(p.creado_en, hoy))
-      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+      .reduce((t, p) => t + Number(p.total), 0);
     const egresos = this.stats.egresos()
       .filter((e) => e.fecha === hoy)
       .reduce((t, e) => t + Number(e.monto), 0);
@@ -194,7 +215,7 @@ export class AdminInversor implements OnInit {
         const f = new Date(p.creado_en);
         return f.getMonth() === ahora.getMonth() && f.getFullYear() === ahora.getFullYear();
       })
-      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+      .reduce((t, p) => t + Number(p.total), 0);
     const egresos = this.stats.egresos()
       .filter((e) => {
         const f = this.parseFecha(e.fecha);
@@ -208,7 +229,7 @@ export class AdminInversor implements OnInit {
     const anio = new Date().getFullYear();
     const ventas = this.pedidosDelInversor()
       .filter((p) => new Date(p.creado_en).getFullYear() === anio)
-      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+      .reduce((t, p) => t + Number(p.total), 0);
     const egresos = this.stats.egresos()
       .filter((e) => this.parseFecha(e.fecha).getFullYear() === anio)
       .reduce((t, e) => t + Number(e.monto), 0);
@@ -217,7 +238,7 @@ export class AdminInversor implements OnInit {
 
   gananciaHistoricaSel = computed(() => {
     const ventas = this.pedidosDelInversor()
-      .reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0);
+      .reduce((t, p) => t + Number(p.total), 0);
     const egresos = this.stats.egresos().reduce((t, e) => t + Number(e.monto), 0);
     return Math.max(0, ventas - egresos) * this.pct();
   });
@@ -249,8 +270,9 @@ export class AdminInversor implements OnInit {
     return set.size;
   });
 
+  // ✅ Usa p.total (incluye domicilio)
   recogidoTotal = computed(() =>
-    this.pedidosDelInversor().reduce((t, p) => t + (Number(p.subtotal) - Number(p.descuento)), 0)
+    this.pedidosDelInversor().reduce((t, p) => t + Number(p.total), 0)
   );
 
   promedioDiaTrabajado = computed(() => {

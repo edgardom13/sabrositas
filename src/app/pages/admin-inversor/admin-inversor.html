@@ -5,6 +5,16 @@
       <h2>💼 Panel Financiero de Socios</h2>
       <p class="inv-sub">Control integral de inversiones, ganancias, retiros y tesorería</p>
     </div>
+    <div class="inv-header-kpis">
+      <div class="header-kpi">
+        <small>GANANCIA HISTÓRICA</small>
+        <strong>{{ formatearPrecio(gananciaHistorica()) }}</strong>
+      </div>
+      <div class="header-kpi" [class.negativo]="saldoEnCaja() < 0">
+        <small>SALDO EN CAJA</small>
+        <strong>{{ formatearPrecio(saldoEnCaja()) }}</strong>
+      </div>
+    </div>
   </div>
 
   <!-- SELECTOR -->
@@ -72,7 +82,7 @@
 
         <div class="reparto-resumen">
           <div class="resumen-card"><span class="resumen-icono">💵</span>
-            <div><small>VENTAS</small><strong>{{ formatearPrecio(ventasPeriodo()) }}</strong></div>
+            <div><small>VENTAS (incl. domicilios)</small><strong>{{ formatearPrecio(ventasPeriodo()) }}</strong></div>
           </div>
           <div class="resumen-card"><span class="resumen-icono">💸</span>
             <div><small>EGRESOS</small><strong>{{ formatearPrecio(egresosPeriodo()) }}</strong></div>
@@ -97,11 +107,16 @@
                   @if (r.socio.es_dueno) { <small>Trabajo + gestión</small> }
                 </div>
               </div>
-              <div class="fila-pct"><strong>{{ r.pct }}%</strong></div>
+              <div class="fila-pct">
+                <strong>{{ r.pct }}%</strong>
+                <div class="barra-pct"><span [style.width.%]="r.pct"></span></div>
+              </div>
               <div class="fila-corresponde"><strong>{{ formatearPrecio(r.corresponde) }}</strong></div>
               <div class="fila-pagado"><strong>{{ formatearPrecio(r.pagado) }}</strong></div>
               <div class="fila-pendiente">
-                <strong [class.negativo]="r.pendiente > 0">{{ formatearPrecio(r.pendiente) }}</strong>
+                <strong [class.negativo]="r.pendiente > 0" [class.positivo]="r.pendiente === 0">
+                  {{ formatearPrecio(r.pendiente) }}
+                </strong>
               </div>
             </div>
           }
@@ -109,7 +124,7 @@
 
         <div class="reparto-nota">
           <strong>💡 Cómo funciona:</strong>
-          <p>La <b>ganancia neta</b> (ventas − egresos operativos) se reparte según el % acordado. Los domicilios NO se incluyen (son ingreso externo del domiciliario). Cada retiro se registra en <b>Tesorería</b> y descuenta del disponible de cada socio.</p>
+          <p>La <b>ganancia neta</b> (ventas incluyendo domicilios − egresos operativos) se reparte según el % acordado. Si pagas a domiciliarios por entrega, regístralo como <b>egreso</b> para que se descuente. Cada retiro se registra en <b>Tesorería</b> y descuenta del disponible de cada socio.</p>
         </div>
       </div>
     }
@@ -142,11 +157,48 @@
           <div class="tes-kpi" [class.saldo-positivo]="saldoEnCaja() >= 0" [class.saldo-negativo]="saldoEnCaja() < 0">
             <span class="kpi-icono">🏦</span>
             <div>
-              <small>SALDO EN CAJA</small>
+              <small>SALDO CONTABLE</small>
               <strong>{{ formatearPrecio(saldoEnCaja()) }}</strong>
               <span class="kpi-sub">Disponible para retiros/operación</span>
             </div>
           </div>
+        </div>
+
+        <!-- 💳 NUEVO: desglose por método de pago -->
+        <div class="metodo-section">
+          <h4>💳 Cobros por método de pago (histórico)</h4>
+          <p class="metodo-hint">Todo lo cobrado entra a la ganancia, sin importar el método. Aquí ves dónde está el dinero físicamente.</p>
+          <div class="metodo-grid">
+            <div class="metodo-card efectivo">
+              <span class="metodo-icono">💵</span>
+              <div class="metodo-info">
+                <small>EFECTIVO (caja física)</small>
+                <strong>{{ formatearPrecio(cobrosPorMetodo().efectivo) }}</strong>
+                <span class="metodo-pct">{{ pctDe(cobrosPorMetodo().efectivo) }}% del total</span>
+              </div>
+            </div>
+            <div class="metodo-card tarjeta">
+              <span class="metodo-icono">💳</span>
+              <div class="metodo-info">
+                <small>TARJETA / TRANSFERENCIA</small>
+                <strong>{{ formatearPrecio(cobrosPorMetodo().tarjeta) }}</strong>
+                <span class="metodo-pct">{{ pctDe(cobrosPorMetodo().tarjeta) }}% del total</span>
+              </div>
+            </div>
+            <div class="metodo-card nequi">
+              <span class="metodo-icono">📱</span>
+              <div class="metodo-info">
+                <small>NEQUI / DAVIPLATA</small>
+                <strong>{{ formatearPrecio(cobrosPorMetodo().nequi) }}</strong>
+                <span class="metodo-pct">{{ pctDe(cobrosPorMetodo().nequi) }}% del total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nota-aclaratoria">
+          <strong>⚠️ Aclaración importante:</strong>
+          <p>El <b>saldo contable</b> es la ganancia neta menos los retiros de socios (dinero disponible para repartir). <b>NO es el efectivo físico en la registradora</b>: el efectivo físico equivale a los cobros en EFECTIVO menos los gastos pagados en efectivo. El dinero de tarjeta/Nequi está en tus cuentas bancarias, no en la caja.</p>
         </div>
 
         <div class="tes-grid">
@@ -188,7 +240,7 @@
           <div class="tes-retiro-form">
             <h4>👑 Registrar retiro del dueño</h4>
             <p class="tes-retiro-hint">
-              Al retirar, el monto se descuenta del <b>saldo en caja</b> y queda registrado como "Retiro del dueño".
+              Al retirar, el monto se descuenta del <b>saldo contable</b> y queda registrado como "Retiro del dueño".
               <b>No es un egreso operativo</b>: no afecta la ganancia neta del negocio.
             </p>
             <div class="form-grid">
@@ -198,7 +250,7 @@
             </div>
             <button class="btn-guardar" (click)="registrarRetiroDueno()">💰 Registrar retiro</button>
             @if (saldoEnCaja() < retiroForm.monto && retiroForm.monto > 0) {
-              <div class="aviso">⚠️ Estás retirando más del saldo en caja actual.</div>
+              <div class="aviso">⚠️ Estás retirando más del saldo contable actual.</div>
             }
           </div>
         }
@@ -232,8 +284,8 @@
         <div class="reparto-nota">
           <strong>💡 Impacto financiero de cada retiro:</strong>
           <p>
-            Cada retiro <b>reduce el saldo en caja</b> pero <b>NO toca la ganancia neta</b> ni los egresos operativos.
-            Es una <b>distribución de utilidades</b> entre socios. El saldo en caja debe ser siempre ≥ 0 para que la operación sea sana.
+            Cada retiro <b>reduce el saldo contable</b> pero <b>NO toca la ganancia neta</b> ni los egresos operativos.
+            Es una <b>distribución de utilidades</b> entre socios. El saldo contable debe ser siempre ≥ 0 para que la operación sea sana.
           </p>
         </div>
       </div>
@@ -373,8 +425,8 @@
 
           <p class="hint">
             {{ seleccionado()?.es_dueno
-              ? 'Los retiros del dueño son distribución de utilidades. Reducen el saldo en caja pero NO afectan la ganancia neta.'
-              : 'Los pagos a inversores reducen su saldo pendiente y el saldo en caja del negocio.' }}
+              ? 'Los retiros del dueño son distribución de utilidades. Reducen el saldo contable pero NO afectan la ganancia neta.'
+              : 'Los pagos a inversores reducen su saldo pendiente y el saldo contable del negocio.' }}
           </p>
         </div>
 

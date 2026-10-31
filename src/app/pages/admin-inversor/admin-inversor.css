@@ -618,3 +618,101 @@ body.claro .tes-retiro-form h4 { color: #b45309 !important; }
 body.claro .tes-retiro-hint { color: rgba(58, 36, 16, 0.75) !important; }
 body.claro .tes-retiro-hint b { color: #b45309 !important; }
 body.claro .mov-monto strong, body.claro .pago-monto strong { color: #2f9e44 !important; }
+
+/* ===== KPIs en el header ===== */
+.inv-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.inv-header-kpis { display: flex; gap: 12px; flex-wrap: wrap; }
+.header-kpi {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,193,7,.25);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.header-kpi small { font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,.55); }
+.header-kpi strong { font-size: 18px; color: #51cf66; font-family: 'JetBrains Mono', monospace; }
+.header-kpi.negativo strong { color: #ff8080; }
+
+/* ===== Barra de progreso en tabla de reparto ===== */
+.barra-pct {
+  width: 70px; height: 6px;
+  background: rgba(255,255,255,.1);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.barra-pct span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #ffd54f, #ffb300);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+.fila-pendiente strong.positivo { color: #51cf66; }
+
+/* ===== 💳 Cobros por método de pago ===== */
+.metodo-section {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,193,7,.2);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 18px 0;
+}
+.metodo-section h4 { margin: 0 0 4px; color: #ffd54f; font-size: 15px; letter-spacing: .5px; }
+.metodo-hint { margin: 0 0 14px; font-size: 12.5px; color: rgba(255,255,255,.6); }
+.metodo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.metodo-card {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(0,0,0,.25);
+  border-radius: 12px;
+  border-left: 4px solid transparent;
+  padding: 14px;
+}
+.metodo-icono { font-size: 26px; }
+.metodo-info { display: flex; flex-direction: column; gap: 2px; }
+.metodo-info small { font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,.55); }
+.metodo-info strong { font-size: 17px; font-family: 'JetBrains Mono', monospace; color: #fff; }
+.metodo-pct { font-size: 11px; color: rgba(255,255,255,.5); }
+.metodo-card.efectivo { border-left-color: #51cf66; }
+.metodo-card.efectivo strong { color: #51cf66; }
+.metodo-card.tarjeta { border-left-color: #007bff; }
+.metodo-card.tarjeta strong { color: #5c9cff; }
+.metodo-card.nequi { border-left-color: #e91e63; }
+.metodo-card.nequi strong { color: #f06292; }
+
+/* ===== Nota aclaratoria ===== */
+.nota-aclaratoria {
+  background: rgba(23,162,184,.1);
+  border: 1.5px solid rgba(23,162,184,.4);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin: 14px 0;
+}
+.nota-aclaratoria strong { color: #17a2b8; font-size: 13.5px; }
+.nota-aclaratoria p { margin: 6px 0 0; font-size: 12.5px; color: rgba(255,255,255,.75); line-height: 1.5; }
+
+/* ===== Responsive ===== */
+@media (max-width: 800px) {
+  .metodo-grid { grid-template-columns: 1fr; }
+  .inv-header { flex-direction: column; }
+  .inv-header-kpis { width: 100%; }
+  .header-kpi { flex: 1; }
+}
+
+/* ===== Modo claro ===== */
+body.claro .header-kpi { background: #fff; border-color: rgba(180,90,20,.25); }
+body.claro .header-kpi small { color: rgba(58,36,16,.6); }
+body.claro .header-kpi strong { color: #2f9e44; }
+body.claro .header-kpi.negativo strong { color: #c92a2a; }
+body.claro .barra-pct { background: rgba(58,36,16,.12); }
+body.claro .metodo-section { background: rgba(180,90,20,.04); border-color: rgba(180,90,20,.2); }
+body.claro .metodo-section h4 { color: #b45309; }
+body.claro .metodo-hint { color: rgba(58,36,16,.65); }
+body.claro .metodo-card { background: #fff; }
+body.claro .metodo-info small { color: rgba(58,36,16,.55); }
+body.claro .metodo-info strong { color: #3a2410; }
+body.claro .metodo-card.efectivo strong { color: #2f9e44; }
+body.claro .metodo-card.tarjeta strong { color: #1976d2; }
+body.claro .metodo-card.nequi strong { color: #c2185b; }
+body.claro .nota-aclaratoria { background: rgba(23,162,184,.07); border-color: rgba(23,162,184,.35); }
+body.claro .nota-aclaratoria strong { color: #117885; }
+body.claro .nota-aclaratoria p { color: rgba(58,36,16,.75); }
